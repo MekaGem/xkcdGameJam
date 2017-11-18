@@ -2,6 +2,7 @@ import { Card, CardState, generate_cards } from "card";
 import { PlayerState, generate_players } from "player";
 import { randomInt, clone_object } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
+import { TEXT_FONT } from "./constants";
 
 class Hand {
     cards: Array<Card>;
@@ -56,14 +57,14 @@ class GameState {
     // Map from id to the card;
     id_to_card: { [key: number]: Card };
 
-    // Container holding cards in hands.
-    hand_containers: Array<createjs.Container>;
-
     // Container showing cards in play.
     battlefield_container: createjs.Container;
 
     // Is computer making a move now.
     computer_thinking: boolean;
+
+    // Current attack string.
+    attack_string_text: createjs.Text;
 
     constructor(game_field: createjs.Container) {
         this.current_player = FIRST_PLAYER;
@@ -78,10 +79,13 @@ class GameState {
 
         this.player_states = generate_players();
 
-        this.computer_thinking = false;
+        this.selected_cards = [];
 
         this.id_to_card = {};
-        this.selected_cards = [];
+
+        this.computer_thinking = false;
+
+        this.attack_string_text = new createjs.Text("--------------", TEXT_FONT, "red");
 
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             // cards in play
@@ -116,6 +120,7 @@ class GameState {
         verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
+        verticalLayout.addItem(this.attack_string_text);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
         verticalLayout.addItem(this.player_states[FIRST_PLAYER].container);
@@ -240,6 +245,7 @@ class GameState {
                         card.deselect();
                     }
                 }
+                this.attack_string_text.text = this.get_attack_string();
             } else if (card.state === CardState.InHand) {
                 let cards = this.cards_inhand[owner].cards;
                 if (card.selected_for_swap) {
@@ -265,11 +271,16 @@ class GameState {
         }
     }
 
-    attack(card: Card): void {
+    get_attack_string(): string {
         let attack_string = "";
         for (let i = 0; i < this.selected_cards.length; ++i) {
             attack_string += this.selected_cards[i].attack;
         }
+        return attack_string;
+    }
+
+    attack(card: Card): void {
+        let attack_string = this.get_attack_string();
         console.log(`Attacking "${card.dna}" with "${attack_string}"`);
 
         let matches = card.dna.match(new RegExp(attack_string, "g"));
@@ -290,6 +301,7 @@ class GameState {
             this.selected_cards[i].deselect();
         }
         this.selected_cards = [];
+        this.attack_string_text.text = "";
     }
 };
 
