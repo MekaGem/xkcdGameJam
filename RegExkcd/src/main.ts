@@ -2,6 +2,7 @@ import {Card, CardState, generate_cards} from "card";
 import {PlayerState, generate_players} from "player";
 import {randomInt} from "utils";
 import * as layout from "layout";
+import { TiledLayout, LayoutDirection } from "layout";
 
 class Hand {
     cards: Array<Card>;
@@ -77,38 +78,31 @@ class GameState {
         this.id_to_card = {};
         this.selected_cards = [];
 
-        this.battlefield_container = new createjs.Container();
         for (let i = 0; i < PLAYER_COUNT; ++i) {
-            {
-                let cards = this.cards_inplay[i].cards;
-                let container = this.cards_inplay[i].container;
-                for (let j = 0; j < cards.length; ++j) {
-                    cards[j].container.on("click", (event) => {
-                        this.select_card(i, cards[j].id, false);
-                    });
-                    this.add_card(cards[j]);
-                }
-                this.battlefield_container.addChild(container);
+            let cards = this.cards_inplay[i].cards;
+            let container = this.cards_inplay[i].container;
+            for (let j = 0; j < cards.length; ++j) {
+                cards[j].container.on("click", (event) => {
+                    this.select_card(i, cards[j].id, false);
+                });
+                this.add_card(cards[j]);
             }
 
-            {
+            if (i == SECOND_PLAYER) {
                 let cards = this.cards_inhand[i].cards;
-                let container = this.cards_inhand[i].container;
-                this.battlefield_container.addChild(container);
+                for (let j = 0; j < cards.length; ++j) {
+                    cards[j].set_visible(false);
+                    console.log(i, j);
+                }
             }
         }
 
-        let containers_stack = Array<createjs.Container>();
-        containers_stack.push(this.cards_inhand[SECOND_PLAYER].container);
-        containers_stack.push(this.cards_inplay[SECOND_PLAYER].container);
-        containers_stack.push(this.cards_inplay[FIRST_PLAYER].container);
-        containers_stack.push(this.cards_inhand[FIRST_PLAYER].container);
-
-        let last_container_y = 0;
-        for (let container of containers_stack) {
-            container.y = last_container_y;
-            last_container_y += container.getBounds().height + 50;
-        }
+        let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 50);
+        verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container);
+        verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
+        verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
+        verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
+        this.battlefield_container = verticalLayout;
 
         game_field.addChild(this.battlefield_container);
     }

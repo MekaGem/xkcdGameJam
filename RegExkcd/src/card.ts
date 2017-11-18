@@ -36,9 +36,9 @@ export class Card {
     in_hand_card_envelope: createjs.Shape;
     container: createjs.Container;
 
-    container_in_play: createjs.Container;
-    container_in_hand: createjs.Container;
-    container_destroyed: createjs.Container;
+    visible: boolean;
+    container_shown: createjs.Container;
+    container_hidden: createjs.Container;
 
     // Unique card index.
     id: number;
@@ -51,9 +51,8 @@ export class Card {
         this.id = ++Card.card_count;
         this.selected = false;
 
-        this.container_in_play = new createjs.Container();
-        this.container_in_hand = new createjs.Container();
-        this.container_destroyed = new createjs.Container();
+        this.container_shown = new createjs.Container();
+        this.container_hidden = new createjs.Container();
 
         this.attack_text = new createjs.Text(this.attack, TEXT_FONT);
         this.attack_text.x += BORDER_SIZE;
@@ -83,17 +82,17 @@ export class Card {
         this.card_selection_number.x = card_width - 14;
         this.card_selection_number.y = this.attack_text.y;
 
-        this.container_in_play.addChild(this.in_play_card_envelope);
-        this.container_in_play.addChild(this.card_selection_number);
-        this.container_in_play.addChild(this.attack_text);
-        this.container_in_play.addChild(this.dna_text);
-        this.container_in_play.setBounds(0, 0, card_width, card_height);
+        this.container_shown.addChild(this.in_play_card_envelope);
+        this.container_shown.addChild(this.card_selection_number);
+        this.container_shown.addChild(this.attack_text);
+        this.container_shown.addChild(this.dna_text);
 
-        this.container_in_hand.addChild(this.in_hand_card_envelope);
-        this.container_in_hand.setBounds(0, 0, card_width, card_height);
+        this.container_hidden.addChild(this.in_hand_card_envelope);
 
         this.container = new createjs.Container();
+        this.container.setBounds(0, 0, card_width, card_height);
         this.change_state(CardState.InPlay);
+        this.set_visible(true);
     }
 
     select(index: number) {
@@ -122,15 +121,17 @@ export class Card {
     }
 
     change_state(state: CardState) {
-        if (this.state != state) {
-            this.state = state;
+        this.state = state;
+    }
+
+    set_visible(visible: boolean) {
+        if (this.visible != visible) {
+            this.visible = visible;
             this.container.removeAllChildren();
-            if (state == CardState.InPlay) {
-                this.container.addChild(this.container_in_play);
-            } else if (state == CardState.InHand) {
-                this.container.addChild(this.container_in_hand);
-            } else if (state == CardState.Destoyed) {
-                this.container.addChild(this.container_destroyed);
+            if (visible) {
+                this.container.addChild(this.container_shown);
+            } else {
+                this.container.addChild(this.container_hidden);
             }
         }
     }
