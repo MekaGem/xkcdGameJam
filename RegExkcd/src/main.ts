@@ -124,7 +124,8 @@ class InPlay {
 
 type PlayedCards = Array<Card>;
 
-const WORDS = ["foo", "bar", "baz", "qux"];
+// const WORDS = ["foo", "bar", "baz", "qux"];
+const WORDS = ["foo", "bar", "qux"];
 
 function generate_cards(card_count: number): Array<Card> {
     let cards = new Array<Card>(card_count);
