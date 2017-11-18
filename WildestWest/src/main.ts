@@ -8,9 +8,80 @@ let bounds: {
 let stage: createjs.Stage;
 
 let sand: Sand;
+let hero: Hero;
+
+let keys = {};
+
+document.onkeydown = function(e) {
+	keys[e.keyCode] = true;
+};
+document.onkeyup = function(e) {
+	delete keys[e.keyCode];
+};
+
+function up(): boolean {
+    return keys[87] || keys[38];
+}
+function down(): boolean {
+    return keys[83] || keys[40];
+}
+function left(): boolean {
+    return keys[65] || keys[37];
+}
+function right(): boolean {
+    return keys[68] || keys[39];
+}
 
 class Hero {
+    shape: createjs.Shape;
 
+    static bounds;
+
+    constructor() {
+        this.shape = new createjs.Shape();
+        this.shape.graphics.beginFill("gray").drawCircle(0, 0, 20);
+        this.shape.cache(-20,-20,40,40);
+
+        this.shape.x = bounds.width / 2;
+        this.shape.y = bounds.height - 50;
+
+        stage.addChild(this.shape);
+
+        Hero.bounds = {
+            left: 30,
+            right: bounds.width - 30,
+            top: bounds.height - 80,
+            bottom: bounds.height - 30
+        };
+    }
+
+    move() {
+        if (left()) {
+            this.shape.x -= 3;
+        }
+        if (right()) {
+            this.shape.x += 3;
+        }
+        if (up()) {
+            this.shape.y -= 3;
+        }
+        if (down()) {
+            this.shape.y += 3;
+        }
+
+        if (this.shape.x < Hero.bounds.left) {
+            this.shape.x = Hero.bounds.left;
+        }
+        if (this.shape.x > Hero.bounds.right) {
+            this.shape.x = Hero.bounds.right;
+        }
+        if (this.shape.y < Hero.bounds.top) {
+            this.shape.y = Hero.bounds.top;
+        }
+        if (this.shape.y > Hero.bounds.bottom) {
+            this.shape.y = Hero.bounds.bottom;
+        }
+    }
 }
 
 class Sand {
@@ -72,21 +143,24 @@ function main() {
 
     Sand.sandSheet = new createjs.SpriteSheet({
         images: ["sand.jpg"],
-        frames: {width:600, height:600, count:1, regX: 0, regY: 0, spacing:0, margin:0}
+        frames: {width: Sand.SIZE, height: Sand.SIZE, count: 1, regX: 0, regY: 0, spacing: 0, margin: 0}
     });
 
     let canvas = stage.canvas as HTMLCanvasElement;
     bounds = {width: canvas.width, height: canvas.height};
 
     sand = new Sand();
+    hero = new Hero();
+
     stage.update();
 
     createjs.Ticker.framerate = 60;
     createjs.Ticker.addEventListener("tick", tick);
 }
 
-function tick() {
+function tick(event) {
     sand.move(2);
+    hero.move();
 
     stage.update();
 }
