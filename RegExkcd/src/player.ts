@@ -1,4 +1,4 @@
-import { TEXT_FONT } from "./constants";
+import { HP_TEXT_FONT } from "./constants";
 
 const START_HP = 10;
 
@@ -16,7 +16,7 @@ export class PlayerState {
     container: createjs.Container;
 
     constructor() {
-        this.hp_text = new createjs.Text("", TEXT_FONT, "red");
+        this.hp_text = new createjs.Text("", HP_TEXT_FONT, "red");
         this.set_hp(START_HP);
         this.container = new createjs.Container();
         this.container.addChild(this.hp_text);
