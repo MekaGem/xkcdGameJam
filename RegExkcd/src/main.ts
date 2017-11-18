@@ -124,7 +124,8 @@ class InPlay {
 
 type PlayedCards = Array<Card>;
 
-const WORDS = ["foo", "bar", "baz", "qux"];
+// const WORDS = ["foo", "bar", "baz", "qux"];
+const WORDS = ["foo", "bar", "qux"];
 
 function generate_cards(card_count: number): Array<Card> {
     let cards = new Array<Card>(card_count);
@@ -144,6 +145,11 @@ const PLAYER_COUNT = 2;
 const FIRST_PLAYER = 0;
 const SECOND_PLAYER = 1;
 
+function wait(s: number) {
+    for (let i = 0; i < 1000000000 * s; ++i) {
+    }
+}
+
 class GameState {
     current_player: number;
     cards_inplay: Array<InPlay>;
@@ -161,12 +167,16 @@ class GameState {
     // Container showing cards in play.
     battlefield_container: createjs.Container;
 
+    computer_thinking: boolean;
+
     constructor(game_field: createjs.Container) {
         this.current_player = FIRST_PLAYER;
 
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
         this.cards_inplay[FIRST_PLAYER] = new InPlay(generate_cards(5));
         this.cards_inplay[SECOND_PLAYER] = new InPlay(generate_cards(5));
+
+        this.computer_thinking = false;
 
         this.id_to_card = {};
         this.selected_cards = [];
@@ -177,7 +187,7 @@ class GameState {
             let container = this.cards_inplay[i].container;
             for (let j = 0; j < cards.length; ++j) {
                 cards[j].container.on("click", (event) => {
-                    this.select_card(i, cards[j].id);
+                    this.select_card(i, cards[j].id, false);
                 });
                 this.add_card(cards[j]);
             }
@@ -198,8 +208,60 @@ class GameState {
         return this.id_to_card[card_id];
     }
 
-    select_card(player: number, card_id: number): void {
+    play_as_computer() {
+        this.computer_thinking = true;
+
+        let first_player_cards = this.cards_inplay[FIRST_PLAYER].cards;
+        let second_player_cards = this.cards_inplay[SECOND_PLAYER].cards;
+
+        let any_j = 0;
+        let any_k = 0;
+        for (let i = 0; i < second_player_cards.length + 1; ++i) {
+            for (let j = 0; j < second_player_cards.length; ++j) {
+                if (second_player_cards[j].state != CardState.InPlay) {
+                    continue;
+                }
+                any_j = j;
+                let attack_string = second_player_cards[j].attack;
+                if (i != second_player_cards.length) {
+                    if (second_player_cards[i].state != CardState.InPlay) {
+                        continue;
+                    }
+                    attack_string += second_player_cards[i].attack;
+                }
+                for (let k = 0; k < first_player_cards.length; ++k) {
+                    if (first_player_cards[k].state == CardState.InPlay) {
+                        any_k = k;
+                        if (first_player_cards[k].dna.indexOf(attack_string) != -1) {
+                            console.log(`Attacking ${i}, ${j}, ${k}`);
+                            this.select_card(SECOND_PLAYER, second_player_cards[j].id, true);
+                            let T = 1000;
+                            if (i != second_player_cards.length) {
+                                setTimeout(() => {
+                                    this.select_card(SECOND_PLAYER, second_player_cards[i].id, true);
+                                }, T);
+                                T += 1000;
+                            }
+                            setTimeout(() => {
+                                this.select_card(FIRST_PLAYER, first_player_cards[k].id, true);
+                                this.computer_thinking = false;
+                            }, T);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+        this.select_card(SECOND_PLAYER, second_player_cards[any_j].id, true);
+        this.select_card(FIRST_PLAYER, first_player_cards[any_k].id, true);
+        this.computer_thinking = false;
+    }
+
+    select_card(player: number, card_id: number, is_computer: boolean): void {
         console.log(`Selecting card (${player}, ${card_id})`);
+        if (this.computer_thinking && !is_computer) {
+            return;
+        }
 
         let card = this.get_card(card_id);
         if (player == this.current_player) {
@@ -220,6 +282,10 @@ class GameState {
                 if (this.selected_cards.length > 0) {
                     this.attack(card);
                     this.current_player = 1 - this.current_player;
+
+                    if (this.current_player == SECOND_PLAYER) {
+                        this.play_as_computer();
+                    }
                 }
             }
         }
