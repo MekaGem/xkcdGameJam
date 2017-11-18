@@ -14,8 +14,7 @@ const CARDS = [
     {pass: '******',                       regex: '[A-Z]'},
     {pass: 'b33sw1tht1r3s',                regex: '[A-Z]'},
     {pass: 'Huge ass-box',                 regex: '[A-Z]'},
-    {pass: 'WE RISE',                      regex: '[A-Z]'},
-    {pass: '\'); DROP TABLE Users;--',     regex: '\\w'},
+    {pass: 'WE RISE',                      regex: '\\s?[a-uC-E]'},
     {pass: 'DenverCoder9',                 regex: '\\w'},
     {pass: '123456789',                    regex: '\\w'},
     {pass: 'qwerty',                       regex: '\\d{1,2}'},
@@ -35,9 +34,9 @@ const CARDS = [
     {pass: '100 Problems',                 regex: '.[xkcd].'},
     {pass: 'f**k grapefruit',              regex: '[123]{1,3}'},
     {pass: 'fLyingfErret',                 regex: '\\W{1,4}'},
-    {pass: '2+2=4-1=3Qu1ckm4ths',          regex: '\\s?[a-uC-E]'},
     {pass: 'MansNotHot',                   regex: '\\d\\D*\\d'}
 ]
+
 
 export function generate_cards(card_count: number): Array<Card> {
     let cards = new Array<Card>(card_count);
@@ -45,7 +44,7 @@ export function generate_cards(card_count: number): Array<Card> {
         let card_i = randomInt(0, CARDS.length - 1);
         let attack = CARDS[card_i].regex;
         let dna = CARDS[card_i].pass;
-        cards[i] = new Card(attack, dna);
+        cards[i] = new Card(attack, dna, card_i);
     }
     return cards;
 }
@@ -64,8 +63,8 @@ export class Card {
     attack_text: createjs.Text;
     dna_text: createjs.Text;
     card_selection_number: createjs.Text;
-    in_play_card_envelope: createjs.Shape;
-    in_hand_card_envelope: createjs.Shape;
+    in_play_card_envelope: createjs.Container;
+    in_hand_card_envelope: createjs.Sprite;
     container: createjs.Container;
 
     visible: boolean;
@@ -80,7 +79,40 @@ export class Card {
 
     static card_count = 0;
 
-    constructor(attack: string, dna: string) {
+    static card_sheets_initted = false;
+    static card_sheet: createjs.SpriteSheet;
+    static card_bg_sheet: createjs.SpriteSheet;
+
+    constructor(attack: string, dna: string, card_id: number) {
+        if (!Card.card_sheets_initted) {
+            Card.card_sheets_initted = true;
+            Card.card_sheet = new createjs.SpriteSheet({
+                images: ["img/cards.png"],
+                frames: {
+                    width: 200,
+                    height: 300,
+                    count: 10,
+                    regX: 0,
+                    regY: 0,
+                    spacing: 0,
+                    margin: 0
+                }
+            });
+
+            Card.card_bg_sheet = new createjs.SpriteSheet({
+                images: ["img/card_background.png"],
+                frames: {
+                    width: 200,
+                    height: 300,
+                    count: 3,
+                    regX: 0,
+                    regY: 0,
+                    spacing: 0,
+                    margin: 0
+                }
+            });
+        }
+
         this.attack = attack;
         this.dna = dna;
         this.id = ++Card.card_count;
@@ -90,28 +122,29 @@ export class Card {
         this.container_hidden = new createjs.Container();
 
         this.attack_text = new createjs.Text(this.attack, TEXT_FONT);
-        this.attack_text.x += BORDER_SIZE;
+        this.attack_text.x = 50;
+        this.attack_text.y = 225;
         this.dna_text = new createjs.Text(this.dna, TEXT_FONT);
-        this.dna_text.x += BORDER_SIZE;
-        this.dna_text.y += this.attack_text.getMeasuredHeight();
+        this.dna_text.x = 50;
+        this.dna_text.y = 260;
 
         // let width = Math.max(this.attack_text.getMeasuredWidth(), this.dna_text.getMeasuredWidth());
-        let card_width = 28 * 4;
-        let card_height = this.attack_text.getMeasuredHeight() + this.dna_text.getMeasuredHeight() + 8;
+        let card_width = 200;
+        let card_height = 300;
 
-        this.in_play_card_envelope = new createjs.Shape();
-        this.in_play_card_envelope.graphics
-            .setStrokeStyle(1)
-            .beginStroke("#000000")
-            .beginFill("yellow")
-            .drawRect(0, 0, card_width, card_height);
+        this.in_play_card_envelope = new createjs.Container();
+        {
+            let bg = new createjs.Sprite(Card.card_bg_sheet);
+            bg.gotoAndStop(1);
+            this.in_play_card_envelope.addChild(bg);
 
-        this.in_hand_card_envelope = new createjs.Shape();
-        this.in_hand_card_envelope.graphics
-            .setStrokeStyle(1)
-            .beginStroke("#000000")
-            .beginFill("AAAAAA")
-            .drawRect(0, 0, card_width, card_height);
+            let face = new createjs.Sprite(Card.card_sheet);
+            face.gotoAndStop(card_id % 10);
+            this.in_play_card_envelope.addChild(face);
+        }
+
+        this.in_hand_card_envelope = new createjs.Sprite(Card.card_bg_sheet);
+        this.in_hand_card_envelope.gotoAndStop(0);
 
         this.card_selection_number = new createjs.Text("", TEXT_FONT, "red");
         this.card_selection_number.x = card_width - 14;
