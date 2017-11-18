@@ -1,7 +1,18 @@
 {
     "compilerOptions": {
         "target": "es5",
+        "module": "amd",
+        "sourceMap": true,
         "out": "out/script.js",
         "watch": true
-    }
+    },
+    "include": [
+        "src/*"
+    ]
+    // "files": [
+    //     "./src/main.ts",
+    //     "./src/const.ts",
+    //     "./src/card.ts",
+    //     "./src/utils.ts"
+    // ]
 }
