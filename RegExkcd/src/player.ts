@@ -23,7 +23,7 @@ export class PlayerState {
     }
 
     deal_damage(match_length: number): void {
-        let damage = match_length / 3;
+        let damage = match_length;
         this.hp -= damage;
         // TODO: Move this to a function.
         this.hp_text.text = "HP: " + this.hp.toString();

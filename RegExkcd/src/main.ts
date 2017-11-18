@@ -161,6 +161,9 @@ class GameState {
         let MAX_DEPTH = 2;
         let wave_start = 0;
         let wave_finish = actions.length;
+
+        let max_max_match = "";
+        let max_max_match_i = 0;
         for (let depth = 0; depth < MAX_DEPTH; ++depth) {
             for (let i = wave_start; i < wave_finish; ++i) {
                 let action = actions[i];
@@ -173,12 +176,26 @@ class GameState {
                         continue;
                     }
                     let attack_string = action.attack_string + card.attack;
-                    // Replace this with finding a best regex match.
-                    if (first_player_cards[action.target_card].dna.indexOf(attack_string) !== -1) {
+
+
+                    let matches = first_player_cards[action.target_card].dna.match(new RegExp(attack_string, "g"));
+                    let max_match = "";
+                    if (matches) {
+                        for (const match of matches) {
+                            if (match.length > max_match.length) {
+                                max_match = match;
+                            }
+                        }
+                        
                         let new_action = clone_object(action);
                         new_action.attack_cards.push(j);
                         new_action.attack_string = attack_string;
                         actions.push(new_action);
+
+                        if (max_match.length > max_max_match.length) {
+                            max_max_match = max_match;
+                            max_max_match_i = actions.length - 1;
+                        }
                     }
                 }
             }
@@ -190,7 +207,7 @@ class GameState {
         console.log(`Found ${actions.length} actions`);
         console.log(actions);
 
-        let action = actions[actions.length - 1];
+        let action = actions[max_max_match_i];
         console.log("Making action: ", action);
         for (const attack_card_index of action.attack_cards) {
             tween.wait(1000).call(() => this.select_card(SECOND_PLAYER, second_player_cards[attack_card_index].id, true));
