@@ -1,39 +1,34 @@
 import {Card, CardState} from "card";
 import {PlayerState, generate_players} from "player";
 import {randomInt} from "utils";
+import * as layout from "layout";
 
 class Hand {
     cards: Array<Card>;
-    container: createjs.Container;
+    container: layout.TiledLayout;
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new createjs.Container();
+        this.container = new layout.TiledLayout(layout.LayoutDirection.Horizontal, 15);
 
         for (let i = 0; i < this.cards.length; ++i) {
             this.cards[i].change_state(CardState.InHand);
-            if (i > 0) {
-                this.cards[i].container.x = this.container.getBounds().width + 15;
-            }
-            this.container.addChild(this.cards[i].container);
+            this.container.addItem(this.cards[i].container);
         }
     }
 };
 
 class InPlay {
     cards: Array<Card>;
-    container: createjs.Container;
+    container: layout.TiledLayout;
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new createjs.Container();
+        this.container = new layout.TiledLayout(layout.LayoutDirection.Horizontal, 15);
 
         for (let i = 0; i < this.cards.length; ++i) {
             this.cards[i].state = CardState.InPlay;
-            if (i > 0) {
-                this.cards[i].container.x = this.container.getBounds().width + 15;
-            }
-            this.container.addChild(this.cards[i].container);
+            this.container.addItem(this.cards[i].container);
         }
     }
 };

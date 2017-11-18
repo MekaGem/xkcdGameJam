@@ -1,10 +1,10 @@
 const DEFAULT_SPACING = 10;
 
-enum LayoutDirection {
+export enum LayoutDirection {
     Vertical, Horizontal
 };
 
-class TiledLayout extends createjs.Container {
+export class TiledLayout extends createjs.Container {
     direction: LayoutDirection;
     spacing: number;
 
@@ -16,7 +16,7 @@ class TiledLayout extends createjs.Container {
     }
 
     addItem(item: createjs.DisplayObject) {
-        if (super.getNumChildren() > 0) {
+        if (this.numChildren > 0) {
             if (this.direction = LayoutDirection.Horizontal) {
                 item.x += super.getBounds().width + this.spacing;
             } else {
