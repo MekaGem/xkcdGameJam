@@ -64,6 +64,7 @@ export class Card {
     dna_text: createjs.Text;
     card_selection_number: createjs.Text;
     in_play_card_envelope: createjs.Container;
+    in_play_card_bg: createjs.Sprite;
     in_hand_card_envelope: createjs.Sprite;
     container: createjs.Container;
 
@@ -72,7 +73,6 @@ export class Card {
     container_hidden: createjs.Container;
 
     selected_for_swap: boolean;
-    border_for_swap: createjs.Shape;
 
     // Unique card index.
     id: number;
@@ -134,9 +134,9 @@ export class Card {
 
         this.in_play_card_envelope = new createjs.Container();
         {
-            let bg = new createjs.Sprite(Card.card_bg_sheet);
-            bg.gotoAndStop(1);
-            this.in_play_card_envelope.addChild(bg);
+            this.in_play_card_bg = new createjs.Sprite(Card.card_bg_sheet);
+            this.in_play_card_bg.gotoAndStop(1);
+            this.in_play_card_envelope.addChild(this.in_play_card_bg);
 
             let face = new createjs.Sprite(Card.card_sheet);
             face.gotoAndStop(card_id % 10);
@@ -159,14 +159,10 @@ export class Card {
 
         this.container = new createjs.Container();
         this.container.setBounds(0, 0, card_width, card_height);
+
+        this.container.scaleX = this.container.scaleY = 0.7;
         this.change_state(CardState.InPlay);
         this.set_visible(true);
-
-        this.border_for_swap = new createjs.Shape();
-        this.border_for_swap.graphics
-            .setStrokeStyle(3)
-            .beginStroke("red")
-            .drawRect(0, 0, card_width, card_height);
     }
 
     select(index: number) {
@@ -214,9 +210,9 @@ export class Card {
         if (this.selected_for_swap !== selected_for_swap) {
             this.selected_for_swap = selected_for_swap;
             if (selected_for_swap) {
-                this.container.addChild(this.border_for_swap);
+                this.in_play_card_bg.gotoAndStop(2);
             } else {
-                this.container.removeChild(this.border_for_swap);
+                this.in_play_card_bg.gotoAndStop(1);
             }
         }
     }
