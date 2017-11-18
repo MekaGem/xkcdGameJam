@@ -1,4 +1,4 @@
-import {Card, CardState} from "card";
+import {Card, CardState, generate_cards} from "card";
 import {PlayerState, generate_players} from "player";
 import {randomInt} from "utils";
 import * as layout from "layout";
@@ -32,25 +32,6 @@ class InPlay {
         }
     }
 };
-
-type PlayedCards = Array<Card>;
-
-// const WORDS = ["foo", "bar", "baz", "qux"];
-const WORDS = ["foo", "bar", "qux"];
-
-function generate_cards(card_count: number): Array<Card> {
-    let cards = new Array<Card>(card_count);
-    for (let i = 0; i < card_count; ++i) {
-        let attack = WORDS[randomInt(0, WORDS.length - 1)];
-        let dna = ""
-        let dna_parts = randomInt(1, 4);
-        for (let j = 0; j < dna_parts; ++j) {
-            dna += WORDS[randomInt(0, WORDS.length - 1)];
-        }
-        cards[i] = new Card(attack, dna);
-    }
-    return cards;
-}
 
 const PLAYER_COUNT = 2;
 const FIRST_PLAYER = 0;
