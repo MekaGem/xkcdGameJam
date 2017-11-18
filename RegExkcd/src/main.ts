@@ -102,7 +102,6 @@ class GameState {
         this.selected_cards = [];
 
         this.battlefield_container = new createjs.Container();
-        let containers_stack = Array<createjs.Container>();
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             {
                 let cards = this.cards_inplay[i].cards;
@@ -121,15 +120,13 @@ class GameState {
                 let container = this.cards_inhand[i].container;
                 this.battlefield_container.addChild(container);
             }
-
-            if (i == FIRST_PLAYER) {
-                containers_stack.push(this.cards_inhand[i].container);
-                containers_stack.push(this.cards_inplay[i].container);
-            } else {
-                containers_stack.push(this.cards_inplay[i].container);
-                containers_stack.push(this.cards_inhand[i].container);
-            }
         }
+
+        let containers_stack = Array<createjs.Container>();
+        containers_stack.push(this.cards_inhand[SECOND_PLAYER].container);
+        containers_stack.push(this.cards_inplay[SECOND_PLAYER].container);
+        containers_stack.push(this.cards_inplay[FIRST_PLAYER].container);
+        containers_stack.push(this.cards_inhand[FIRST_PLAYER].container);
 
         let last_container_y = 0;
         for (let container of containers_stack) {
