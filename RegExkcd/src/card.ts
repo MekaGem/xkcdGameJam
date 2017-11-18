@@ -129,7 +129,6 @@ export class Card {
         this.attack_text.x = 50;
         this.attack_text.y = 260;
 
-        // let width = Math.max(this.attack_text.getMeasuredWidth(), this.dna_text.getMeasuredWidth());
         let card_width = 200;
         let card_height = 300;
 
@@ -148,8 +147,8 @@ export class Card {
         this.in_hand_card_envelope.gotoAndStop(0);
 
         this.card_selection_number = new createjs.Text("", CARD_SELECTION_TEXT_FONT, "red");
-        this.card_selection_number.x = card_width - 14;
-        this.card_selection_number.y = this.attack_text.y;
+        this.card_selection_number.x = card_width - 30;
+        this.card_selection_number.y = 20;
 
         this.container_shown.addChild(this.in_play_card_envelope);
         this.container_shown.addChild(this.card_selection_number);
