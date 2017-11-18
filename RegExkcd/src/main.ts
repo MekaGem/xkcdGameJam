@@ -17,6 +17,15 @@ class Hand {
             this.container.addItem(this.cards[i].container);
         }
     }
+
+    get_selected_for_swap() {
+        for (let card of this.cards) {
+            if (card.selected_for_swap) {
+                return card;
+            }
+        }
+        return null;
+    }
 };
 
 class InPlay {
@@ -32,6 +41,19 @@ class InPlay {
             this.container.addItem(this.cards[i].container);
         }
     }
+
+    get_selected_for_swap() {
+        for (let card of this.cards) {
+            if (card.selected_for_swap) {
+                return card;
+            }
+        }
+        return null;
+    }
+};
+
+enum GamePhase {
+    Changing, Matching
 };
 
 const PLAYER_COUNT = 2;
@@ -66,6 +88,8 @@ class GameState {
     // Current attack string.
     attack_string_text: createjs.Text;
 
+    phase: GamePhase;
+
     constructor(game_field: createjs.Container) {
         this.current_player = FIRST_PLAYER;
 
@@ -93,8 +117,9 @@ class GameState {
                 let cards = this.cards_inplay[i].cards;
                 let container = this.cards_inplay[i].container;
                 for (let j = 0; j < cards.length; ++j) {
+                    let id = cards[j].id;
                     cards[j].container.on("click", (event) => {
-                        this.select_card(i, cards[j].id, false);
+                        this.select_card(i, id, false);
                     });
                     this.add_card(cards[j]);
                 }
@@ -105,8 +130,9 @@ class GameState {
                 let cards = this.cards_inhand[i].cards;
                 let container = this.cards_inhand[i].container;
                 for (let j = 0; j < cards.length; ++j) {
+                    let id = cards[j].id;
                     cards[j].container.on("click", (event) => {
-                        this.select_card(i, cards[j].id, false);
+                        this.select_card(i, id, false);
                     });
                     this.add_card(cards[j]);
                     if (i === SECOND_PLAYER) {
@@ -127,6 +153,8 @@ class GameState {
         this.battlefield_container = verticalLayout;
 
         game_field.addChild(this.battlefield_container);
+
+        this.phase = GamePhase.Changing;
     }
 
     add_card(card: Card) {
@@ -141,6 +169,11 @@ class GameState {
     }
 
     play_as_computer() {
+        if (this.phase === GamePhase.Changing) {
+            this.change_player();
+            return;
+        }
+
         let first_player_cards = this.cards_inplay[FIRST_PLAYER].cards;
         let second_player_cards = this.cards_inplay[SECOND_PLAYER].cards;
 
@@ -193,7 +226,7 @@ class GameState {
                                 max_match = match;
                             }
                         }
-                        
+
                         let new_action = clone_object(action);
                         new_action.attack_cards.push(j);
                         new_action.attack_string = attack_string;
@@ -232,6 +265,94 @@ class GameState {
             return;
         }
 
+        if (this.phase === GamePhase.Changing) {
+            this.select_card_while_changing(owner, card_id, is_computer);
+        } else {
+            this.select_card_while_matching(owner, card_id, is_computer);
+        }
+    }
+
+    select_card_while_changing(owner: number, card_id: number, is_computer: boolean) {
+        let players_hand = this.cards_inhand[this.current_player];
+        let players_play = this.cards_inplay[this.current_player];
+        let card_selected_for_swap_in_hand = players_hand.get_selected_for_swap();
+
+        let card = this.get_card(card_id);
+        if (owner !== this.current_player) {
+            if (card_selected_for_swap_in_hand !== null) {
+                console.log("You can not swap your card with your opponent's card");
+                // you can not change other player's cards
+            } else {
+                console.log("Skip changing phase");
+                // just skipping turn
+                this.change_player();
+            }
+            return;
+        }
+
+        if (card.state === CardState.InPlay) {
+            if (card_selected_for_swap_in_hand) {
+                console.log("Swapping cards");
+                // swapping cards
+                this.swap_cards(owner, card_selected_for_swap_in_hand, card);
+                this.change_player();
+            }
+        } else if (card.state === CardState.InHand) {
+            console.log("Select for swap");
+            if (card.selected_for_swap) {
+                card.select_for_swap(false);
+            } else {
+                for (let k = 0; k < players_hand.cards.length; ++k) {
+                    players_hand.cards[k].select_for_swap(false);
+                }
+                card.select_for_swap(true);
+            }
+        }
+    }
+
+    swap_cards(owner: number, card_in_hand: Card, card_in_play: Card) {
+        let players_hand = this.cards_inhand[owner];
+        let players_play = this.cards_inplay[owner];
+
+        console.log("Before");
+        console.log("Card in hand: " + card_in_hand.id);
+        console.log("Card in play: " + card_in_play.id);
+
+        let hand_card_index = players_hand.cards.indexOf(card_in_hand);
+        let play_card_index = players_play.cards.indexOf(card_in_play);
+        [players_hand.cards[hand_card_index], players_play.cards[play_card_index]] = [
+            players_play.cards[play_card_index],
+            players_hand.cards[hand_card_index]
+        ];
+
+        hand_card_index = players_hand.container.getChildIndex(card_in_hand.container);
+        play_card_index = players_play.container.getChildIndex(card_in_play.container);
+
+        players_hand.container.removeChild(card_in_hand.container);
+        players_hand.container.addChildAt(card_in_play.container, hand_card_index);
+
+        players_play.container.removeChild(card_in_play.container);
+        players_play.container.addChildAt(card_in_hand.container, play_card_index);
+
+        [card_in_hand.container.x, card_in_hand.container.y, card_in_play.container.x, card_in_play.container.y] = [
+            card_in_play.container.x,
+            card_in_play.container.y,
+            card_in_hand.container.x,
+            card_in_hand.container.y
+        ]
+
+        card_in_hand.select_for_swap(false);
+        card_in_play.select_for_swap(false);
+
+        card_in_hand.change_state(CardState.InPlay);
+        card_in_play.change_state(CardState.InHand);
+
+        console.log("Before");
+        console.log("Card in hand: " + card_in_hand.id);
+        console.log("Card in play: " + card_in_play.id);
+    }
+
+    select_card_while_matching(owner: number, card_id: number, is_computer: boolean) {
         let card = this.get_card(card_id);
         if (owner === this.current_player) {
             if (card.state === CardState.InPlay) {
@@ -246,28 +367,35 @@ class GameState {
                     }
                 }
                 this.attack_string_text.text = this.get_attack_string();
-            } else if (card.state === CardState.InHand) {
-                let cards = this.cards_inhand[owner].cards;
-                if (card.selected_for_swap) {
-                    card.select_for_swap(false);
-                } else {
-                    for (let k = 0; k < cards.length; ++k) {
-                        cards[k].select_for_swap(false);
-                    }
-                    card.select_for_swap(true);
-                }
             }
         } else {
             if (card.state === CardState.InPlay) {
                 this.attack(card);
-                this.current_player = 1 - this.current_player;
-
-                if (this.current_player == SECOND_PLAYER) {
-                    console.log("Taking lock");
-                    this.computer_thinking = true;
-                    this.play_as_computer();
-                }
+                this.change_player();
             }
+        }
+    }
+
+    change_player() {
+        this.current_player = 1 - this.current_player;
+        if (this.current_player == SECOND_PLAYER) {
+            // now computer changes cards
+            console.log("Taking lock");
+            this.computer_thinking = true;
+            this.play_as_computer();
+        } else {
+            this.computer_thinking = false;
+            this.change_phase();
+        }
+    }
+
+    change_phase() {
+        if (this.phase === GamePhase.Changing) {
+            console.log("Matching phase started");
+            this.phase = GamePhase.Matching;
+        } else if (this.phase === GamePhase.Matching) {
+            console.log("Changing phase started");
+            this.phase = GamePhase.Changing;
         }
     }
 
