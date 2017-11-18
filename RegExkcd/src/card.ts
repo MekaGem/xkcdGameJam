@@ -1,4 +1,4 @@
-import {TEXT_FONT, BORDER_SIZE} from "./constants"
+import {BORDER_SIZE, CARD_ATTACK_TEXT_FONT, CARD_DNA_TEXT_FONT, CARD_SELECTION_TEXT_FONT} from "./constants"
 import {randomInt} from "utils";
 
 // const WORDS = ["foo", "bar", "baz", "qux"];
@@ -121,10 +121,10 @@ export class Card {
         this.container_shown = new createjs.Container();
         this.container_hidden = new createjs.Container();
 
-        this.attack_text = new createjs.Text(this.attack, TEXT_FONT);
+        this.attack_text = new createjs.Text(this.attack, CARD_ATTACK_TEXT_FONT);
         this.attack_text.x = 50;
         this.attack_text.y = 225;
-        this.dna_text = new createjs.Text(this.dna, TEXT_FONT);
+        this.dna_text = new createjs.Text(this.dna, CARD_DNA_TEXT_FONT);
         this.dna_text.x = 50;
         this.dna_text.y = 260;
 
@@ -146,7 +146,7 @@ export class Card {
         this.in_hand_card_envelope = new createjs.Sprite(Card.card_bg_sheet);
         this.in_hand_card_envelope.gotoAndStop(0);
 
-        this.card_selection_number = new createjs.Text("", TEXT_FONT, "red");
+        this.card_selection_number = new createjs.Text("", CARD_SELECTION_TEXT_FONT, "red");
         this.card_selection_number.x = card_width - 14;
         this.card_selection_number.y = this.attack_text.y;
 

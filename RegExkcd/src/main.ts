@@ -2,7 +2,7 @@ import { Card, CardState, generate_cards } from "card";
 import { PlayerState, generate_players } from "player";
 import { randomInt, clone_object } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
-import { TEXT_FONT } from "./constants";
+import { ATTACK_STRING_TEXT_FONT } from "./constants";
 
 class Hand {
     cards: Array<Card>;
@@ -85,7 +85,7 @@ class GameState {
 
         this.computer_thinking = false;
 
-        this.attack_string_text = new createjs.Text("--------------", TEXT_FONT, "red");
+        this.attack_string_text = new createjs.Text("--------------", ATTACK_STRING_TEXT_FONT, "red");
 
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             // cards in play
