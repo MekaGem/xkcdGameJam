@@ -251,7 +251,7 @@ class GameState {
         }
         console.log(`Attacking "${card.dna}" with "${attack_string}"`);
 
-        let matches = card.dna.match("(" + attack_string + ")");
+        let matches = card.dna.match(new RegExp(attack_string, "g"));
         let max_match = "";
         if (matches) {
             for (const match of matches) {

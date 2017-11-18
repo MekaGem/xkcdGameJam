@@ -4,15 +4,47 @@ import {randomInt} from "utils";
 // const WORDS = ["foo", "bar", "baz", "qux"];
 const WORDS = ["foo", "bar", "qux"];
 
+const CARDS = [
+    {pass: 'Tr0ub4dor&3',                  regex: '[a-z]'},
+    {pass: 'Serious PuTTY',                regex: '[a-z]'},
+    {pass: 'tumblv3rs3',                   regex: '[a-z]'},
+    {pass: 'i12kissU',                     regex: '[a-z]'},
+    {pass: 'itsasecret',                   regex: '[a-z]'},
+    {pass: 'password',                     regex: '[A-Z]'},
+    {pass: '******',                       regex: '[A-Z]'},
+    {pass: 'b33sw1tht1r3s',                regex: '[A-Z]'},
+    {pass: 'Huge ass-box',                 regex: '[A-Z]'},
+    {pass: 'WE RISE',                      regex: '[A-Z]'},
+    {pass: '\'); DROP TABLE Users;--',     regex: '\w'},
+    {pass: 'DenverCoder9',                 regex: '\w'},
+    {pass: '123456789',                    regex: '\w'},
+    {pass: 'qwerty',                       regex: '\d{1,2}'},
+    {pass: 'f00tb411',                     regex: '\d{1,2}'},
+    {pass: 'segF4ULT',                     regex: '\d{1,2}'},
+    {pass: 'go ham or go home',            regex: '.\d'},
+    {pass: 'TH3C4K31S4L13',                regex: '.\d'},
+    {pass: 'sTrOnGpAsSwOrD',               regex: '\D{2}'},
+    {pass: 'xXxH4XX0RxXx',                 regex: '\D{2}'},
+    {pass: 'DeepFriedSkittles',            regex: '.er'},
+    {pass: '\\\\"\\\'no\\\'\\escape\\"\\', regex: '[oui].'},
+    {pass: 'choKoBAnaNA',                  regex: '(.)\1+'},
+    {pass: 'ilovepuppies',                 regex: '[aeiou]+'},
+    {pass: '24-06-1985',                   regex: '[a-n]{1,3}'},
+    {pass: '1337_4_L1F3',                  regex: '[A-Z]{3,}'},
+    {pass: 'hamster ball',                 regex: '([a-z][A-Z]){1,3}'},
+    {pass: '100 Problems',                 regex: '.[xkcd].'},
+    {pass: 'f**k grapefruit',              regex: '[123]{1,3}'},
+    {pass: 'fLyingfErret',                 regex: '\W{1,4}'},
+    {pass: '2+2=4-1=3Qu1ckm4ths',          regex: '\s?[a-uC-E]'},
+    {pass: 'MansNotHot',                   regex: '\d\D*\d'}
+]
+
 export function generate_cards(card_count: number): Array<Card> {
     let cards = new Array<Card>(card_count);
     for (let i = 0; i < card_count; ++i) {
-        let attack = WORDS[randomInt(0, WORDS.length - 1)];
-        let dna = ""
-        let dna_parts = randomInt(1, 4);
-        for (let j = 0; j < dna_parts; ++j) {
-            dna += WORDS[randomInt(0, WORDS.length - 1)];
-        }
+        let card_i = randomInt(0, CARDS.length - 1);
+        let attack = CARDS[card_i].regex;
+        let dna = CARDS[card_i].pass;
         cards[i] = new Card(attack, dna);
     }
     return cards;
