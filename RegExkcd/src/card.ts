@@ -44,7 +44,7 @@ export function generate_cards(card_count: number): Array<Card> {
         let card_i = randomInt(0, CARDS.length - 1);
         let attack = CARDS[card_i].regex;
         let dna = CARDS[card_i].pass;
-        cards[i] = new Card(attack, dna, card_i);
+        cards[i] = new Card(dna, attack, card_i);
     }
     return cards;
 }
