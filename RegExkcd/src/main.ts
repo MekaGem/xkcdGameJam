@@ -79,20 +79,30 @@ class GameState {
         this.selected_cards = [];
 
         for (let i = 0; i < PLAYER_COUNT; ++i) {
-            let cards = this.cards_inplay[i].cards;
-            let container = this.cards_inplay[i].container;
-            for (let j = 0; j < cards.length; ++j) {
-                cards[j].container.on("click", (event) => {
-                    this.select_card(i, cards[j].id, false);
-                });
-                this.add_card(cards[j]);
+            // cards in play
+            {
+                let cards = this.cards_inplay[i].cards;
+                let container = this.cards_inplay[i].container;
+                for (let j = 0; j < cards.length; ++j) {
+                    cards[j].container.on("click", (event) => {
+                        this.select_card(i, cards[j].id, false);
+                    });
+                    this.add_card(cards[j]);
+                }
             }
 
-            if (i == SECOND_PLAYER) {
+            // cards in hands
+            {
                 let cards = this.cards_inhand[i].cards;
+                let container = this.cards_inhand[i].container;
                 for (let j = 0; j < cards.length; ++j) {
-                    cards[j].set_visible(false);
-                    console.log(i, j);
+                    cards[j].container.on("click", (event) => {
+                        this.select_card(i, cards[j].id, false);
+                    });
+                    this.add_card(cards[j]);
+                    if (i === SECOND_PLAYER) {
+                        cards[j].set_visible(false);
+                    }
                 }
             }
         }
@@ -165,28 +175,38 @@ class GameState {
         this.computer_thinking = false;
     }
 
-    select_card(player: number, card_id: number, is_computer: boolean): void {
-        console.log(`Selecting card (${player}, ${card_id})`);
+    select_card(owner: number, card_id: number, is_computer: boolean): void {
+        console.log(`Selecting card (${owner}, ${card_id})`);
         if (this.computer_thinking && !is_computer) {
             return;
         }
 
         let card = this.get_card(card_id);
-        if (player == this.current_player) {
-            if (card.state == CardState.InPlay) {
+        if (owner === this.current_player) {
+            if (card.state === CardState.InPlay) {
                 if (!card.selected) {
                     this.selected_cards.push(card);
                     card.select(this.selected_cards.length);
                 } else {
                     let index = this.selected_cards.indexOf(card);
-                    if (index + 1 == this.selected_cards.length) {
+                    if (index + 1 === this.selected_cards.length) {
                         this.selected_cards.splice(index);
                         card.deselect();
                     }
                 }
+            } else if (card.state === CardState.InHand) {
+                let cards = this.cards_inhand[owner].cards;
+                if (card.selected_for_swap) {
+                    card.select_for_swap(false);
+                } else {
+                    for (let k = 0; k < cards.length; ++k) {
+                        cards[k].select_for_swap(false);
+                    }
+                    card.select_for_swap(true);
+                }
             }
         } else {
-            if (card.state == CardState.InPlay) {
+            if (card.state === CardState.InPlay) {
                 if (this.selected_cards.length > 0) {
                     this.attack(card);
                     this.current_player = 1 - this.current_player;

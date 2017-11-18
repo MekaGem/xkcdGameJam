@@ -40,6 +40,9 @@ export class Card {
     container_shown: createjs.Container;
     container_hidden: createjs.Container;
 
+    selected_for_swap: boolean;
+    border_for_swap: createjs.Shape;
+
     // Unique card index.
     id: number;
 
@@ -93,6 +96,12 @@ export class Card {
         this.container.setBounds(0, 0, card_width, card_height);
         this.change_state(CardState.InPlay);
         this.set_visible(true);
+
+        this.border_for_swap = new createjs.Shape();
+        this.border_for_swap.graphics
+            .setStrokeStyle(3)
+            .beginStroke("red")
+            .drawRect(0, 0, card_width, card_height);
     }
 
     select(index: number) {
@@ -125,13 +134,24 @@ export class Card {
     }
 
     set_visible(visible: boolean) {
-        if (this.visible != visible) {
+        if (this.visible !== visible) {
             this.visible = visible;
             this.container.removeAllChildren();
             if (visible) {
                 this.container.addChild(this.container_shown);
             } else {
                 this.container.addChild(this.container_hidden);
+            }
+        }
+    }
+
+    select_for_swap(selected_for_swap) {
+        if (this.selected_for_swap !== selected_for_swap) {
+            this.selected_for_swap = selected_for_swap;
+            if (selected_for_swap) {
+                this.container.addChild(this.border_for_swap);
+            } else {
+                this.container.removeChild(this.border_for_swap);
             }
         }
     }
