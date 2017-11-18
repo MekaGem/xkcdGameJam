@@ -7,12 +7,18 @@ export enum LayoutDirection {
 export class TiledLayout extends createjs.Container {
     direction: LayoutDirection;
     spacing: number;
+    center_elements: boolean;
 
-    constructor(direction: LayoutDirection, spacing: number) {
+    constructor(direction: LayoutDirection, spacing: number, center_elements: boolean = false) {
         super();
 
         this.direction = direction;
         this.spacing = spacing;
+        this.center_elements = center_elements;
+    }
+
+    apply_centering() {
+        // TODO: Implement me!
     }
 
     addItem(item: createjs.DisplayObject) {
