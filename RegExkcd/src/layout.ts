@@ -17,7 +17,7 @@ export class TiledLayout extends createjs.Container {
 
     addItem(item: createjs.DisplayObject) {
         if (this.numChildren > 0) {
-            if (this.direction = LayoutDirection.Horizontal) {
+            if (this.direction === LayoutDirection.Horizontal) {
                 item.x += super.getBounds().width + this.spacing;
             } else {
                 item.y += super.getBounds().height + this.spacing;
