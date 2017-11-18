@@ -1,6 +1,6 @@
 import { Card, CardState, generate_cards } from "card";
 import { PlayerState, generate_players } from "player";
-import { randomInt } from "utils";
+import { randomInt, clone_object } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
 
 class Hand {
@@ -36,10 +36,6 @@ class InPlay {
 const PLAYER_COUNT = 2;
 const FIRST_PLAYER = 0;
 const SECOND_PLAYER = 1;
-
-function clone_object(object) {
-    return JSON.parse(JSON.stringify(object));
-}
 
 class GameState {
     current_player: number;
