@@ -123,7 +123,9 @@ class GameState {
     }
 
     get_card(card_id: number): Card {
-        // TODO: Handle case if card is not there.
+        if (this.id_to_card[card_id] === undefined) {
+            console.error(`Can't find card ${card_id}`)
+        }
         return this.id_to_card[card_id];
     }
 
