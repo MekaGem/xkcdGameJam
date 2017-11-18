@@ -38,8 +38,13 @@ const FIRST_PLAYER = 0;
 const SECOND_PLAYER = 1;
 
 class GameState {
+    // Index of the current player.
     current_player: number;
+
+    // Cards on the table.
     cards_inplay: Array<InPlay>;
+
+    // Cards in the hand.
     cards_inhand: Array<Hand>;
 
     // States of the players (e.g. hp, decks).
@@ -57,6 +62,7 @@ class GameState {
     // Container showing cards in play.
     battlefield_container: createjs.Container;
 
+    // Is computer making a move now.
     computer_thinking: boolean;
 
     constructor(game_field: createjs.Container) {
