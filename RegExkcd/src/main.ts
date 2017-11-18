@@ -224,8 +224,20 @@ class GameState {
         for (let i = 0; i < this.selected_cards.length; ++i) {
             attack_string += this.selected_cards[i].attack;
         }
-        console.log(`Attacking ${card.dna} with ${attack_string}`);
+        console.log(`Attacking "${card.dna}" with "${attack_string}"`);
 
+        let matches = card.dna.match("(" + attack_string + ")");
+        let max_match = "";
+        if (matches) {
+            for (const match of matches) {
+                if (match.length > max_match.length) {
+                    max_match = match;
+                }
+            }
+        }
+        console.log(`Max match: "${max_match}"`);
+
+        this.player_states[1 - this.current_player].deal_damage(max_match.length);
         card.remove_dna(attack_string);
 
         for (let i = 0; i < this.selected_cards.length; ++i) {

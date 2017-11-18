@@ -14,4 +14,10 @@ export class PlayerState {
     constructor() {
         this.hp = START_HP;
     }
+
+    deal_damage(match_length: number): void {
+        let damage = match_length / 3;
+        this.hp -= damage;
+        console.log(`Dealed ${damage} damage, current hp: ${this.hp}`);
+    }
 };
