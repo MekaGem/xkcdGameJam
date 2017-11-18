@@ -113,10 +113,12 @@ class GameState {
         }
 
         let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 50);
+        verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
+        verticalLayout.addItem(this.player_states[FIRST_PLAYER].container);
         this.battlefield_container = verticalLayout;
 
         game_field.addChild(this.battlefield_container);
@@ -263,7 +265,7 @@ class GameState {
         console.log(`Max match: "${max_match}"`);
 
         this.player_states[1 - this.current_player].deal_damage(max_match.length);
-        card.remove_dna(attack_string);
+        // card.remove_dna(attack_string);
 
         for (let i = 0; i < this.selected_cards.length; ++i) {
             this.selected_cards[i].deselect();
