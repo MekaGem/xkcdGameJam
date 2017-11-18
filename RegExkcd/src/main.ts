@@ -148,19 +148,17 @@ class GameState {
                         any_k = k;
                         if (first_player_cards[k].dna.indexOf(attack_string) != -1) {
                             console.log(`Attacking ${i}, ${j}, ${k}`);
-                            this.select_card(SECOND_PLAYER, second_player_cards[j].id, true);
-                            let T = 1000;
+
+                            let tween = createjs.Tween.get({});
+                            tween.call(() => this.select_card(SECOND_PLAYER, second_player_cards[j].id, true));
                             if (i != second_player_cards.length) {
-                                setTimeout(() => {
-                                    this.select_card(SECOND_PLAYER, second_player_cards[i].id, true);
-                                }, T);
-                                T += 1000;
+                                tween.wait(1000).call(() => this.select_card(SECOND_PLAYER, second_player_cards[i].id, true));
                             }
-                            setTimeout(() => {
+                            tween.wait(1000).call(() => {
                                 this.select_card(FIRST_PLAYER, first_player_cards[k].id, true);
                                 console.log("Releasing lock");
                                 this.computer_thinking = false;
-                            }, T);
+                            });
                             return;
                         }
                     }
