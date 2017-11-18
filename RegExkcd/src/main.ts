@@ -1,5 +1,6 @@
-import {Card, CardState} from "./card";
-import {randomInt} from "./utils";
+import {Card, CardState} from "card";
+import {PlayerState, generate_players} from "player";
+import {randomInt} from "utils";
 
 class Hand {
     cards: Array<Card>;
@@ -65,6 +66,9 @@ class GameState {
     cards_inplay: Array<InPlay>;
     cards_inhand: Array<Hand>;
 
+    // States of the players (e.g. hp, decks).
+    player_states: Array<PlayerState>;
+
     // Currently selected cards.
     selected_cards: Array<Card>;
 
@@ -85,6 +89,8 @@ class GameState {
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
         this.cards_inplay[FIRST_PLAYER] = new InPlay(generate_cards(5));
         this.cards_inplay[SECOND_PLAYER] = new InPlay(generate_cards(5));
+
+        this.player_states = generate_players();
 
         this.computer_thinking = false;
 
