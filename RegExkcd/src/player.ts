@@ -16,17 +16,20 @@ export class PlayerState {
     container: createjs.Container;
 
     constructor() {
-        this.hp = START_HP;
-        this.hp_text = new createjs.Text("HP: " + this.hp.toString(), TEXT_FONT, "red");
+        this.hp_text = new createjs.Text("", TEXT_FONT, "red");
+        this.set_hp(START_HP);
         this.container = new createjs.Container();
         this.container.addChild(this.hp_text);
     }
 
+    set_hp(hp: number) {
+        this.hp = hp;
+        this.hp_text.text = "HP: " + this.hp.toString();
+    }
+
     deal_damage(match_length: number): void {
         let damage = match_length;
-        this.hp -= damage;
-        // TODO: Move this to a function.
-        this.hp_text.text = "HP: " + this.hp.toString();
+        this.set_hp(this.hp - damage);
         console.log(`Dealed ${damage} damage, current hp: ${this.hp}`);
 
     }
