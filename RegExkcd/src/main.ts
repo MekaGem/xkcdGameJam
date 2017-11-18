@@ -57,9 +57,6 @@ class GameState {
     // Map from id to the card;
     id_to_card: { [key: number]: Card };
 
-    // Container holding cards in hands.
-    hand_containers: Array<createjs.Container>;
-
     // Container showing cards in play.
     battlefield_container: createjs.Container;
 
