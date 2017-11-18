@@ -142,7 +142,7 @@ class GameState {
 
             constructor(target_card: number) {
                 this.attack_string = "";
-                this.attack_cards = new Array<number>;
+                this.attack_cards = new Array<number>();
                 this.target_card = target_card;
             }
         }
