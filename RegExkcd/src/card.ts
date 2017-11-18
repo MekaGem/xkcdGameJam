@@ -44,7 +44,7 @@ export function generate_cards(card_count: number): Array<Card> {
         let card_i = randomInt(0, CARDS.length - 1);
         let attack = CARDS[card_i].regex;
         let dna = CARDS[card_i].pass;
-        cards[i] = new Card(dna, attack, card_i);
+        cards[i] = new Card(attack, dna, card_i);
     }
     return cards;
 }
@@ -121,12 +121,13 @@ export class Card {
         this.container_shown = new createjs.Container();
         this.container_hidden = new createjs.Container();
 
-        this.attack_text = new createjs.Text(this.attack, CARD_ATTACK_TEXT_FONT);
-        this.attack_text.x = 50;
-        this.attack_text.y = 225;
         this.dna_text = new createjs.Text(this.dna, CARD_DNA_TEXT_FONT);
         this.dna_text.x = 50;
-        this.dna_text.y = 260;
+        this.dna_text.y = 225;
+
+        this.attack_text = new createjs.Text(this.attack, CARD_ATTACK_TEXT_FONT);
+        this.attack_text.x = 50;
+        this.attack_text.y = 260;
 
         // let width = Math.max(this.attack_text.getMeasuredWidth(), this.dna_text.getMeasuredWidth());
         let card_width = 200;
