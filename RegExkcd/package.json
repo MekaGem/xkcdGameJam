@@ -1,0 +1,9 @@
+{
+    "name": "regexkcd",
+    "author": "Amazing Developer",
+    "version": "1.0.0",
+    "dependencies": {
+        "@types/createjs": "0.0.29",
+        "@types/easeljs": "^1.0.0"
+    }
+}
