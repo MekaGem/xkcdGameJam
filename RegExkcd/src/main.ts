@@ -1,6 +1,7 @@
-import {Card, CardState, generate_cards} from "card";
-import {PlayerState, generate_players} from "player";
-import {randomInt} from "utils";
+import { Card, CardState, generate_cards } from "card";
+import { PlayerState, generate_players } from "player";
+import { randomInt } from "utils";
+// TODO: Remove first import.
 import * as layout from "layout";
 import { TiledLayout, LayoutDirection } from "layout";
 
@@ -38,6 +39,10 @@ const PLAYER_COUNT = 2;
 const FIRST_PLAYER = 0;
 const SECOND_PLAYER = 1;
 
+function clone_object(object) {
+    return JSON.parse(JSON.stringify(object));
+}
+
 class GameState {
     current_player: number;
     cards_inplay: Array<InPlay>;
@@ -50,7 +55,7 @@ class GameState {
     selected_cards: Array<Card>;
 
     // Map from id to the card;
-    id_to_card: { [key:number]: Card };
+    id_to_card: { [key: number]: Card };
 
     // Container holding cards in hands.
     hand_containers: Array<createjs.Container>;
@@ -127,52 +132,72 @@ class GameState {
     }
 
     play_as_computer() {
-        this.computer_thinking = true;
-
         let first_player_cards = this.cards_inplay[FIRST_PLAYER].cards;
         let second_player_cards = this.cards_inplay[SECOND_PLAYER].cards;
 
-        let any_j = 0;
-        let any_k = 0;
-        for (let i = 0; i < second_player_cards.length + 1; ++i) {
-            for (let j = 0; j < second_player_cards.length; ++j) {
-                if (second_player_cards[j].state != CardState.InPlay) {
-                    continue;
-                }
-                any_j = j;
-                let attack_string = second_player_cards[j].attack;
-                if (i != second_player_cards.length) {
-                    if (second_player_cards[i].state != CardState.InPlay) {
+        class Action {
+            attack_cards: Array<number>;
+            attack_string: string;
+            target_card: number;
+
+            constructor(target_card: number) {
+                this.attack_string = "";
+                this.attack_cards = new Array<number>;
+                this.target_card = target_card;
+            }
+        }
+
+        let actions = new Array<Action>();
+        for (let i = 0; i < first_player_cards.length; ++i) {
+            let card = first_player_cards[i];
+            if (card.state != CardState.InPlay) {
+                continue;
+            }
+            actions.push(new Action(i));
+        }
+
+        let MAX_DEPTH = 2;
+        let wave_start = 0;
+        let wave_finish = actions.length;
+        for (let depth = 0; depth < MAX_DEPTH; ++depth) {
+            for (let i = wave_start; i < wave_finish; ++i) {
+                let action = actions[i];
+                for (let j = 0; j < second_player_cards.length; ++j) {
+                    let card = second_player_cards[j];
+                    if (card.state !== CardState.InPlay) {
                         continue;
                     }
-                    attack_string += second_player_cards[i].attack;
-                }
-                for (let k = 0; k < first_player_cards.length; ++k) {
-                    if (first_player_cards[k].state == CardState.InPlay) {
-                        any_k = k;
-                        if (first_player_cards[k].dna.indexOf(attack_string) != -1) {
-                            console.log(`Attacking ${i}, ${j}, ${k}`);
-
-                            let tween = createjs.Tween.get({});
-                            tween.call(() => this.select_card(SECOND_PLAYER, second_player_cards[j].id, true));
-                            if (i != second_player_cards.length) {
-                                tween.wait(1000).call(() => this.select_card(SECOND_PLAYER, second_player_cards[i].id, true));
-                            }
-                            tween.wait(1000).call(() => {
-                                this.select_card(FIRST_PLAYER, first_player_cards[k].id, true);
-                                console.log("Releasing lock");
-                                this.computer_thinking = false;
-                            });
-                            return;
-                        }
+                    if (action.attack_cards.indexOf(j) !== -1) {
+                        continue;
+                    }
+                    let attack_string = action.attack_string + card.attack;
+                    // Replace this with finding a best regex match.
+                    if (first_player_cards[action.target_card].dna.indexOf(attack_string) !== -1) {
+                        let new_action = clone_object(action);
+                        new_action.attack_cards.push(j);
+                        new_action.attack_string = attack_string;
+                        actions.push(new_action);
                     }
                 }
             }
+            wave_start = wave_finish;
+            wave_finish = actions.length;
         }
-        this.select_card(SECOND_PLAYER, second_player_cards[any_j].id, true);
-        this.select_card(FIRST_PLAYER, first_player_cards[any_k].id, true);
-        console.log("Releasing lock");
-        this.computer_thinking = false;
+
+        let tween = createjs.Tween.get({});
+        console.log(`Found ${actions.length} actions`);
+        console.log(actions);
+
+        let action = actions[actions.length - 1];
+        console.log("Making action: ", action);
+        for (const attack_card_index of action.attack_cards) {
+            tween.wait(1000).call(() => this.select_card(SECOND_PLAYER, second_player_cards[attack_card_index].id, true));
+        }
+        tween.wait(1000).call(() => {
+            this.select_card(FIRST_PLAYER, first_player_cards[action.target_card].id, true);
+            console.log("Releasing lock");
+            this.computer_thinking = false;
+        });
     }
 
     select_card(owner: number, card_id: number, is_computer: boolean): void {
@@ -207,13 +232,13 @@ class GameState {
             }
         } else {
             if (card.state === CardState.InPlay) {
-                if (this.selected_cards.length > 0) {
-                    this.attack(card);
-                    this.current_player = 1 - this.current_player;
+                this.attack(card);
+                this.current_player = 1 - this.current_player;
 
-                    if (this.current_player == SECOND_PLAYER) {
-                        this.play_as_computer();
-                    }
+                if (this.current_player == SECOND_PLAYER) {
+                    console.log("Taking lock");
+                    this.computer_thinking = true;
+                    this.play_as_computer();
                 }
             }
         }
