@@ -11,7 +11,7 @@ class Hand {
         this.container = new createjs.Container();
 
         for (let i = 0; i < this.cards.length; ++i) {
-            this.cards[i].state = CardState.InHand;
+            this.cards[i].change_state(CardState.InHand);
             if (i > 0) {
                 this.cards[i].container.x = this.container.getBounds().width + 15;
             }
@@ -87,8 +87,12 @@ class GameState {
         this.current_player = FIRST_PLAYER;
 
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
-        this.cards_inplay[FIRST_PLAYER] = new InPlay(generate_cards(5));
-        this.cards_inplay[SECOND_PLAYER] = new InPlay(generate_cards(5));
+        this.cards_inplay[FIRST_PLAYER] = new InPlay(generate_cards(3));
+        this.cards_inplay[SECOND_PLAYER] = new InPlay(generate_cards(3));
+
+        this.cards_inhand = new Array<Hand>(PLAYER_COUNT);
+        this.cards_inhand[FIRST_PLAYER] = new Hand(generate_cards(4));
+        this.cards_inhand[SECOND_PLAYER] = new Hand(generate_cards(4));
 
         this.player_states = generate_players();
 
@@ -98,20 +102,41 @@ class GameState {
         this.selected_cards = [];
 
         this.battlefield_container = new createjs.Container();
+        let containers_stack = Array<createjs.Container>();
         for (let i = 0; i < PLAYER_COUNT; ++i) {
-            let cards = this.cards_inplay[i].cards;
-            let container = this.cards_inplay[i].container;
-            for (let j = 0; j < cards.length; ++j) {
-                cards[j].container.on("click", (event) => {
-                    this.select_card(i, cards[j].id, false);
-                });
-                this.add_card(cards[j]);
+            {
+                let cards = this.cards_inplay[i].cards;
+                let container = this.cards_inplay[i].container;
+                for (let j = 0; j < cards.length; ++j) {
+                    cards[j].container.on("click", (event) => {
+                        this.select_card(i, cards[j].id, false);
+                    });
+                    this.add_card(cards[j]);
+                }
+                this.battlefield_container.addChild(container);
             }
-            if (i > 0) {
-                container.y += this.battlefield_container.getBounds().height + 50;
+
+            {
+                let cards = this.cards_inhand[i].cards;
+                let container = this.cards_inhand[i].container;
+                this.battlefield_container.addChild(container);
             }
-            this.battlefield_container.addChild(container);
+
+            if (i == FIRST_PLAYER) {
+                containers_stack.push(this.cards_inhand[i].container);
+                containers_stack.push(this.cards_inplay[i].container);
+            } else {
+                containers_stack.push(this.cards_inplay[i].container);
+                containers_stack.push(this.cards_inhand[i].container);
+            }
         }
+
+        let last_container_y = 0;
+        for (let container of containers_stack) {
+            container.y = last_container_y;
+            last_container_y += container.getBounds().height + 50;
+        }
+
         game_field.addChild(this.battlefield_container);
     }
 
