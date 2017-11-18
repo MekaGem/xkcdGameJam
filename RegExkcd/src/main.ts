@@ -142,14 +142,14 @@ class GameState {
             }
         }
 
-        let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 50);
+        let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35);
         verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
-        verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container);
+        verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
         verticalLayout.addItem(this.attack_string_text);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
-        verticalLayout.addItem(this.player_states[FIRST_PLAYER].container);
+        verticalLayout.addItem(this.player_states[FIRST_PLAYER].container, -20);
         this.battlefield_container = verticalLayout;
 
         game_field.addChild(this.battlefield_container);
