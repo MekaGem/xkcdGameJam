@@ -69,6 +69,21 @@ class Card {
         this.selected = false;
         this.card_selection_number.text = "";
     }
+
+    destroy() {
+        console.log("Card destroyed");
+        this.state = CardState.Destoyed;
+        this.container.alpha = 0.5;
+    }
+
+    remove_dna(attack: string) {
+        this.dna = this.dna.replace(attack, '');
+        console.log(`New dna: ${this.dna}`);
+        this.dna_text.text = this.dna;
+        if (this.dna == "") {
+            this.destroy();
+        }
+    }
 };
 
 class Hand {
@@ -201,7 +216,28 @@ class GameState {
                 }
             }
         } else {
+            if (card.state == CardState.InPlay) {
+                if (this.selected_cards.length > 0) {
+                    this.attack(card);
+                    this.current_player = 1 - this.current_player;
+                }
+            }
         }
+    }
+
+    attack(card: Card): void {
+        let attack_string = "";
+        for (let i = 0; i < this.selected_cards.length; ++i) {
+            attack_string += this.selected_cards[i].attack;
+        }
+        console.log(`Attacking ${card.dna} with ${attack_string}`);
+
+        card.remove_dna(attack_string);
+
+        for (let i = 0; i < this.selected_cards.length; ++i) {
+            this.selected_cards[i].deselect();
+        }
+        this.selected_cards = [];
     }
 };
 
