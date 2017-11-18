@@ -1,17 +1,15 @@
 import { Card, CardState, generate_cards } from "card";
 import { PlayerState, generate_players } from "player";
 import { randomInt } from "utils";
-// TODO: Remove first import.
-import * as layout from "layout";
 import { TiledLayout, LayoutDirection } from "layout";
 
 class Hand {
     cards: Array<Card>;
-    container: layout.TiledLayout;
+    container: TiledLayout;
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new layout.TiledLayout(layout.LayoutDirection.Horizontal, 15);
+        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
 
         for (let i = 0; i < this.cards.length; ++i) {
             this.cards[i].change_state(CardState.InHand);
@@ -22,11 +20,11 @@ class Hand {
 
 class InPlay {
     cards: Array<Card>;
-    container: layout.TiledLayout;
+    container: TiledLayout;
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new layout.TiledLayout(layout.LayoutDirection.Horizontal, 15);
+        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
 
         for (let i = 0; i < this.cards.length; ++i) {
             this.cards[i].state = CardState.InPlay;
