@@ -1,159 +1,50 @@
-const TEXT_FONT = "15px Arial";
-const BORDER_SIZE = 8;
-
-enum CardState {
-    InPlay, InHand, Destoyed    
-};
-
-class Card {
-    attack: string;
-    dna: string;
-
-    state: CardState;
-    selected: boolean;
-
-    attack_text: createjs.Text;
-    dna_text: createjs.Text;
-    card_selection_number: createjs.Text;
-    card_envelope: createjs.Shape;
-    container: createjs.Container;
-
-    // Unique card index.
-    id: number;
-
-    static card_count = 0; 
-
-    constructor(attack: string, dna: string) {
-        this.attack = attack;
-        this.dna = dna;
-        this.id = ++Card.card_count;
-        this.selected = false;
-
-        this.container = new createjs.Container();
-
-        this.attack_text = new createjs.Text(this.attack, TEXT_FONT);
-        this.attack_text.x += BORDER_SIZE;
-        this.dna_text = new createjs.Text(this.dna, TEXT_FONT);
-        this.dna_text.x += BORDER_SIZE;
-        this.dna_text.y += this.attack_text.getMeasuredHeight();
-
-        // let width = Math.max(this.attack_text.getMeasuredWidth(), this.dna_text.getMeasuredWidth());
-        let card_width = 28 * 4;
-        let card_height = this.attack_text.getMeasuredHeight() + this.dna_text.getMeasuredHeight() + 8;
-
-        this.card_envelope = new createjs.Shape();
-        this.card_envelope.graphics
-            .setStrokeStyle(1)
-            .beginStroke("#000000")
-            .beginFill("yellow")
-            .drawRect(0, 0, card_width, card_height);
-        
-        this.card_selection_number = new createjs.Text("", TEXT_FONT, "red");
-        this.card_selection_number.x = card_width - 14;
-        this.card_selection_number.y = this.attack_text.y;
-
-        this.container.addChild(this.card_envelope);
-        this.container.addChild(this.card_selection_number);
-        this.container.addChild(this.attack_text);
-        this.container.addChild(this.dna_text);
-
-        this.container.setBounds(0, 0, card_width, card_height);
-    }
-
-    select(index: number) {
-        this.selected = true;
-        this.card_selection_number.text = index.toString();
-    }
-
-    deselect() {
-        this.selected = false;
-        this.card_selection_number.text = "";
-    }
-
-    destroy() {
-        console.log("Card destroyed");
-        this.state = CardState.Destoyed;
-        this.container.alpha = 0.5;
-    }
-
-    remove_dna(attack: string) {
-        this.dna = this.dna.replace(attack, '');
-        console.log(`New dna: ${this.dna}`);
-        this.dna_text.text = this.dna;
-        if (this.dna == "") {
-            this.destroy();
-        }
-    }
-};
+import {Card, CardState, generate_cards} from "card";
+import {PlayerState, generate_players} from "player";
+import {randomInt} from "utils";
+import * as layout from "layout";
+import { TiledLayout, LayoutDirection } from "layout";
 
 class Hand {
     cards: Array<Card>;
-    container: createjs.Container;
+    container: layout.TiledLayout;
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new createjs.Container();
+        this.container = new layout.TiledLayout(layout.LayoutDirection.Horizontal, 15);
 
         for (let i = 0; i < this.cards.length; ++i) {
-            this.cards[i].state = CardState.InHand;
-            if (i > 0) {
-                this.cards[i].container.x = this.container.getBounds().width + 15;
-            }
-            this.container.addChild(this.cards[i].container);
+            this.cards[i].change_state(CardState.InHand);
+            this.container.addItem(this.cards[i].container);
         }
     }
 };
 
 class InPlay {
     cards: Array<Card>;
-    container: createjs.Container;
+    container: layout.TiledLayout;
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new createjs.Container();
+        this.container = new layout.TiledLayout(layout.LayoutDirection.Horizontal, 15);
 
         for (let i = 0; i < this.cards.length; ++i) {
             this.cards[i].state = CardState.InPlay;
-            if (i > 0) {
-                this.cards[i].container.x = this.container.getBounds().width + 15;
-            }
-            this.container.addChild(this.cards[i].container);
+            this.container.addItem(this.cards[i].container);
         }
     }
 };
-
-type PlayedCards = Array<Card>;
-
-// const WORDS = ["foo", "bar", "baz", "qux"];
-const WORDS = ["foo", "bar", "qux"];
-
-function generate_cards(card_count: number): Array<Card> {
-    let cards = new Array<Card>(card_count);
-    for (let i = 0; i < card_count; ++i) {
-        let attack = WORDS[randomInt(0, WORDS.length - 1)];
-        let dna = ""
-        let dna_parts = randomInt(1, 4);
-        for (let j = 0; j < dna_parts; ++j) {
-            dna += WORDS[randomInt(0, WORDS.length - 1)];
-        }
-        cards[i] = new Card(attack, dna);
-    }
-    return cards;
-}
 
 const PLAYER_COUNT = 2;
 const FIRST_PLAYER = 0;
 const SECOND_PLAYER = 1;
 
-function wait(s: number) {
-    for (let i = 0; i < 1000000000 * s; ++i) {
-    }
-}
-
 class GameState {
     current_player: number;
     cards_inplay: Array<InPlay>;
     cards_inhand: Array<Hand>;
+
+    // States of the players (e.g. hp, decks).
+    player_states: Array<PlayerState>;
 
     // Currently selected cards.
     selected_cards: Array<Card>;
@@ -173,15 +64,20 @@ class GameState {
         this.current_player = FIRST_PLAYER;
 
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
-        this.cards_inplay[FIRST_PLAYER] = new InPlay(generate_cards(5));
-        this.cards_inplay[SECOND_PLAYER] = new InPlay(generate_cards(5));
+        this.cards_inplay[FIRST_PLAYER] = new InPlay(generate_cards(3));
+        this.cards_inplay[SECOND_PLAYER] = new InPlay(generate_cards(3));
+
+        this.cards_inhand = new Array<Hand>(PLAYER_COUNT);
+        this.cards_inhand[FIRST_PLAYER] = new Hand(generate_cards(4));
+        this.cards_inhand[SECOND_PLAYER] = new Hand(generate_cards(4));
+
+        this.player_states = generate_players();
 
         this.computer_thinking = false;
 
         this.id_to_card = {};
         this.selected_cards = [];
 
-        this.battlefield_container = new createjs.Container();
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             let cards = this.cards_inplay[i].cards;
             let container = this.cards_inplay[i].container;
@@ -191,11 +87,23 @@ class GameState {
                 });
                 this.add_card(cards[j]);
             }
-            if (i > 0) {
-                container.y += this.battlefield_container.getBounds().height + 50;
+
+            if (i == SECOND_PLAYER) {
+                let cards = this.cards_inhand[i].cards;
+                for (let j = 0; j < cards.length; ++j) {
+                    cards[j].set_visible(false);
+                    console.log(i, j);
+                }
             }
-            this.battlefield_container.addChild(container);
         }
+
+        let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 50);
+        verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container);
+        verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
+        verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
+        verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
+        this.battlefield_container = verticalLayout;
+
         game_field.addChild(this.battlefield_container);
     }
 
@@ -234,18 +142,17 @@ class GameState {
                         any_k = k;
                         if (first_player_cards[k].dna.indexOf(attack_string) != -1) {
                             console.log(`Attacking ${i}, ${j}, ${k}`);
-                            this.select_card(SECOND_PLAYER, second_player_cards[j].id, true);
-                            let T = 1000;
+
+                            let tween = createjs.Tween.get({});
+                            tween.call(() => this.select_card(SECOND_PLAYER, second_player_cards[j].id, true));
                             if (i != second_player_cards.length) {
-                                setTimeout(() => {
-                                    this.select_card(SECOND_PLAYER, second_player_cards[i].id, true);
-                                }, T);
-                                T += 1000;
+                                tween.wait(1000).call(() => this.select_card(SECOND_PLAYER, second_player_cards[i].id, true));
                             }
-                            setTimeout(() => {
+                            tween.wait(1000).call(() => {
                                 this.select_card(FIRST_PLAYER, first_player_cards[k].id, true);
+                                console.log("Releasing lock");
                                 this.computer_thinking = false;
-                            }, T);
+                            });
                             return;
                         }
                     }
@@ -254,6 +161,7 @@ class GameState {
         }
         this.select_card(SECOND_PLAYER, second_player_cards[any_j].id, true);
         this.select_card(FIRST_PLAYER, first_player_cards[any_k].id, true);
+        console.log("Releasing lock");
         this.computer_thinking = false;
     }
 
@@ -307,7 +215,7 @@ class GameState {
     }
 };
 
-function main() {
+export function play() {
     let stage = new createjs.Stage('RegExkcdStage');
     stage.mouseEnabled = true;
 
