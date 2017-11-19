@@ -82,7 +82,7 @@ const DIGITS_KEY_TEMPLATES = [
 ];
 
 const SYMBOLS_KEY_TEMPLATES = [
-    "\\s",
+    "_",
     "\\\\",
     "\\'",
     "\\*",
@@ -94,7 +94,7 @@ const MODIFIERS_KEY_TEMPLATES = [
     "{3}",
     "{1,}",
     "*",
-    "?"
+    "?",
 ];
 
 function generate_key(card_class: CardClass) {
@@ -125,7 +125,7 @@ const DIGITS_PASSWORD_TEMPLATES = [
 ];
 
 const SYMBOLS_PASSWORD_TEMPLATES = [
-    "\ ",
+    "_",
     "\\",
     "\'",
     "\"",
@@ -184,6 +184,9 @@ const CARD_TEMPLATES = [
     new CardTemplate("007", CardClass.Modifiers, [CardClass.Random, CardClass.Random]),
     new CardTemplate("008", CardClass.Modifiers, [CardClass.Random, CardClass.Random]),
     new CardTemplate("009", CardClass.Modifiers, [CardClass.Random, CardClass.Random]),
+
+    new CardTemplate("010", CardClass.Letters, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("011", CardClass.Letters, [CardClass.Random, CardClass.Random]),
 ];
 
 function generate_regex_class_cards(): Array<CardSpec> {
