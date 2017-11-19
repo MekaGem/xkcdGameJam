@@ -36,3 +36,7 @@ export function get_max_match(regex: string, password: string): string {
     }
     return max_match;
 }
+
+export function oppositePlayer(player: number): number {
+    return 1 - player;
+}
