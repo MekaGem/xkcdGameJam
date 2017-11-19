@@ -19,6 +19,53 @@ function oppositePlayer(player: number): number {
     return 1 - player;
 }
 
+class GamePhaseIndicator {
+    container: createjs.Container;
+
+    // Current regex string.
+    regex_string_text: createjs.Text;
+
+    // Current game phase.
+    game_phase_text: createjs.Text;
+
+    // Current player.
+    current_player_text: createjs.Text;
+
+    constructor() {
+        this.container = new createjs.Container();
+        this.game_phase_text = new createjs.Text("                            ", REGEX_STRING_TEXT_FONT, "red");
+        this.regex_string_text = new createjs.Text("                  ", REGEX_STRING_TEXT_FONT, "red");
+        this.current_player_text = new createjs.Text("                    ", REGEX_STRING_TEXT_FONT, "red");
+
+        let horizonal = new TiledLayout(LayoutDirection.Horizontal, 90);
+        horizonal.addItem(this.current_player_text);
+        horizonal.addItem(this.game_phase_text, 40);
+        horizonal.addItem(this.regex_string_text);
+        this.container.addChild(horizonal);
+    }
+
+    set_regex_text(regex_text: string) {
+        this.regex_string_text.text = regex_text;
+    }
+
+    set_player(current_player: number) {
+        if (current_player == FIRST_PLAYER) {
+            this.current_player_text.text = "YOUR TURN";
+        } else {
+            this.current_player_text.text = "OPPONENT TURN";
+        }
+    }
+
+    set_phase(current_phase: GamePhase) {
+        if (current_phase == GamePhase.Changing) {
+            this.game_phase_text.text = "Strategy";
+        }
+        if (current_phase == GamePhase.Matching) {
+            this.game_phase_text.text = "Battle";
+        }
+    }
+}
+
 export class GameState {
     // Index of the current player.
     current_player: number;
@@ -44,8 +91,8 @@ export class GameState {
     // Is computer making a move now.
     computer_thinking: boolean;
 
-    // Current regex string.
-    regex_string_text: createjs.Text;
+    // Indicator in the middle of the board describing current state.
+    game_phase_indicator: GamePhaseIndicator;
 
     // Number of current half round (total number of actions all players made).
     half_round_index: number;
@@ -53,8 +100,6 @@ export class GameState {
     phase: GamePhase;
 
     constructor(game_field: createjs.Container) {
-        this.current_player = FIRST_PLAYER;
-
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
         this.cards_inplay[FIRST_PLAYER] = new InPlay(generate_cards(3));
         this.cards_inplay[SECOND_PLAYER] = new InPlay(generate_cards(3));
@@ -71,7 +116,9 @@ export class GameState {
 
         this.computer_thinking = false;
 
-        this.regex_string_text = new createjs.Text("--------------", REGEX_STRING_TEXT_FONT, "red");
+        this.game_phase_indicator = new GamePhaseIndicator();
+
+        this.set_player(FIRST_PLAYER);
 
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             // cards in play
@@ -121,7 +168,7 @@ export class GameState {
         verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
-        verticalLayout.addItem(this.regex_string_text);
+        verticalLayout.addItem(this.game_phase_indicator.container);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
         verticalLayout.addItem(this.player_states[FIRST_PLAYER].container, -20);
@@ -133,7 +180,17 @@ export class GameState {
         game_field.addChild(this.battlefield_container);
 
         this.half_round_index = 0;
-        this.phase = GamePhase.Changing;
+        this.set_phase(GamePhase.Changing);
+    }
+
+    set_phase(phase: GamePhase) {
+        this.phase = phase;
+        this.game_phase_indicator.set_phase(phase);
+    }
+
+    set_player(player: number) {
+        this.current_player = player;
+        this.game_phase_indicator.set_player(player);
     }
 
     add_card(card: Card) {
@@ -331,14 +388,14 @@ export class GameState {
                     if (is_regex_valid(new_regex_string)) {
                         this.selected_cards.push(card);
                         card.select(this.selected_cards.length);
-                        this.regex_string_text.text = new_regex_string;
+                        this.game_phase_indicator.set_regex_text(new_regex_string);
                     }
                 } else {
                     let index = this.selected_cards.indexOf(card);
                     if (index + 1 === this.selected_cards.length) {
                         this.selected_cards.splice(index);
                         card.deselect();
-                        this.regex_string_text.text = this.get_regex_string();
+                        this.game_phase_indicator.set_regex_text(this.get_regex_string());
                     }
                 }
             }
@@ -358,10 +415,10 @@ export class GameState {
             this.change_phase();
         }
 
-        this.current_player = oppositePlayer(this.current_player);
+        this.set_player(oppositePlayer(this.current_player));
         if (this.half_round_index % 4 === 0) {
             console.log("Changing player", this.half_round_index);
-            this.current_player = oppositePlayer(this.current_player);
+            this.set_player(oppositePlayer(this.current_player));
         }
 
         if (this.current_player == SECOND_PLAYER) {
@@ -372,10 +429,10 @@ export class GameState {
     change_phase() {
         if (this.phase === GamePhase.Changing) {
             console.log("Matching phase started");
-            this.phase = GamePhase.Matching;
+            this.set_phase(GamePhase.Matching);
         } else if (this.phase === GamePhase.Matching) {
             console.log("Changing phase started");
-            this.phase = GamePhase.Changing;
+            this.set_phase(GamePhase.Changing);
         }
     }
 
@@ -410,9 +467,8 @@ export class GameState {
             this.selected_cards[i].deselect();
         }
         this.selected_cards = [];
-        this.regex_string_text.text = "";
-
         card.show_attacked(damage);
+        this.game_phase_indicator.set_regex_text("");
     }
 };
 
