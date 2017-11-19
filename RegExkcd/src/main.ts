@@ -204,14 +204,14 @@ export class GameState {
         card_in_hand.select_for_swap(false);
         card_in_play.select_for_swap(false);
 
-        let origA = {x: card_in_hand.container.x, y: card_in_hand.container.y};
-        let origB = {x: card_in_play.container.x, y: card_in_play.container.y};
-        let posA = card_in_hand.container.localToGlobal(card_in_hand.container.getBounds().width / 2, card_in_hand.container.getBounds().height / 2);
-        let posB = card_in_play.container.localToGlobal(card_in_play.container.getBounds().width / 2, card_in_play.container.getBounds().height / 2);
+        let hand_pos = {x: card_in_hand.container.x, y: card_in_hand.container.y};
+        let play_pos = {x: card_in_play.container.x, y: card_in_play.container.y};
+        let glob_hand_pos = card_in_hand.container.localToGlobal(card_in_hand.container.getBounds().width / 2, card_in_hand.container.getBounds().height / 2);
+        let glob_play_pos = card_in_play.container.localToGlobal(card_in_play.container.getBounds().width / 2, card_in_play.container.getBounds().height / 2);
 
         let ai_move = (owner == SECOND_PLAYER);
 
-        let inOut = createjs.Ease.getPowInOut(2);
+        let in_out = createjs.Ease.getPowInOut(2);
 
         createjs.Tween.get(card_in_play.container)
             .to({
@@ -219,23 +219,23 @@ export class GameState {
                 scaleY: CARD_SCALE + SWAP_HOVER,
                 rotation: 90,
                 x: card_in_play.container.x - 800
-            }, 500, inOut);
+            }, 500, in_out);
         createjs.Tween.get(card_in_hand.container)
             .to({
                 scaleX: CARD_SCALE + SWAP_HOVER,
                 scaleY: CARD_SCALE + SWAP_HOVER
-            }, 500, inOut)
+            }, 500, in_out)
             .call(function(){
                 if (ai_move) this.set_visible(true, true, false);
             }, null, card_in_hand)
             .to({
-                x: card_in_hand.container.x + posB.x - posA.x,
-                y: card_in_hand.container.y + posB.y - posA.y
-            }, 600, inOut)
+                x: card_in_hand.container.x + glob_play_pos.x - glob_hand_pos.x,
+                y: card_in_hand.container.y + glob_play_pos.y - glob_hand_pos.y
+            }, 600, in_out)
             .to({
                 scaleX: CARD_SCALE,
                 scaleY: CARD_SCALE
-            }, 300, inOut)
+            }, 300, in_out)
             .call(function() {
                 let players_hand = this.cards_inhand[owner];
                 let players_play = this.cards_inplay[owner];
@@ -261,10 +261,10 @@ export class GameState {
                 players_play.container.addChildAt(card_in_hand.container, play_card_index);
         
                 [card_in_hand.container.x, card_in_hand.container.y, card_in_play.container.x, card_in_play.container.y] = [
-                    origB.x,
-                    origB.y,
-                    origA.x,
-                    origA.y
+                    play_pos.x,
+                    play_pos.y,
+                    hand_pos.x,
+                    hand_pos.y
                 ]
         
                 card_in_hand.change_state(CardState.InPlay);
@@ -292,9 +292,33 @@ export class GameState {
                 this.select_card(owner, id, false);
             });
             this.add_card(new_card);
-            if (owner == SECOND_PLAYER) {
-                new_card.set_visible(false);
-            }
+            new_card.set_visible(false);
+
+            input_disable++;
+
+            let ai = (owner == SECOND_PLAYER);
+            let target_pos = {x: new_card.container.x, y: new_card.container.y};
+            new_card.container.x = stage_width + 200;
+            new_card.container.y += ai ? 200 : -200;
+            new_card.container.rotation = 90;
+            new_card.container.scaleX = new_card.container.scaleY = CARD_SCALE + SWAP_HOVER;
+
+            let in_out = createjs.Ease.getPowInOut(2);
+            let tween = createjs.Tween.get(new_card.container)
+                .to({
+                    x: target_pos.x,
+                    y: target_pos.y,
+                    rotation: 0
+                }, 800, in_out)
+            if (ai) tween.to({
+                scaleX: CARD_SCALE, scaleY: CARD_SCALE
+            }, 300, in_out);
+            tween.call(function(){
+                    if (!ai) {
+                        new_card.set_visible(true, true);
+                    }
+                    input_disable--;
+                }, null, this);
         }
     }
 
