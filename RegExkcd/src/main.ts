@@ -130,16 +130,7 @@ export class GameState {
         createjs.Ticker.on("tick", function(event) {
             this.update_regex_highlight();
 
-            if (input_disable) return;
-            for (let i = 0; i < PLAYER_COUNT; ++i) {
-                for (let card of this.cards_inplay[i].cards) {
-                    card.update_hover(mouse);
-                }
-
-                for (let card of this.cards_inhand[i].cards) {
-                    card.update_hover(mouse);
-                }
-            }
+            this.hover_cards();
         }, this);
 
         let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35, true, stage_width);
@@ -205,6 +196,22 @@ export class GameState {
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             for (let card of this.cards_inplay[i].cards) card.update_highlight();
             for (let card of this.cards_inhand[i].cards) card.update_highlight();
+        }
+    }
+
+    hover_cards() {
+        if (input_disable) return;
+        for (let i = 0; i < PLAYER_COUNT; ++i) {
+            for (let card of this.cards_inplay[i].cards) {
+                if (this.phase === GamePhase.Matching && i === FIRST_PLAYER &&
+                    this.selected_cards.indexOf(card) < 0 && !is_regex_valid(this.get_regex_string() + card.regex)) {
+                    continue;
+                }
+                card.update_hover(mouse);
+            }
+        }
+        for (let card of this.cards_inhand[FIRST_PLAYER].cards) {
+            card.update_hover(mouse);
         }
     }
 

@@ -184,12 +184,14 @@ export class Card {
         this.selected = true;
         this.card_selection_number.text = index.toString();
         this.in_play_selected.visible = true;
+        this.select_for_swap(true);
     }
 
     deselect() {
         this.selected = false;
         this.card_selection_number.text = "";
         this.in_play_selected.visible = false;
+        this.select_for_swap(false);
     }
 
     destroy() {
