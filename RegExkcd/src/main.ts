@@ -4,14 +4,15 @@ import { randomInt, clone_object, is_regex_valid, get_max_match } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
 import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase, SKIP_TURN_FONT } from "constants";
 import { play_as_computer } from "./computer";
+import { get_results_screen, get_game_result, GameResult } from "./results";
 
 let mouse = {
     x: 0,
     y: 0
 };
 
-let stage_width = 0;
-let stage_height = 0;
+export let stage_width = 0;
+export let stage_height = 0;
 
 let input_disable = 0;
 
@@ -79,6 +80,9 @@ export class GameState {
     // States of the players (e.g. hp, decks).
     player_states: Array<PlayerState>;
 
+    // Graveyard for cards
+    player_graveyard: Array<Array<Card>>;
+
     // Currently selected cards.
     selected_cards: Array<Card>;
 
@@ -113,6 +117,10 @@ export class GameState {
         this.cards_inhand[SECOND_PLAYER] = new Hand(generate_cards(4));
 
         this.player_states = generate_players();
+
+        this.player_graveyard = new Array<Array<Card>>(PLAYER_COUNT);
+        this.player_graveyard[FIRST_PLAYER] = new Array<Card>();
+        this.player_graveyard[SECOND_PLAYER] = new Array<Card>();
 
         this.selected_cards = [];
 
@@ -313,37 +321,37 @@ export class GameState {
             .call(function() {
                 let players_hand = this.cards_inhand[owner];
                 let players_play = this.cards_inplay[owner];
-        
+
                 //console.log("Before");
                 //console.log("Card in hand: " + card_in_hand.id);
                 //console.log("Card in play: " + card_in_play.id);
-        
+
                 let hand_card_index = players_hand.cards.indexOf(card_in_hand);
                 let play_card_index = players_play.cards.indexOf(card_in_play);
                 [players_hand.cards[hand_card_index], players_play.cards[play_card_index]] = [
                     players_play.cards[play_card_index],
                     players_hand.cards[hand_card_index]
                 ];
-        
+
                 hand_card_index = players_hand.container.getChildIndex(card_in_hand.container);
                 play_card_index = players_play.container.getChildIndex(card_in_play.container);
-        
+
                 players_hand.container.removeChild(card_in_hand.container);
                 players_hand.container.addChildAt(card_in_play.container, hand_card_index);
-        
+
                 players_play.container.removeChild(card_in_play.container);
                 players_play.container.addChildAt(card_in_hand.container, play_card_index);
-        
+
                 [card_in_hand.container.x, card_in_hand.container.y, card_in_play.container.x, card_in_play.container.y] = [
                     play_pos.x,
                     play_pos.y,
                     hand_pos.x,
                     hand_pos.y
                 ]
-        
+
                 card_in_hand.change_state(CardState.InPlay);
                 card_in_hand.hover = 0;
-                
+
                 //console.log("Before");
                 //console.log("Card in hand: " + card_in_hand.id);
                 //console.log("Card in play: " + card_in_play.id);
@@ -356,6 +364,8 @@ export class GameState {
     }
 
     discard_and_pick_new(owner: number, card_in_hand: Card) {
+        this.player_graveyard[owner].push(card_in_hand);
+
         let new_card = this.player_states[owner].pick_card_from_deck();
         if (new_card === null) {
             console.error("No card in deck!. Pls implement something here!");
@@ -425,6 +435,11 @@ export class GameState {
     }
 
     change_player() {
+        if (get_game_result(this) !== GameResult.None) {
+            change_screen(get_results_screen(this));
+            return;
+        }
+
         this.half_round_index += 1;
 
         if (this.half_round_index % 2 === 0) {
@@ -481,6 +496,8 @@ export class GameState {
     }
 };
 
+let change_screen;
+
 export function play() {
     let stage = new createjs.Stage('RegExkcdStage');
     stage.mouseEnabled = true;
@@ -492,6 +509,12 @@ export function play() {
     let game_field = new createjs.Container();
     let game = new GameState(game_field);
     stage.addChild(game_field);
+
+    change_screen = (screen: createjs.Container) => {
+        stage.removeAllChildren();
+        stage.addChild(screen);
+    };
+
     stage.update();
 
     stage.on("stagemousemove", function(event: any) {
