@@ -1,7 +1,7 @@
 import { GameState } from "main";
 import { GamePhase, FIRST_PLAYER, SECOND_PLAYER } from "./constants";
 import { CardState } from "./card";
-import { clone_object, randomInt } from "./utils";
+import { clone_object, randomInt, is_regex_valid } from "./utils";
 
 export function play_as_computer(game_state: GameState) {
     // Give control to computer.
@@ -80,7 +80,9 @@ function play_match(game_state: GameState) {
                     continue;
                 }
                 let regex_string = action.regex_string + card.regex;
-
+                if (!is_regex_valid(regex_string)) {
+                    continue;
+                }
 
                 let matches = opponent_cards[action.target_card].password.match(new RegExp(regex_string, "g"));
                 let max_match = "";

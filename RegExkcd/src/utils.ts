@@ -14,3 +14,12 @@ export function randomIndex(size: number): number {
 export function clone_object(object) {
     return JSON.parse(JSON.stringify(object));
 }
+
+export function is_regex_valid(regex: string): boolean {
+    try {
+        new RegExp(regex, "g");
+        return true;
+    } catch(e) {
+        return false;
+    }
+}
