@@ -36,6 +36,7 @@ export class Card {
     in_play_card_envelope: createjs.Container;
     in_play_card_bg: createjs.Sprite;
     in_play_attacked: createjs.Sprite;
+    in_play_selected: createjs.Sprite;
     in_hand_card_envelope: createjs.Sprite;
     container: createjs.Container;
 
@@ -107,14 +108,20 @@ export class Card {
             this.in_play_attacked.visible = false;
 
             this.in_play_card_envelope.addChild(this.in_play_attacked);
+
+            this.in_play_selected = new createjs.Sprite(Card.card_sheet);
+            this.in_play_selected.gotoAndStop(3);
+            this.in_play_selected.visible = false;
+
+            this.in_play_card_envelope.addChild(this.in_play_selected);
         }
 
         this.in_hand_card_envelope = new createjs.Sprite(Card.card_sheet);
         this.in_hand_card_envelope.gotoAndStop(0);
 
-        this.card_selection_number = new createjs.Text("", CARD_SELECTION_TEXT_FONT, "red");
-        this.card_selection_number.x = card_width - 30;
-        this.card_selection_number.y = 20;
+        this.card_selection_number = new createjs.Text("", CARD_SELECTION_TEXT_FONT, "white");
+        this.card_selection_number.x = 153;
+        this.card_selection_number.y = 175;
 
         this.container_shown.addChild(this.in_play_card_envelope);
         this.container_shown.addChild(this.card_selection_number);
@@ -138,11 +145,13 @@ export class Card {
     select(index: number) {
         this.selected = true;
         this.card_selection_number.text = index.toString();
+        this.in_play_selected.visible = true;
     }
 
     deselect() {
         this.selected = false;
         this.card_selection_number.text = "";
+        this.in_play_selected.visible = false;
     }
 
     destroy() {
