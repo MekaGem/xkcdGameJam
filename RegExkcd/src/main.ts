@@ -6,6 +6,7 @@ import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, Game
 import { play_as_computer } from "./computer";
 import { get_results_screen, get_game_result, GameResult } from "./results";
 import { GamePhaseIndicator } from "./game_phase_indicator";
+import { loadResources } from "./resource_loader";
 
 let mouse = {
     x: 0,
@@ -656,17 +657,24 @@ function create_background() {
     return [game_field_bg, border];
 }
 
-export function play() {
+let assets;
+
+export function init() {
     let stage = new createjs.Stage('RegExkcdStage');
     stage.mouseEnabled = true;
 
-    let canvas:any = stage.canvas;
+    let canvas: any = stage.canvas;
     stage_width = canvas.width;
     stage_height = canvas.height;
 
+    loadResources(() => { play(stage) }, stage, assets);
+}
+
+export function play(stage) {
     // TODO: Refactor this.
     let v = create_background();
 
+    let canvas: any = stage.canvas;
     stage.addChild(v[0]);
 
     let game_field = new createjs.Container();

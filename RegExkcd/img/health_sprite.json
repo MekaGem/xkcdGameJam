@@ -1,6 +1,6 @@
 {
     "images": [
-        "assets/health_sprite.png"
+        "img/health_sprite.png"
     ],
     "frames": [
         [ 0, 0, 21, 16, 0, 0, 0 ],
