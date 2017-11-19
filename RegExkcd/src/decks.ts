@@ -140,7 +140,7 @@ function generate_password(card_class: CardClass) {
     let length: number;
     if (card_class === CardClass.Letters) {
         template = LETTER_PASSWORD_TEMPLATES[randomIndex(LETTER_PASSWORD_TEMPLATES.length)];
-        length = randomInt(3, 5);
+        length = randomInt(3, 4);
     } else if (card_class === CardClass.Digits) {
         template = DIGITS_PASSWORD_TEMPLATES[randomIndex(DIGITS_PASSWORD_TEMPLATES.length)];
         length = 3; // randomInt(3, 5);
