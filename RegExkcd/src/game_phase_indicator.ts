@@ -56,6 +56,9 @@ export class GamePhaseIndicator {
         this.tactics_container.addChild(load_sprite(spritesheet, 0, ELEMENT_SCALE));
 
         this.game_status_text = new createjs.Text("-----", REGEX_STRING_TEXT_FONT, "white");
+        this.game_status_text.textAlign = "center";
+        this.game_status_text.textBaseline = "middle";
+        this.game_status_text.x = GAME_STATUS_TEXT_X_SHIFT;
         this.game_status_text.y = this.container.regY;
 
         this.current_player = FIRST_PLAYER;
@@ -71,10 +74,6 @@ export class GamePhaseIndicator {
     
     set_text(text: string) {
         this.game_status_text.text = text;
-        this.game_status_text.textAlign = "center";
-        this.game_status_text.textBaseline = "middle";
-        this.game_status_text.x = GAME_STATUS_TEXT_X_SHIFT;
-        // this.game_status_text.x = GAME_STATUS_TEXT_X_SHIFT - this.game_status_text.getMeasuredWidth() / 2;
     }
 
     set_regex_text(regex_text: string) {
