@@ -144,19 +144,22 @@ export class GameState {
             this.hover_cards();
         }, this);
 
+
         let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35, true, stage_width);
-        // verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
         verticalLayout.addItem(this.game_phase_indicator.container);
-        verticalLayout.addItem(this.skip_turn_button, -60);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
-        // verticalLayout.addItem(this.player_states[FIRST_PLAYER].container, -20);
 
         verticalLayout.apply_centering();
 
-        this.battlefield_container = verticalLayout;
+        this.skip_turn_button.x = stage_width - 150;
+        this.skip_turn_button.y = stage_height / 2 + 30;
+
+        this.battlefield_container = new createjs.Container();
+        this.battlefield_container.addChild(verticalLayout);
+        this.battlefield_container.addChild(this.skip_turn_button);
 
         game_field.addChild(this.battlefield_container);
 

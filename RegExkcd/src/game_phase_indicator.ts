@@ -4,14 +4,13 @@ import { input_disable } from "./main";
 
 const ELEMENT_SCALE = 0.7;
 const GAME_STATUS_TEXT_X_SHIFT = 140;
-const GAME_STATUS_TEXT_Y_SHIFT = 23;
 
 function load_sprite(spritesheet, index: number, scale: number): createjs.Sprite {
     let sprite = new createjs.Sprite(spritesheet);
     sprite.gotoAndStop(index);
     sprite.setTransform(0, 0, scale, scale);
     // TODO: Remove this when we add preload.
-    sprite.setBounds(0, 0, 400, 200);
+    sprite.setBounds(0, 0, 400, 150);
     return sprite;
 }
 
@@ -59,16 +58,6 @@ export class GamePhaseIndicator {
         this.game_status_text = new createjs.Text("-----", REGEX_STRING_TEXT_FONT, "white");
         this.game_status_text.y = this.container.regY - this.game_status_text.getMeasuredHeight() / 2 - 5;
 
-        // let horizonal = new TiledLayout(LayoutDirection.Horizontal, 90);
-        // horizonal.addItem(this.current_player_text);
-        // horizonal.addItem(this.game_phase_text);
-        // horizonal.addItem(this.regex_string_text);
-        // horizonal.addItem(this.tactics_sprite);
-        // this.container.addChild(horizonal);
-        // this.container.addChild(this.game_phase_text);
-        // this.tactics_sprite.visible = true;
-        // this.first_player_attack_sprite.visible = false;
-        // this.player_attack_sprite[SECOND_PLAYER].visible = false;
         this.current_player = FIRST_PLAYER;
         this.current_phase = GamePhase.Changing;
 
