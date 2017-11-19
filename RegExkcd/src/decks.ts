@@ -61,10 +61,13 @@ const DIGITS_KEY_TEMPLATES = [
 ];
 
 const SYMBOLS_KEY_TEMPLATES = [
-    "_",
-    "\\\\",
-    "\\'",
-    "\\\"",
+    "[_^@]",
+    "[^%!]",
+    "[_@!]",
+    "[@%!]",
+    "[_^@%!]",
+    "[_^@!]",
+    "[_@%!]",
     ".",
     "\\D",
 ];
@@ -104,10 +107,7 @@ const DIGITS_PASSWORD_TEMPLATES = [
 ];
 
 const SYMBOLS_PASSWORD_TEMPLATES = [
-    "_",
-    "\\",
-    "\'",
-    "\"",
+    "_^@%!",
 ];
 
 function generate_password(card_class: CardClass) {
@@ -120,10 +120,10 @@ function generate_password(card_class: CardClass) {
         length = randomInt(3, 4);
     } else if (card_class === CardClass.Digits) {
         template = DIGITS_PASSWORD_TEMPLATES[randomIndex(DIGITS_PASSWORD_TEMPLATES.length)];
-        length = 3; // randomInt(3, 5);
+        length = 3;
     } else if (card_class === CardClass.Symbols) {
         template = SYMBOLS_PASSWORD_TEMPLATES[randomIndex(SYMBOLS_PASSWORD_TEMPLATES.length)];
-        length = 1;
+        length = randomInt(2, 3);
     } else if (card_class === CardClass.Modifiers) {
         console.error("generate_password: can not use CardClass.Modifiers");
         return null;
