@@ -145,7 +145,7 @@ export class GameState {
 
         if (this.phase === GamePhase.Changing) {
             this.select_card_while_changing(owner, card_id, is_computer);
-        } else {
+        } else if (this.phase == GamePhase.Matching) {
             this.select_card_while_matching(owner, card_id, is_computer);
         }
     }
@@ -193,9 +193,9 @@ export class GameState {
         let players_hand = this.cards_inhand[owner];
         let players_play = this.cards_inplay[owner];
 
-        console.log("Before");
-        console.log("Card in hand: " + card_in_hand.id);
-        console.log("Card in play: " + card_in_play.id);
+        // console.log("Before");
+        // console.log("Card in hand: " + card_in_hand.id);
+        // console.log("Card in play: " + card_in_play.id);
 
         let hand_card_index = players_hand.cards.indexOf(card_in_hand);
         let play_card_index = players_play.cards.indexOf(card_in_play);
@@ -224,11 +224,14 @@ export class GameState {
         card_in_play.select_for_swap(false);
 
         card_in_hand.change_state(CardState.InPlay);
+        if (owner == SECOND_PLAYER) {
+            card_in_hand.set_visible(true);
+        }
         card_in_play.change_state(CardState.InHand);
 
-        console.log("Before");
-        console.log("Card in hand: " + card_in_hand.id);
-        console.log("Card in play: " + card_in_play.id);
+        // console.log("After");
+        // console.log("Card in hand: " + card_in_hand.id);
+        // console.log("Card in play: " + card_in_play.id);
     }
 
     discard_and_pick_new(owner: number, card_in_hand: Card) {
@@ -242,6 +245,9 @@ export class GameState {
                 this.select_card(owner, id, false);
             });
             this.add_card(new_card);
+            if (owner == SECOND_PLAYER) {
+                new_card.set_visible(false);
+            }
         }
     }
 
@@ -277,6 +283,7 @@ export class GameState {
             this.computer_thinking = true;
             play_as_computer(this);
         } else {
+            console.log("Releasing lock");
             this.computer_thinking = false;
             this.change_phase();
         }
