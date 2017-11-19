@@ -167,13 +167,13 @@ export class GameState {
 
         game_field.addChild(this.battlefield_container);
 
-        this.create_hp_containers(verticalLayout.y + this.skip_turn_button.y);
+        this.create_hp_containers();
 
         this.half_round_index = 0;
         this.set_phase(GamePhase.Changing);
     }
 
-    create_hp_containers(y: number) {
+    create_hp_containers() {
         this.player_hp_containers = new Array<createjs.Container>(2);
         this.player_hp_containers[FIRST_PLAYER] = new createjs.Container();
         this.player_hp_containers[SECOND_PLAYER] = new createjs.Container();
@@ -205,8 +205,8 @@ export class GameState {
             this.player_hp_texts[FIRST_PLAYER].x = 21/*player_heart_full.getBounds().width*/ + 5;
             this.player_hp_texts[FIRST_PLAYER].y = -3;
 
-            this.player_hp_containers[FIRST_PLAYER].x = 105;
-            this.player_hp_containers[FIRST_PLAYER].y = y + 145;
+            this.player_hp_containers[FIRST_PLAYER].x = 108;
+            this.player_hp_containers[FIRST_PLAYER].y = 755;
 
             this.player_hp_containers[FIRST_PLAYER].addChild(
                 player_brain_empty,
@@ -233,8 +233,8 @@ export class GameState {
             enemy_brain_empty.y = enemy_brain_full.y;
             enemy_brain_empty.gotoAndStop(1);
 
-            this.player_hp_containers[SECOND_PLAYER].x = stage_width - 130;
-            this.player_hp_containers[SECOND_PLAYER].y = y - 200;
+            this.player_hp_containers[SECOND_PLAYER].x = stage_width - 127;
+            this.player_hp_containers[SECOND_PLAYER].y = 410;
 
             this.player_hp_containers[SECOND_PLAYER].addChild(
                 enemy_brain_empty,
