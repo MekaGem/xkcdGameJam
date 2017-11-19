@@ -13,6 +13,10 @@ let mouse = {
 let stageWidth = 0;
 let stageHeight = 0;
 
+function oppositePlayer(player: number): number {
+    return 1 - player;
+}
+
 export class GameState {
     // Index of the current player.
     current_player: number;
@@ -276,7 +280,7 @@ export class GameState {
     }
 
     change_player() {
-        this.current_player = 1 - this.current_player;
+        this.current_player = oppositePlayer(this.current_player);
         if (this.current_player == SECOND_PLAYER) {
             // now computer changes cards
             console.log("Taking lock");
@@ -322,7 +326,7 @@ export class GameState {
         }
         console.log(`Max match: "${max_match}"`);
 
-        this.player_states[1 - this.current_player].deal_damage(max_match.length);
+        this.player_states[oppositePlayer(this.current_player)].deal_damage(max_match.length);
         // card.remove_password(regex_string);
 
         for (let i = 0; i < this.selected_cards.length; ++i) {
