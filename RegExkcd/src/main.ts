@@ -143,14 +143,14 @@ export class GameState {
         }, this);
 
         let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35, true, stage_width);
-        verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
+        // verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
-        verticalLayout.addItem(this.game_phase_indicator.container);
-        verticalLayout.addItem(this.skip_turn_button, -30);
+        verticalLayout.addItem(this.game_phase_indicator.container, 10);
+        verticalLayout.addItem(this.skip_turn_button, -20);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
-        verticalLayout.addItem(this.player_states[FIRST_PLAYER].container, -20);
+        // verticalLayout.addItem(this.player_states[FIRST_PLAYER].container, -20);
 
         verticalLayout.apply_centering();
 
@@ -498,10 +498,23 @@ export class GameState {
 };
 
 function create_background() {
+    // TODO: Move this out.
     var bg_sprite_sheet = new createjs.SpriteSheet({
         images: ["img/game_bg.png"],
         frames: {
-            width: 1500,
+            width: 1430,
+            height: 1500,
+            count: 1,
+            regX: 0,
+            regY: 0,
+            spacing: 0,
+            margin: 0
+        }
+    });
+    var border_sprite_sheet = new createjs.SpriteSheet({
+        images: ["img/border.png"],
+        frames: {
+            width: 1430,
             height: 1500,
             count: 1,
             regX: 0,
@@ -511,9 +524,13 @@ function create_background() {
         }
     });
     let game_field_bg = new createjs.Sprite(bg_sprite_sheet);
-    game_field_bg.setTransform(0, 75, 0.7, 0.7);
+    game_field_bg.setTransform(0, 0, 0.7, 0.7);
     game_field_bg.gotoAndStop(0);
-    return game_field_bg;
+
+    let border = new createjs.Sprite(border_sprite_sheet);
+    border.setTransform(0, 0, 0.7, 0.7);
+    border.gotoAndStop(0);
+    return [game_field_bg, border];
 }
 
 export function play() {
@@ -524,11 +541,16 @@ export function play() {
     stage_width = canvas.width;
     stage_height = canvas.height;
 
+    // TODO: Refactor this.
+    let v = create_background();
+
+    stage.addChild(v[0]);
+
     let game_field = new createjs.Container();
 
-    game_field.addChild(create_background());
-
     let game = new GameState(game_field);
+    game_field.setTransform(0, -50);
+    // game_field.y = -100;
     stage.addChild(game_field);
 
     change_screen = (screen: createjs.Container) => {
@@ -536,6 +558,7 @@ export function play() {
         stage.addChild(screen);
     };
 
+    stage.addChild(v[1]);
     stage.update();
 
     stage.on("stagemousemove", function(event: any) {
