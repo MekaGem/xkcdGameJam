@@ -128,6 +128,8 @@ export class GameState {
         }
 
         createjs.Ticker.on("tick", function(event) {
+            this.update_regex_highlight();
+
             if (input_disable) return;
             for (let i = 0; i < PLAYER_COUNT; ++i) {
                 for (let card of this.cards_inplay[i].cards) {
@@ -158,6 +160,38 @@ export class GameState {
 
         this.half_round_index = 0;
         this.set_phase(GamePhase.Changing);
+    }
+
+    highlight_for_card(owner: number, card: Card) {
+        let local = card.container.globalToLocal(mouse.x, mouse.y);
+        let bounds = card.container.getBounds();
+        if (local.x >= bounds.x && local.y >= bounds.y &&
+            local.x <= bounds.x + bounds.width && local.y <= bounds.y + bounds.height) {
+            for (let enemy_card of this.cards_inplay[1 - owner].cards) {
+                enemy_card.show_highlight(card.regex);
+            }
+        }
+    }
+
+    update_regex_highlight() {
+        for (let i = 0; i < PLAYER_COUNT; ++i) {
+            for (let card of this.cards_inplay[i].cards) card.highlighting_this_frame = false;
+            for (let card of this.cards_inhand[i].cards) card.highlighting_this_frame = false;
+        }
+
+        for (let i = 0; i < PLAYER_COUNT; ++i) {
+            for (let card of this.cards_inplay[i].cards) {
+                this.highlight_for_card(i, card);
+            }
+            if (i == FIRST_PLAYER) for (let card of this.cards_inhand[i].cards) {
+                this.highlight_for_card(i, card);
+            }
+        }
+
+        for (let i = 0; i < PLAYER_COUNT; ++i) {
+            for (let card of this.cards_inplay[i].cards) card.update_highlight();
+            for (let card of this.cards_inhand[i].cards) card.update_highlight();
+        }
     }
 
     set_phase(phase: GamePhase) {

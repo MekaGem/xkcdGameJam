@@ -1,5 +1,5 @@
 import {BORDER_SIZE, CARD_REGEX_TEXT_FONT, CARD_PASSWORD_TEXT_FONT, CARD_SELECTION_TEXT_FONT, CARD_DAMAGE_TEXT_FONT} from "./constants"
-import {randomInt} from "utils";
+import {randomInt, is_regex_valid} from "utils";
 import {CardSpec, draw_random_card_spec, XKCD_MEME_CARDS} from "decks";
 
 const IMAGE_COUNT = 30;
@@ -23,6 +23,8 @@ export enum CardState {
 export const CARD_SCALE = 0.7;
 export const SWAP_HOVER = 0.15;
 
+const HIGHLIGHT_MAX = 10;
+
 export class Card {
     regex: string;
     password: string;
@@ -32,6 +34,11 @@ export class Card {
 
     regex_text: createjs.Text;
     password_text: createjs.Text;
+    password_highlight: createjs.Shape;
+
+    highlighting = false;
+    highlight = 0;
+
     card_selection_number: createjs.Text;
     in_play_card_envelope: createjs.Container;
     in_play_card_bg: createjs.Sprite;
@@ -86,6 +93,11 @@ export class Card {
         this.password_text.x = 50;
         this.password_text.y = 225;
 
+        this.password_highlight = new createjs.Shape();
+        this.password_highlight.visible = false;
+        this.password_highlight.x = this.password_text.x;
+        this.password_highlight.y = this.password_text.y;
+
         this.regex_text = new createjs.Text(this.regex, CARD_REGEX_TEXT_FONT);
         this.regex_text.x = 50;
         this.regex_text.y = 260;
@@ -126,6 +138,7 @@ export class Card {
         this.container_shown.addChild(this.in_play_card_envelope);
         this.container_shown.addChild(this.card_selection_number);
         this.container_shown.addChild(this.regex_text);
+        this.container_shown.addChild(this.password_highlight);
         this.container_shown.addChild(this.password_text);
 
         this.container_hidden.addChild(this.in_hand_card_envelope);
@@ -158,6 +171,46 @@ export class Card {
         console.log("Card destroyed");
         this.change_state(CardState.Destoyed);
         this.container.alpha = 0.5;
+    }
+
+    highlighting_this_frame = false;
+
+    show_highlight(regex: string) {
+        if (!this.highlighting && is_regex_valid(regex)) {
+            let match_x = 0;
+            let match_width = this.password_text.getMeasuredWidth();
+            let line_height = this.password_text.getMeasuredHeight();
+
+            let matches = this.password.match(new RegExp(regex, "g"));
+            let max_match = "";
+            if (matches) {
+                for (const match of matches) {
+                    if (match.length > max_match.length) {
+                        max_match = match;
+                    }
+                }
+            }
+
+            this.password_highlight.graphics.clear();
+            this.password_highlight.graphics.beginFill("yellow").drawRoundRect(match_x, 0, match_width, line_height, 2);
+            this.password_highlight.alpha = 0;
+            this.highlight = 0;
+        }
+        this.highlighting_this_frame = true;
+    }
+
+    update_highlight() {
+        this.highlighting = this.highlighting_this_frame;
+
+        if (this.highlighting) {
+            this.highlight++;
+        } else {
+            this.highlight--;
+        }
+        if (this.highlight > HIGHLIGHT_MAX) this.highlight = HIGHLIGHT_MAX;
+        if (this.highlight < 0) this.highlight = 0;
+        this.password_highlight.visible = this.highlight > 0;
+        this.password_highlight.alpha = this.highlight / HIGHLIGHT_MAX;
     }
 
     remove_password(regex: string) {
