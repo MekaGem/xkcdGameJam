@@ -53,6 +53,8 @@ export enum CardState {
     InPlay, InHand, Destoyed
 };
 
+const CARD_SCALE = 0.7;
+
 export class Card {
     attack: string;
     dna: string;
@@ -73,6 +75,8 @@ export class Card {
     container_hidden: createjs.Container;
 
     selected_for_swap: boolean;
+
+    hover = 0;
 
     // Unique card index.
     id: number;
@@ -144,9 +148,13 @@ export class Card {
         this.container_hidden.addChild(this.in_hand_card_envelope);
 
         this.container = new createjs.Container();
+        this.container.regX = card_width / 2;
+        this.container.regY = card_height / 2;
+        this.container.x = card_width / 2 * CARD_SCALE;
+        this.container.y = card_height / 2 * CARD_SCALE;
         this.container.setBounds(0, 0, card_width, card_height);
 
-        this.container.scaleX = this.container.scaleY = 0.7;
+        this.container.scaleX = this.container.scaleY = CARD_SCALE;
         this.change_state(CardState.InPlay);
         this.set_visible(true);
     }
@@ -201,5 +209,19 @@ export class Card {
                 this.in_play_card_bg.gotoAndStop(1);
             }
         }
+    }
+
+    update_hover(mouse) {
+        let local = this.container.globalToLocal(mouse.x, mouse.y);
+        let bounds = this.container.getBounds();
+        if (local.x >= bounds.x && local.y >= bounds.y &&
+            local.x <= bounds.x + bounds.width && local.y <= bounds.y + bounds.height) {
+            this.hover += 1;
+        } else {
+            this.hover -= 1;
+        }
+        if (this.hover > 20) this.hover = 20;
+        if (this.hover < 0) this.hover = 0;
+        this.container.scaleX = this.container.scaleY = CARD_SCALE + this.hover * 0.01;
     }
 };

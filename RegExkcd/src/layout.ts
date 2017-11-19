@@ -8,17 +8,34 @@ export class TiledLayout extends createjs.Container {
     direction: LayoutDirection;
     spacing: number;
     center_elements: boolean;
+    size: number;
 
-    constructor(direction: LayoutDirection, spacing: number, center_elements: boolean = false) {
+    constructor(direction: LayoutDirection, spacing: number, center_elements: boolean = false, size: number = 0) {
         super();
 
         this.direction = direction;
         this.spacing = spacing;
         this.center_elements = center_elements;
+        this.size = size;
     }
 
     apply_centering() {
-        // TODO: Implement me!
+        let offset;
+        if (this.direction === LayoutDirection.Horizontal) {
+            offset = (this.size - super.getBounds().width) / 2;
+        } else {
+            offset = (this.size - super.getBounds().height) / 2;
+        }
+
+        console.log(`size = ${this.size}, offset = ${offset}`)
+
+        for (let child of this.children) {
+            if (this.direction === LayoutDirection.Horizontal) {
+                child.x += offset;
+            } else {
+                child.y += offset;
+            }
+        }
     }
 
     addItem(item: createjs.DisplayObject, spacing: number = 0) {

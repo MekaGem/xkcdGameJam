@@ -4,18 +4,28 @@ import { randomInt, clone_object } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
 import { ATTACK_STRING_TEXT_FONT } from "./constants";
 
+let mouse = {
+    x: 0,
+    y: 0
+};
+
+let stageWidth = 0;
+let stageHeight = 0;
+
 class Hand {
     cards: Array<Card>;
     container: TiledLayout;
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
+        this.container = new TiledLayout(LayoutDirection.Horizontal, 15, true, stageWidth);
 
         for (let i = 0; i < this.cards.length; ++i) {
             this.cards[i].change_state(CardState.InHand);
             this.container.addItem(this.cards[i].container);
         }
+
+        this.container.apply_centering();
     }
 
     get_selected_for_swap() {
@@ -34,12 +44,14 @@ class InPlay {
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
+        this.container = new TiledLayout(LayoutDirection.Horizontal, 15, true, stageWidth);
 
         for (let i = 0; i < this.cards.length; ++i) {
             this.cards[i].state = CardState.InPlay;
             this.container.addItem(this.cards[i].container);
         }
+
+        this.container.apply_centering();
     }
 
     get_selected_for_swap() {
@@ -141,6 +153,18 @@ class GameState {
                 }
             }
         }
+
+        createjs.Ticker.on("tick", function(event) {
+            for (let i = 0; i < PLAYER_COUNT; ++i) {
+                for (let card of this.cards_inplay[i].cards) {
+                    card.update_hover(mouse);
+                }
+
+                for (let card of this.cards_inhand[i].cards) {
+                    card.update_hover(mouse);
+                }
+            }
+        }, this);
 
         let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35);
         verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
@@ -437,10 +461,19 @@ export function play() {
     let stage = new createjs.Stage('RegExkcdStage');
     stage.mouseEnabled = true;
 
+    let canvas:any = stage.canvas;
+    stageWidth = canvas.width;
+    stageHeight = canvas.height;
+
     let game_field = new createjs.Container();
     let game = new GameState(game_field);
     stage.addChild(game_field);
     stage.update();
+
+    stage.on("stagemousemove", function(event: any) {
+        mouse.x = event.stageX;
+        mouse.y = event.stageY;
+    });
 
     createjs.Ticker.framerate = 60;
     createjs.Ticker.addEventListener("tick", stage);
