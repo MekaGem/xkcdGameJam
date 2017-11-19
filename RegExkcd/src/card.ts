@@ -241,11 +241,12 @@ export class Card {
             .to({rotation: 0},  30);
         createjs.Tween.get(dmg_text)
             .to({alpha: 1}, 300, createjs.Ease.getPowOut(2))
-            .wait(400)
-            .to({alpha: 0}, 300, createjs.Ease.getPowIn(2));
+            .wait(500)
+            .to({alpha: 0}, 300);
         createjs.Tween.get(this.in_play_attacked)
             .to({alpha: 1}, 500, createjs.Ease.getPowOut(2))
-            .to({alpha: 0, visible: false}, 500, createjs.Ease.getPowIn(2))
+            .wait(300)
+            .to({alpha: 0, visible: false}, 300)
             .call(function(){
                 this.container.removeChild(dmg_text);
                 this.animating = false;
