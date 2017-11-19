@@ -3,6 +3,8 @@ import { REGEX_STRING_TEXT_FONT, FIRST_PLAYER, GamePhase, SECOND_PLAYER } from "
 import { input_disable } from "./main";
 
 const ELEMENT_SCALE = 0.7;
+const GAME_STATUS_TEXT_X_SHIFT = 140;
+const GAME_STATUS_TEXT_Y_SHIFT = 23;
 
 function load_sprite(spritesheet, index: number, scale: number): createjs.Sprite {
     let sprite = new createjs.Sprite(spritesheet);
@@ -17,25 +19,21 @@ export class GamePhaseIndicator {
     container: createjs.Container;
 
     // Current regex string.
-    regex_string_text: createjs.Text;
-
-    // Current game phase.
-    game_phase_text: createjs.Text;
-
-    // Current player.
-    current_player_text: createjs.Text;
+    game_status_text: createjs.Text;
 
     // Sprite shown during tactics.
-    tactics_sprite: createjs.Sprite;
+    tactics_container: createjs.Container;
 
     // Sprite shown player attacks.
-    player_attack_sprite: Array<createjs.Sprite>;
+    player_attack_container: Array<createjs.Container>;
 
     current_player: number;
     current_phase: GamePhase;
 
     constructor() {
         this.container = new createjs.Container();
+        this.container.regY = 100 * ELEMENT_SCALE;
+        this.container.y = 35;
 
         var spritesheet = new createjs.SpriteSheet({
             images: ["img/phase_indicator_sprite.png"],
@@ -49,15 +47,17 @@ export class GamePhaseIndicator {
                 margin: 0
             }
         });
-        this.player_attack_sprite = new Array<createjs.Sprite>(2);
+        this.player_attack_container = new Array<createjs.Container>(2);
+        this.player_attack_container[FIRST_PLAYER] = new createjs.Container();
+        this.player_attack_container[SECOND_PLAYER] = new createjs.Container();
+        this.player_attack_container[FIRST_PLAYER].addChild(load_sprite(spritesheet, 1, ELEMENT_SCALE));
+        this.player_attack_container[SECOND_PLAYER].addChild(load_sprite(spritesheet, 2, ELEMENT_SCALE));
 
-        this.tactics_sprite = load_sprite(spritesheet, 0, ELEMENT_SCALE);
-        this.player_attack_sprite[FIRST_PLAYER] = load_sprite(spritesheet, 1, ELEMENT_SCALE);
-        this.player_attack_sprite[SECOND_PLAYER] = load_sprite(spritesheet, 2, ELEMENT_SCALE);
+        this.tactics_container = new createjs.Container();
+        this.tactics_container.addChild(load_sprite(spritesheet, 0, ELEMENT_SCALE));
 
-        this.game_phase_text = new createjs.Text("                            ", REGEX_STRING_TEXT_FONT, "red");
-        this.regex_string_text = new createjs.Text("                  ", REGEX_STRING_TEXT_FONT, "red");
-        this.current_player_text = new createjs.Text("                    ", REGEX_STRING_TEXT_FONT, "red");
+        this.game_status_text = new createjs.Text("-----", REGEX_STRING_TEXT_FONT, "white");
+        this.game_status_text.y = this.container.regY - this.game_status_text.getMeasuredHeight() / 2 - 5;
 
         // let horizonal = new TiledLayout(LayoutDirection.Horizontal, 90);
         // horizonal.addItem(this.current_player_text);
@@ -71,18 +71,22 @@ export class GamePhaseIndicator {
         // this.player_attack_sprite[SECOND_PLAYER].visible = false;
         this.current_player = FIRST_PLAYER;
         this.current_phase = GamePhase.Changing;
-        this.container.addChild(this.tactics_sprite);
-        this.container.addChild(this.player_attack_sprite[FIRST_PLAYER]);
-        this.container.addChild(this.player_attack_sprite[SECOND_PLAYER]);
 
-        this.container.regY = 100 * ELEMENT_SCALE;
-        this.container.y = 35;
+        this.container.addChild(this.tactics_container);
+        this.container.addChild(this.player_attack_container[FIRST_PLAYER]);
+        this.container.addChild(this.player_attack_container[SECOND_PLAYER]);
+        this.container.addChild(this.game_status_text);
 
         this.update_phase_status();
     }
+    
+    set_text(text: string) {
+        this.game_status_text.text = text;
+        this.game_status_text.x = GAME_STATUS_TEXT_X_SHIFT - this.game_status_text.getMeasuredWidth() / 2;
+    }
 
     set_regex_text(regex_text: string) {
-        this.regex_string_text.text = regex_text;
+        this.game_status_text.text = regex_text;
     }
 
     redraw_phase_status() {
@@ -99,27 +103,25 @@ export class GamePhaseIndicator {
     }
 
     update_phase_status() {
-        this.player_attack_sprite[FIRST_PLAYER].visible = false;
-        this.player_attack_sprite[SECOND_PLAYER].visible = false;
-        this.tactics_sprite.visible = false;
+        this.player_attack_container[FIRST_PLAYER].visible = false;
+        this.player_attack_container[SECOND_PLAYER].visible = false;
+        this.tactics_container.visible = false;
 
         if (this.current_phase == GamePhase.Changing) {
-            this.game_phase_text.text = "Strategy";
-            this.tactics_sprite.visible = true;
+            this.tactics_container.visible = true;
 
             if (this.current_player == FIRST_PLAYER) {
-                this.current_player_text.text = "YOUR TURN";
+                this.set_text("YOUR TURN");
             } else {
-                this.current_player_text.text = "OPPONENT TURN";
+                this.set_text("OPPONENT TURN");
             }
         } else if (this.current_phase == GamePhase.Matching) {
-            this.player_attack_sprite[this.current_player].visible = true;
-            this.game_phase_text.text = "Battle";
+            this.player_attack_container[this.current_player].visible = true;
 
             if (this.current_player == FIRST_PLAYER) {
-                this.current_player_text.text = "YOUR TURN";
+                this.set_text("YOUR TURN");
             } else {
-                this.current_player_text.text = "OPPONENT TURN";
+                this.set_text("OPPONENT TURN");
             }
         }
     }
@@ -127,7 +129,7 @@ export class GamePhaseIndicator {
     set_player(current_player: number) {
         if (current_player === this.current_player) return;
         this.current_player = current_player;
-        if (this.current_phase === GamePhase.Changing) return;
+        // if (this.current_phase === GamePhase.Changing) return;
         this.redraw_phase_status();
     }
 

@@ -149,7 +149,7 @@ export class GameState {
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
         verticalLayout.addItem(this.game_phase_indicator.container);
-        verticalLayout.addItem(this.skip_turn_button, -20);
+        verticalLayout.addItem(this.skip_turn_button, -60);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
         // verticalLayout.addItem(this.player_states[FIRST_PLAYER].container, -20);
