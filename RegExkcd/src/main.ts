@@ -449,6 +449,25 @@ export class GameState {
     }
 };
 
+function create_background() {
+    var bg_sprite_sheet = new createjs.SpriteSheet({
+        images: ["img/game_bg.png"],
+        frames: {
+            width: 1500,
+            height: 1500,
+            count: 1,
+            regX: 0,
+            regY: 0,
+            spacing: 0,
+            margin: 0
+        }
+    });
+    let game_field_bg = new createjs.Sprite(bg_sprite_sheet);
+    game_field_bg.setTransform(0, 75, 0.7, 0.7);
+    game_field_bg.gotoAndStop(0);
+    return game_field_bg;
+}
+
 export function play() {
     let stage = new createjs.Stage('RegExkcdStage');
     stage.mouseEnabled = true;
@@ -458,6 +477,9 @@ export function play() {
     stage_height = canvas.height;
 
     let game_field = new createjs.Container();
+
+    game_field.addChild(create_background());
+
     let game = new GameState(game_field);
     stage.addChild(game_field);
 
