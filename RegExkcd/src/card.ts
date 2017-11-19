@@ -81,30 +81,16 @@ export class Card {
 
     static card_sheets_initted = false;
     static card_sheet: createjs.SpriteSheet;
-    static card_bg_sheet: createjs.SpriteSheet;
 
     constructor(attack: string, dna: string, card_id: number) {
         if (!Card.card_sheets_initted) {
             Card.card_sheets_initted = true;
             Card.card_sheet = new createjs.SpriteSheet({
-                images: ["img/cards.png"],
+                images: ["img/cards_sprite.png"],
                 frames: {
                     width: 200,
                     height: 300,
-                    count: 10,
-                    regX: 0,
-                    regY: 0,
-                    spacing: 0,
-                    margin: 0
-                }
-            });
-
-            Card.card_bg_sheet = new createjs.SpriteSheet({
-                images: ["img/card_background.png"],
-                frames: {
-                    width: 200,
-                    height: 300,
-                    count: 3,
+                    count: 35,
                     regX: 0,
                     regY: 0,
                     spacing: 0,
@@ -134,16 +120,16 @@ export class Card {
 
         this.in_play_card_envelope = new createjs.Container();
         {
-            this.in_play_card_bg = new createjs.Sprite(Card.card_bg_sheet);
+            this.in_play_card_bg = new createjs.Sprite(Card.card_sheet);
             this.in_play_card_bg.gotoAndStop(1);
             this.in_play_card_envelope.addChild(this.in_play_card_bg);
 
             let face = new createjs.Sprite(Card.card_sheet);
-            face.gotoAndStop(card_id % 10);
+            face.gotoAndStop(5 + card_id);
             this.in_play_card_envelope.addChild(face);
         }
 
-        this.in_hand_card_envelope = new createjs.Sprite(Card.card_bg_sheet);
+        this.in_hand_card_envelope = new createjs.Sprite(Card.card_sheet);
         this.in_hand_card_envelope.gotoAndStop(0);
 
         this.card_selection_number = new createjs.Text("", CARD_SELECTION_TEXT_FONT, "red");
