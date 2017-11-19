@@ -187,7 +187,7 @@ export class Card {
         } else {
             this.hover -= 1;
         }
-        if (this.hover > 20) this.hover = 20;
+        if (this.hover > 14) this.hover = 14;
         if (this.hover < 0) this.hover = 0;
         this.container.scaleX = this.container.scaleY = CARD_SCALE + this.hover * 0.01;
     }

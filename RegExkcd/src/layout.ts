@@ -27,8 +27,6 @@ export class TiledLayout extends createjs.Container {
             offset = (this.size - super.getBounds().height) / 2;
         }
 
-        console.log(`size = ${this.size}, offset = ${offset}`)
-
         for (let child of this.children) {
             if (this.direction === LayoutDirection.Horizontal) {
                 child.x += offset;
