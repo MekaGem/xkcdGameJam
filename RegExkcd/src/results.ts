@@ -43,40 +43,64 @@ export function get_results_screen(game_state: GameState) {
     results_screen.removeAllChildren();
 
     let enemy_container = new TiledLayout(LayoutDirection.Horizontal, 0);
+    let enemy_container_graveyard = new TiledLayout(LayoutDirection.Horizontal, 0);
     let enemy_cards = game_state.cards_inplay[SECOND_PLAYER].cards;
     enemy_cards = enemy_cards.concat(game_state.cards_inhand[SECOND_PLAYER].cards);
+    const enemy_active_cards = enemy_cards.length;
     enemy_cards = enemy_cards.concat(game_state.player_graveyard[SECOND_PLAYER]);
 
     console.log(enemy_cards);
 
+    let index = 0;
+    let current_container = enemy_container;
     for (let card of enemy_cards) {
+        if (index === enemy_active_cards) {
+            current_container = enemy_container_graveyard;
+        }
+        ++index;
+
         // createjs.Tween.removeTweens(card.container);
         card.container.x = 0;
         card.container.y = 0;
-        enemy_container.addItem(card.container);
+        current_container.addItem(card.container);
         card.set_visible(true);
         card.container.removeAllEventListeners();
     }
     enemy_container.scaleX = outer_scale;
     enemy_container.scaleY = outer_scale;
     enemy_container.y = 50;
+    enemy_container_graveyard.scaleX = outer_scale;
+    enemy_container_graveyard.scaleY = outer_scale;
+    enemy_container_graveyard.y = 50;
 
     let player_container = new TiledLayout(LayoutDirection.Horizontal, 0);
+    let player_container_graveyard = new TiledLayout(LayoutDirection.Horizontal, 0);
     let player_cards = game_state.cards_inplay[FIRST_PLAYER].cards;
     player_cards = player_cards.concat(game_state.cards_inhand[FIRST_PLAYER].cards);
+    const player_active_cards = player_cards.length;
     player_cards = player_cards.concat(game_state.player_graveyard[FIRST_PLAYER]);
 
+    index = 0;
+    current_container = player_container;
     for (let card of player_cards) {
+        if (index === player_active_cards) {
+            current_container = player_container_graveyard;
+        }
+        ++index;
+
         // createjs.Tween.removeTweens(card.container);
         card.container.x = 0;
         card.container.y = 0;
-        player_container.addItem(card.container);
+        current_container.addItem(card.container);
         card.set_visible(true);
         card.container.removeAllEventListeners();
     }
     player_container.scaleX = outer_scale;
     player_container.scaleY = outer_scale;
     player_container.y = 50;
+    player_container_graveyard.scaleX = outer_scale;
+    player_container_graveyard.scaleY = outer_scale;
+    player_container_graveyard.y = 50;
 
     let result_text = new createjs.Text(get_result_text(game_result), HP_TEXT_FONT, "red");
 
@@ -92,9 +116,11 @@ export function get_results_screen(game_state: GameState) {
 
     results_screen.addItem(enemy_title);
     results_screen.addItem(enemy_container);
+    results_screen.addItem(enemy_container_graveyard);
 
     results_screen.addItem(player_title);
     results_screen.addItem(player_container);
+    results_screen.addItem(player_container_graveyard);
 
     results_screen.x = 100; //(stage_width - results_screen.getBounds().width) / 2.0;
     results_screen.y = 0;
