@@ -15,7 +15,9 @@ let mouse = {
 export let stage_width = 0;
 export let stage_height = 0;
 
-let input_disable = 0;
+export let input_disable = {
+    i: 0
+};
 
 // Function for changing the current screen.
 let change_screen;
@@ -250,7 +252,7 @@ export class GameState {
     }
 
     hover_cards() {
-        if (input_disable) return;
+        if (input_disable.i) return;
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             for (let card of this.cards_inplay[i].cards) {
                 if (this.phase === GamePhase.Matching && i === FIRST_PLAYER &&
@@ -290,7 +292,7 @@ export class GameState {
 
     select_card(owner: number, card_id: number, is_computer: boolean): void {
         console.log(`Selecting card (${owner}, ${card_id})`);
-        if ((this.computer_thinking || input_disable) && !is_computer) {
+        if ((this.computer_thinking || input_disable.i) && !is_computer) {
             return;
         }
 
@@ -339,7 +341,7 @@ export class GameState {
     }
 
     swap_cards(owner: number, card_in_hand: Card, card_in_play: Card) {
-        input_disable++;
+        input_disable.i++;
 
         card_in_hand.select_for_swap(false);
         card_in_play.select_for_swap(false);
@@ -417,7 +419,7 @@ export class GameState {
                 this.discard_and_pick_new(owner, card_in_play);
                 this.change_player();
 
-                input_disable--;
+                input_disable.i--;
             }, null, this);
     }
 
@@ -436,7 +438,7 @@ export class GameState {
             this.add_card(new_card);
             new_card.set_visible(false);
 
-            input_disable++;
+            input_disable.i++;
 
             let ai = (owner == SECOND_PLAYER);
             let target_pos = {x: new_card.container.x, y: new_card.container.y};
@@ -459,7 +461,7 @@ export class GameState {
                     if (!ai) {
                         new_card.set_visible(true, true);
                     }
-                    input_disable--;
+                    input_disable.i--;
                 }, null, this);
         }
     }

@@ -1,5 +1,6 @@
 import { TiledLayout, LayoutDirection } from "./layout";
 import { REGEX_STRING_TEXT_FONT, FIRST_PLAYER, GamePhase, SECOND_PLAYER } from "./constants";
+import { input_disable } from "./main";
 
 const ELEMENT_SCALE = 0.7;
 
@@ -9,7 +10,6 @@ function load_sprite(spritesheet, index: number, scale: number): createjs.Sprite
     sprite.setTransform(0, 0, scale, scale);
     // TODO: Remove this when we add preload.
     sprite.setBounds(0, 0, 400, 200);
-    sprite.y -= 35;
     return sprite;
 }
 
@@ -74,6 +74,11 @@ export class GamePhaseIndicator {
         this.container.addChild(this.tactics_sprite);
         this.container.addChild(this.player_attack_sprite[FIRST_PLAYER]);
         this.container.addChild(this.player_attack_sprite[SECOND_PLAYER]);
+
+        this.container.regY = 100 * ELEMENT_SCALE;
+        this.container.y = 35;
+
+        this.update_phase_status();
     }
 
     set_regex_text(regex_text: string) {
@@ -81,6 +86,19 @@ export class GamePhaseIndicator {
     }
 
     redraw_phase_status() {
+        input_disable.i++;
+
+        createjs.Tween.get(this.container)
+            .wait(300)
+            .to({scaleY: 0}, 300, createjs.Ease.getPowIn(4))
+            .call(function(){
+                this.update_phase_status();
+            }, null, this)
+            .to({scaleY: 1}, 300, createjs.Ease.getPowOut(4))
+            .call(function(){input_disable.i--});
+    }
+
+    update_phase_status() {
         this.player_attack_sprite[FIRST_PLAYER].visible = false;
         this.player_attack_sprite[SECOND_PLAYER].visible = false;
         this.tactics_sprite.visible = false;
@@ -104,15 +122,17 @@ export class GamePhaseIndicator {
                 this.current_player_text.text = "OPPONENT TURN";
             }
         }
-
     }
 
     set_player(current_player: number) {
+        if (current_player === this.current_player) return;
         this.current_player = current_player;
+        if (this.current_phase === GamePhase.Changing) return;
         this.redraw_phase_status();
     }
 
     set_phase(current_phase: GamePhase) {
+        if (current_phase === this.current_phase) return;
         this.current_phase = current_phase;
         this.redraw_phase_status();
     }
