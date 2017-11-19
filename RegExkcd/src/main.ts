@@ -18,14 +18,12 @@ class Hand {
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new TiledLayout(LayoutDirection.Horizontal, 15, true, stageWidth);
+        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
 
         for (let i = 0; i < this.cards.length; ++i) {
             this.cards[i].change_state(CardState.InHand);
             this.container.addItem(this.cards[i].container);
         }
-
-        this.container.apply_centering();
     }
 
     get_selected_for_swap() {
@@ -55,14 +53,12 @@ class InPlay {
 
     constructor(cards: Array<Card>) {
         this.cards = cards;
-        this.container = new TiledLayout(LayoutDirection.Horizontal, 15, true, stageWidth);
+        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
 
         for (let i = 0; i < this.cards.length; ++i) {
             this.cards[i].state = CardState.InPlay;
             this.container.addItem(this.cards[i].container);
         }
-
-        this.container.apply_centering();
     }
 
     get_selected_for_swap() {
@@ -177,7 +173,7 @@ class GameState {
             }
         }, this);
 
-        let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35);
+        let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35, true, stageWidth);
         verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
@@ -185,6 +181,9 @@ class GameState {
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
         verticalLayout.addItem(this.player_states[FIRST_PLAYER].container, -20);
+
+        verticalLayout.apply_centering();
+
         this.battlefield_container = verticalLayout;
 
         game_field.addChild(this.battlefield_container);

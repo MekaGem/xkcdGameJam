@@ -20,18 +20,11 @@ export class TiledLayout extends createjs.Container {
     }
 
     apply_centering() {
-        let offset;
-        if (this.direction === LayoutDirection.Horizontal) {
-            offset = (this.size - super.getBounds().width) / 2;
-        } else {
-            offset = (this.size - super.getBounds().height) / 2;
-        }
-
         for (let child of this.children) {
             if (this.direction === LayoutDirection.Horizontal) {
-                child.x += offset;
+                child.y += (this.size - child.getBounds().height) / 2;
             } else {
-                child.y += offset;
+                child.x += (this.size - child.getBounds().width) / 2;
             }
         }
     }
