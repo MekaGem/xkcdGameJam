@@ -1,6 +1,6 @@
 import { Card, CardState, generate_cards, CARD_SCALE, SWAP_HOVER } from "card";
 import { PlayerState, generate_players, Hand, InPlay } from "player";
-import { randomInt, clone_object } from "utils";
+import { randomInt, clone_object, is_regex_valid } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
 import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase } from "constants";
 import { play_as_computer } from "./computer";
@@ -327,16 +327,20 @@ export class GameState {
         if (owner === this.current_player) {
             if (card.state === CardState.InPlay) {
                 if (!card.selected) {
-                    this.selected_cards.push(card);
-                    card.select(this.selected_cards.length);
+                    let new_regex_string = this.get_regex_string() + card.regex;
+                    if (is_regex_valid(new_regex_string)) {
+                        this.selected_cards.push(card);
+                        card.select(this.selected_cards.length);
+                        this.regex_string_text.text = new_regex_string;
+                    }
                 } else {
                     let index = this.selected_cards.indexOf(card);
                     if (index + 1 === this.selected_cards.length) {
                         this.selected_cards.splice(index);
                         card.deselect();
+                        this.regex_string_text.text = this.get_regex_string();
                     }
                 }
-                this.regex_string_text.text = this.get_regex_string();
             }
         } else {
             if (card.state === CardState.InPlay) {
