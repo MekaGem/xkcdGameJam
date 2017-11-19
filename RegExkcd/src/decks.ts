@@ -15,7 +15,7 @@ export class CardSpec {
 export function draw_random_card_spec(cards: Array<CardSpec>): CardSpec {
     let card_i = randomInt(0, cards.length - 1);
     // HACK.
-    cards[card_i].image_index = card_i;
+    cards[card_i].image_index = card_i % 25;
     return cards[card_i];
 }
 
