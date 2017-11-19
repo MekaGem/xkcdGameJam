@@ -1,4 +1,4 @@
-import { randomInt } from "./utils";
+import { randomInt, randomIndex } from "./utils";
 
 export class CardSpec {
     password: string;
@@ -52,6 +52,132 @@ export const XKCD_MEME_CARDS = [
     new CardSpec('MansNotHot', '\\d\\D*\\d')
 ];
 
+enum CardClass {
+    Letters, Digits, Symbols, Modifiers
+};
+
+const LETTER_KEY_TEMPLATES = [
+    "[A-Z]",
+    "[a-a]",
+];
+
+const DIGITS_KEY_TEMPLATES = [
+    "[0-9]", // same as \d
+    "\\d",
+    "0",
+    "1",
+];
+
+const SYMBOLS_KEY_TEMPLATES = [
+    "\\s",
+    "\\\\",
+    "\\'",
+    "\\*",
+    ".",
+];
+
+const MODIFIERS_KEY_TEMPLATES = [
+    "{1, 2}",
+    "{3}",
+    "{1,}",
+    "*",
+    "?"
+];
+
+function generate_key(card_class: CardClass) {
+    if (card_class === CardClass.Letters) {
+        return LETTER_KEY_TEMPLATES[randomIndex(LETTER_KEY_TEMPLATES.length)];
+    } else if (card_class === CardClass.Digits) {
+        return DIGITS_KEY_TEMPLATES[randomIndex(DIGITS_KEY_TEMPLATES.length)];
+    } else if (card_class === CardClass.Symbols) {
+        return SYMBOLS_KEY_TEMPLATES[randomIndex(SYMBOLS_KEY_TEMPLATES.length)];
+    } else if (card_class === CardClass.Modifiers) {
+        return MODIFIERS_KEY_TEMPLATES[randomIndex(MODIFIERS_KEY_TEMPLATES.length)];
+    }
+    console.error("generate_key: unknown card_class");
+    return null;
+}
+
+const LETTER_PASSWORD_TEMPLATES = [
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    "abcdefghijklmnopqrstuvwxyz",
+];
+
+const DIGITS_PASSWORD_TEMPLATES = [
+    "0123456789",
+    "0",
+    "1",
+];
+
+const SYMBOLS_PASSWORD_TEMPLATES = [
+    "\ ",
+    "\\",
+    "\'",
+    "\"",
+];
+
+function generate_password(card_class: CardClass) {
+    let template: string;
+    let length: number;
+    if (card_class === CardClass.Letters) {
+        template = LETTER_PASSWORD_TEMPLATES[randomIndex(LETTER_PASSWORD_TEMPLATES.length)];
+        length = randomInt(2, 4);
+    } else if (card_class === CardClass.Digits) {
+        template = DIGITS_PASSWORD_TEMPLATES[randomIndex(DIGITS_PASSWORD_TEMPLATES.length)];
+        length = randomInt(2, 4);
+    } else if (card_class === CardClass.Symbols) {
+        template = SYMBOLS_PASSWORD_TEMPLATES[randomIndex(SYMBOLS_PASSWORD_TEMPLATES.length)];
+        length = 1;
+    } else if (card_class === CardClass.Modifiers) {
+        console.error("generate_password: can not use CardClass.Modifiers");
+        return null;
+    } else {
+        console.error("generate_password: unknown card_class");
+        return null;
+    }
+
+    let password = ""
+    for (let i = 0; i < length; ++i) {
+        let index = randomIndex(template.length);
+        password += template[index];
+    }
+    return password;
+}
+
+class CardTemplate {
+    id: string;
+    key_class: CardClass;
+    password_classes: Array<CardClass>;
+
+    constructor(id: string, key_class: CardClass, password_classes: Array<CardClass>) {
+        this.id = id;
+        this.key_class = key_class;
+        this.password_classes = password_classes;
+    }
+}
+
+const CARD_TEMPLATES = [
+    new CardTemplate("000", CardClass.Digits, [CardClass.Letters, CardClass.Letters])
+];
+
+function generate_regex_class_cards(): Array<CardSpec> {
+    let cards = new Array<CardSpec>();
+    for (let i = 0; i < CARD_TEMPLATES.length; ++i) {
+        let template = CARD_TEMPLATES[i];
+
+        let id = template.id;
+        let key = generate_key(template.key_class);
+        let password = "";
+        for (let j = 0; j < template.password_classes.length; ++j) {
+            let tmp = generate_password(template.password_classes[j]);
+            password += tmp;
+        }
+
+        console.log("new card spec: ", id, key, password);
+    }
+    return cards;
+}
+
 export const REGEX_CLASS_CARDS = generate_regex_class_cards();
 
 export const IPV4 = [
@@ -61,8 +187,3 @@ export const IPV4 = [
     "99.120.177.211",
     "172.220.254.106"
 ];
-
-function generate_regex_class_cards(): Array<CardSpec> {
-    let cards = new Array<CardSpec>();
-    return cards;
-}
