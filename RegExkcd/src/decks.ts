@@ -1,6 +1,8 @@
 import { randomInt, randomIndex } from "./utils";
 import { Card } from "./card";
 
+const CARD_COUNT = 30;
+
 export class CardSpec {
     password: string;
     regex: string;
@@ -16,7 +18,7 @@ export class CardSpec {
 export function draw_random_card_spec(cards: Array<CardSpec>): CardSpec {
     let card_i = randomInt(0, cards.length - 1);
     // HACK.
-    cards[card_i].image_index = card_i % 25;
+    cards[card_i].image_index = card_i % CARD_COUNT;
     return cards[card_i];
 }
 
@@ -212,7 +214,7 @@ function generate_regex_class_cards(): Array<CardSpec> {
         }
 
         console.log("new card spec: ", id, key, password);
-        cards.push(new CardSpec(password, key, i % 25));
+        cards.push(new CardSpec(password, key, i % CARD_COUNT));
     }
 
     XKCD_MEME_CARDS = cards;
