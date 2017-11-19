@@ -12,6 +12,13 @@ export class CardSpec {
     }
 };
 
+export function draw_random_card_spec(cards: Array<CardSpec>): CardSpec {
+    let card_i = randomInt(0, cards.length - 1);
+    // HACK.
+    cards[card_i].image_index = card_i;
+    return cards[card_i];
+}
+
 export const XKCD_MEME_CARDS = [
     new CardSpec('Tr0ub4dor&3', '[a-z]'),
     new CardSpec('Serious PuTTY', '[a-z]'),
@@ -45,9 +52,17 @@ export const XKCD_MEME_CARDS = [
     new CardSpec('MansNotHot', '\\d\\D*\\d')
 ];
 
-export function draw_random_card_spec(cards: Array<CardSpec>): CardSpec {
-    let card_i = randomInt(0, cards.length - 1);
-    // HACK.
-    cards[card_i].image_index = card_i;
-    return cards[card_i];
+export const REGEX_CLASS_CARDS = generate_regex_class_cards();
+
+export const IPV4 = [
+    "163.10.201.43",
+    "217.79.198.104",
+    "191.134.54.100",
+    "99.120.177.211",
+    "172.220.254.106"
+];
+
+function generate_regex_class_cards(): Array<CardSpec> {
+    let cards = new Array<CardSpec>();
+    return cards;
 }
