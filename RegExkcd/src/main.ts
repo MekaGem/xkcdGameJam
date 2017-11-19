@@ -1,4 +1,4 @@
-import { Card, CardState, generate_cards } from "card";
+import { Card, CardState, generate_cards, CARD_SCALE, SWAP_HOVER } from "card";
 import { PlayerState, generate_players, Hand, InPlay } from "player";
 import { randomInt, clone_object } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
@@ -9,8 +9,10 @@ let mouse = {
     y: 0
 };
 
-let stageWidth = 0;
-let stageHeight = 0;
+let stage_width = 0;
+let stage_height = 0;
+
+let input_enabled = true;
 
 enum GamePhase {
     Changing, Matching
@@ -103,6 +105,7 @@ class GameState {
         }
 
         createjs.Ticker.on("tick", function(event) {
+            if (!input_enabled) return;
             for (let i = 0; i < PLAYER_COUNT; ++i) {
                 for (let card of this.cards_inplay[i].cards) {
                     card.update_hover(mouse);
@@ -114,7 +117,7 @@ class GameState {
             }
         }, this);
 
-        let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35, true, stageWidth);
+        let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35, true, stage_width);
         verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
@@ -236,7 +239,7 @@ class GameState {
 
     select_card(owner: number, card_id: number, is_computer: boolean): void {
         console.log(`Selecting card (${owner}, ${card_id})`);
-        if (this.computer_thinking && !is_computer) {
+        if ((this.computer_thinking || !input_enabled) && !is_computer) {
             return;
         }
 
@@ -287,45 +290,90 @@ class GameState {
     }
 
     swap_cards(owner: number, card_in_hand: Card, card_in_play: Card) {
-        let players_hand = this.cards_inhand[owner];
-        let players_play = this.cards_inplay[owner];
-
-        console.log("Before");
-        console.log("Card in hand: " + card_in_hand.id);
-        console.log("Card in play: " + card_in_play.id);
-
-        let hand_card_index = players_hand.cards.indexOf(card_in_hand);
-        let play_card_index = players_play.cards.indexOf(card_in_play);
-        [players_hand.cards[hand_card_index], players_play.cards[play_card_index]] = [
-            players_play.cards[play_card_index],
-            players_hand.cards[hand_card_index]
-        ];
-
-        hand_card_index = players_hand.container.getChildIndex(card_in_hand.container);
-        play_card_index = players_play.container.getChildIndex(card_in_play.container);
-
-        players_hand.container.removeChild(card_in_hand.container);
-        players_hand.container.addChildAt(card_in_play.container, hand_card_index);
-
-        players_play.container.removeChild(card_in_play.container);
-        players_play.container.addChildAt(card_in_hand.container, play_card_index);
-
-        [card_in_hand.container.x, card_in_hand.container.y, card_in_play.container.x, card_in_play.container.y] = [
-            card_in_play.container.x,
-            card_in_play.container.y,
-            card_in_hand.container.x,
-            card_in_hand.container.y
-        ]
+        input_enabled = false;
 
         card_in_hand.select_for_swap(false);
         card_in_play.select_for_swap(false);
 
-        card_in_hand.change_state(CardState.InPlay);
-        card_in_play.change_state(CardState.InHand);
+        let origA = {x: card_in_hand.container.x, y: card_in_hand.container.y};
+        let origB = {x: card_in_play.container.x, y: card_in_play.container.y};
+        let posA = card_in_hand.container.localToGlobal(card_in_hand.container.getBounds().width / 2, card_in_hand.container.getBounds().height / 2);
+        let posB = card_in_play.container.localToGlobal(card_in_play.container.getBounds().width / 2, card_in_play.container.getBounds().height / 2);
 
-        console.log("Before");
-        console.log("Card in hand: " + card_in_hand.id);
-        console.log("Card in play: " + card_in_play.id);
+        createjs.Tween.get(card_in_play.container)
+            .to({
+                scaleX: CARD_SCALE + SWAP_HOVER,
+                scaleY: CARD_SCALE + SWAP_HOVER,
+                rotation: 90,
+                x: card_in_play.container.x - 800
+            }, 500)
+            .wait(500)
+            .call(function(){
+                this.set_visible(false);
+            }, null, card_in_play)
+            .to({
+                x: origB.x + posA.x - posB.x,
+                y: origB.y + posA.y - posB.y,
+                rotation: 0
+            }, 500);
+        createjs.Tween.get(card_in_hand.container)
+            .to({
+                scaleX: CARD_SCALE + SWAP_HOVER,
+                scaleY: CARD_SCALE + SWAP_HOVER
+            }, 300)
+            .to({
+                x: card_in_hand.container.x + posB.x - posA.x,
+                y: card_in_hand.container.y + posB.y - posA.y
+            }, 500)
+            .to({
+                scaleX: CARD_SCALE,
+                scaleY: CARD_SCALE
+            }, 300)
+            .wait(500).call(function() {
+                let players_hand = this.cards_inhand[owner];
+                let players_play = this.cards_inplay[owner];
+        
+                console.log("Before");
+                console.log("Card in hand: " + card_in_hand.id);
+                console.log("Card in play: " + card_in_play.id);
+        
+                let hand_card_index = players_hand.cards.indexOf(card_in_hand);
+                let play_card_index = players_play.cards.indexOf(card_in_play);
+                [players_hand.cards[hand_card_index], players_play.cards[play_card_index]] = [
+                    players_play.cards[play_card_index],
+                    players_hand.cards[hand_card_index]
+                ];
+        
+                hand_card_index = players_hand.container.getChildIndex(card_in_hand.container);
+                play_card_index = players_play.container.getChildIndex(card_in_play.container);
+        
+                players_hand.container.removeChild(card_in_hand.container);
+                players_hand.container.addChildAt(card_in_play.container, hand_card_index);
+        
+                players_play.container.removeChild(card_in_play.container);
+                players_play.container.addChildAt(card_in_hand.container, play_card_index);
+        
+                [card_in_hand.container.x, card_in_hand.container.y, card_in_play.container.x, card_in_play.container.y] = [
+                    origB.x,
+                    origB.y,
+                    origA.x,
+                    origA.y
+                ]
+        
+                card_in_hand.change_state(CardState.InPlay);
+                card_in_play.change_state(CardState.InHand);
+
+                card_in_hand.hover = 0;
+                card_in_play.hover = 0;
+                
+                card_in_play.set_visible(true, true);
+        
+                console.log("Before");
+                console.log("Card in hand: " + card_in_hand.id);
+                console.log("Card in play: " + card_in_play.id);
+
+                input_enabled = true;
+            }, null, this);
     }
 
     discard_and_pick_new(owner: number, card_in_hand: Card) {
@@ -428,8 +476,8 @@ export function play() {
     stage.mouseEnabled = true;
 
     let canvas:any = stage.canvas;
-    stageWidth = canvas.width;
-    stageHeight = canvas.height;
+    stage_width = canvas.width;
+    stage_height = canvas.height;
 
     let game_field = new createjs.Container();
     let game = new GameState(game_field);

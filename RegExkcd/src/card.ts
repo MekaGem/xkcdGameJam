@@ -20,7 +20,8 @@ export enum CardState {
     InPlay, InHand, Destoyed
 };
 
-const CARD_SCALE = 0.7;
+export const CARD_SCALE = 0.7;
+export const SWAP_HOVER = 0.15;
 
 export class Card {
     regex: string;
@@ -44,6 +45,7 @@ export class Card {
     selected_for_swap: boolean;
 
     hover = 0;
+    animating = false;
 
     // Unique card index.
     id: number;
@@ -155,14 +157,29 @@ export class Card {
         this.state = state;
     }
 
-    set_visible(visible: boolean) {
+    set_visible(visible: boolean, animate = false) {
         if (this.visible !== visible) {
             this.visible = visible;
-            this.container.removeAllChildren();
-            if (visible) {
-                this.container.addChild(this.container_shown);
+            if (!animate) {
+                this.container.removeAllChildren();
+                if (visible) {
+                    this.container.addChild(this.container_shown);
+                } else {
+                    this.container.addChild(this.container_hidden);
+                }
             } else {
-                this.container.addChild(this.container_hidden);
+                this.animating = true;
+                createjs.Tween.get(this.container)
+                    .to({scaleX: 0}, 300)
+                    .call(function(){
+                        this.container.removeAllChildren();
+                        this.container.addChild(visible ? this.container_shown : this.container_hidden);
+                    }, null, this)
+                    .to({scaleX: CARD_SCALE + SWAP_HOVER}, 300)
+                    .to({scaleX: CARD_SCALE, scaleY: CARD_SCALE}, 500)
+                    .call(function(){
+                        this.animating = false;
+                    }, null, this);
             }
         }
     }
@@ -179,6 +196,8 @@ export class Card {
     }
 
     update_hover(mouse) {
+        if (this.animating) return;
+        
         let local = this.container.globalToLocal(mouse.x, mouse.y);
         let bounds = this.container.getBounds();
         if (local.x >= bounds.x && local.y >= bounds.y &&
