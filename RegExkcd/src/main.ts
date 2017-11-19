@@ -1,8 +1,8 @@
 import { Card, CardState, generate_cards } from "card";
-import { PlayerState, generate_players } from "player";
+import { PlayerState, generate_players, Hand, InPlay } from "player";
 import { randomInt, clone_object } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
-import { REGEX_STRING_TEXT_FONT } from "./constants";
+import { REGEX_STRING_TEXT_FONT } from "constants";
 
 let mouse = {
     x: 0,
@@ -11,65 +11,6 @@ let mouse = {
 
 let stageWidth = 0;
 let stageHeight = 0;
-
-class Hand {
-    cards: Array<Card>;
-    container: TiledLayout;
-
-    constructor(cards: Array<Card>) {
-        this.cards = cards;
-        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
-
-        for (let i = 0; i < this.cards.length; ++i) {
-            this.cards[i].change_state(CardState.InHand);
-            this.container.addItem(this.cards[i].container);
-        }
-    }
-
-    get_selected_for_swap() {
-        for (let card of this.cards) {
-            if (card.selected_for_swap) {
-                return card;
-            }
-        }
-        return null;
-    }
-
-    change_card(old_card: Card, new_card: Card) {
-        let index = this.cards.indexOf(old_card);
-        this.cards[index] = new_card;
-        index = this.container.getChildIndex(old_card.container);
-        this.container.removeChildAt(index);
-        this.container.addChildAt(new_card.container, index);
-        new_card.container.x = old_card.container.x;
-        new_card.container.y = old_card.container.y;
-        new_card.change_state(CardState.InHand);
-    }
-};
-
-class InPlay {
-    cards: Array<Card>;
-    container: TiledLayout;
-
-    constructor(cards: Array<Card>) {
-        this.cards = cards;
-        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
-
-        for (let i = 0; i < this.cards.length; ++i) {
-            this.cards[i].state = CardState.InPlay;
-            this.container.addItem(this.cards[i].container);
-        }
-    }
-
-    get_selected_for_swap() {
-        for (let card of this.cards) {
-            if (card.selected_for_swap) {
-                return card;
-            }
-        }
-        return null;
-    }
-};
 
 enum GamePhase {
     Changing, Matching

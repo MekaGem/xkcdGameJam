@@ -1,5 +1,6 @@
 import { HP_TEXT_FONT } from "./constants";
-import {Card, generate_cards} from "./card"
+import {Card, generate_cards, CardState} from "./card"
+import { TiledLayout, LayoutDirection } from "./layout";
 
 const START_HP = 10;
 
@@ -10,6 +11,65 @@ export function generate_players(): Array<PlayerState> {
     }
     return player_states;
 }
+
+export class Hand {
+    cards: Array<Card>;
+    container: TiledLayout;
+
+    constructor(cards: Array<Card>) {
+        this.cards = cards;
+        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
+
+        for (let i = 0; i < this.cards.length; ++i) {
+            this.cards[i].change_state(CardState.InHand);
+            this.container.addItem(this.cards[i].container);
+        }
+    }
+
+    get_selected_for_swap() {
+        for (let card of this.cards) {
+            if (card.selected_for_swap) {
+                return card;
+            }
+        }
+        return null;
+    }
+
+    change_card(old_card: Card, new_card: Card) {
+        let index = this.cards.indexOf(old_card);
+        this.cards[index] = new_card;
+        index = this.container.getChildIndex(old_card.container);
+        this.container.removeChildAt(index);
+        this.container.addChildAt(new_card.container, index);
+        new_card.container.x = old_card.container.x;
+        new_card.container.y = old_card.container.y;
+        new_card.change_state(CardState.InHand);
+    }
+};
+
+export class InPlay {
+    cards: Array<Card>;
+    container: TiledLayout;
+
+    constructor(cards: Array<Card>) {
+        this.cards = cards;
+        this.container = new TiledLayout(LayoutDirection.Horizontal, 15);
+
+        for (let i = 0; i < this.cards.length; ++i) {
+            this.cards[i].state = CardState.InPlay;
+            this.container.addItem(this.cards[i].container);
+        }
+    }
+
+    get_selected_for_swap() {
+        for (let card of this.cards) {
+            if (card.selected_for_swap) {
+                return card;
+            }
+        }
+        return null;
+    }
+};
 
 export class PlayerState {
     hp: number;
