@@ -47,6 +47,9 @@ export class GameState {
     // Current regex string.
     regex_string_text: createjs.Text;
 
+    // Number of current half round (total number of actions all players made).
+    half_round_index: number;
+
     phase: GamePhase;
 
     constructor(game_field: createjs.Container) {
@@ -129,6 +132,7 @@ export class GameState {
 
         game_field.addChild(this.battlefield_container);
 
+        this.half_round_index = 0;
         this.phase = GamePhase.Changing;
     }
 
@@ -319,16 +323,21 @@ export class GameState {
     }
 
     change_player() {
-        this.current_player = oppositePlayer(this.current_player);
-        if (this.current_player == SECOND_PLAYER) {
-            // now computer changes cards
-            console.log("Taking lock");
-            this.computer_thinking = true;
-            play_as_computer(this);
-        } else {
-            console.log("Releasing lock");
-            this.computer_thinking = false;
+        this.half_round_index += 1;
+
+        if (this.half_round_index % 2 === 0) {
+            console.log("Changing phase", this.half_round_index);
             this.change_phase();
+        }
+
+        this.current_player = oppositePlayer(this.current_player);
+        if (this.half_round_index % 4 === 0) {
+            console.log("Changing player", this.half_round_index);
+            this.current_player = oppositePlayer(this.current_player);
+        }
+
+        if (this.current_player == SECOND_PLAYER) {
+            play_as_computer(this);
         }
     }
 

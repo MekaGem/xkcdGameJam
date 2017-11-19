@@ -4,6 +4,9 @@ import { CardState } from "./card";
 import { clone_object, randomInt } from "./utils";
 
 export function play_as_computer(game_state: GameState) {
+    // Give control to computer.
+    console.log("Taking lock");
+    game_state.computer_thinking = true;
     if (game_state.phase === GamePhase.Changing) {
         console.log("Playing change");
         play_change(game_state);
@@ -11,6 +14,12 @@ export function play_as_computer(game_state: GameState) {
         console.log("Playing match");
         play_match(game_state);
     }
+}
+
+function finish_play(game_state: GameState) {
+    // Give control back to player.
+    console.log("Releasing lock");
+    game_state.computer_thinking = false;
 }
 
 function play_change(game_state: GameState) {
@@ -24,6 +33,7 @@ function play_change(game_state: GameState) {
     createjs.Tween.get({}).wait(1000).call(() => {
         game_state.select_card(SECOND_PLAYER, my_cards_inhand[in_hand_card].id, true);
         game_state.select_card(SECOND_PLAYER, my_cards_inplay[in_play_card].id, true);
+        finish_play(game_state);
     });
 }
 
@@ -108,5 +118,6 @@ function play_match(game_state: GameState) {
     }
     tween.wait(1000).call(() => {
         game_state.select_card(FIRST_PLAYER, opponent_cards[action.target_card].id, true);
+        finish_play(game_state);
     });
 }
