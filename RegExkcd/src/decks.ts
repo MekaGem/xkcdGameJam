@@ -15,10 +15,18 @@ export class CardSpec {
     }
 };
 
+let card_indexes = [];
+
 export function draw_random_card_spec(cards: Array<CardSpec>): CardSpec {
-    let card_i = randomInt(0, cards.length - 1);
+    if (card_indexes.length === 0) {
+        for (let i = 0; i < cards.length; i++) card_indexes.push(i);
+    }
+    let index_i = randomIndex(card_indexes.length);
+    let card_i = card_indexes[index_i];
+    card_indexes.splice(index_i, 1);
     // HACK.
     cards[card_i].image_index = card_i % CARD_COUNT;
+    //console.log(`Drawing random card, card_i = ${card_i}, image = ${cards[card_i].image_index}`);
     return cards[card_i];
 }
 
@@ -202,7 +210,7 @@ const CARD_TEMPLATES = [
 
 function generate_regex_class_cards(): Array<CardSpec> {
     let cards = new Array<CardSpec>();
-    for (let i = 0; i < CARD_TEMPLATES.length; ++i) {
+    for (let i = 0; i < CARD_TEMPLATES.length; ++i) for (let k = 0; k < 2; k++) {
         let template = CARD_TEMPLATES[i];
 
         let id = template.id;

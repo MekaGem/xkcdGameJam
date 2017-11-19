@@ -343,6 +343,8 @@ export class Card {
 
     show_attacked(dmg: number) {
         this.animating = true;
+        
+        this.hover = 0;
 
         this.in_play_attacked.visible = true;
         this.in_play_attacked.alpha = 0;
@@ -353,6 +355,13 @@ export class Card {
         dmg_text.alpha = 0;
         this.container.addChild(dmg_text);
 
+        let in_out = createjs.Ease.getPowInOut(2);
+        let out = createjs.Ease.getPowOut(2);
+
+        createjs.Tween.get(this.container)
+            .to({scaleX: CARD_SCALE + SWAP_HOVER, scaleY: CARD_SCALE + SWAP_HOVER}, 100, in_out)
+            .wait(700)
+            .to({scaleX: CARD_SCALE, scaleY: CARD_SCALE}, 100, in_out);
         createjs.Tween.get(this.container)
             .to({rotation: 5},  30)
             .to({rotation: -5}, 60)
@@ -362,11 +371,11 @@ export class Card {
             .to({rotation: -5}, 60)
             .to({rotation: 0},  30);
         createjs.Tween.get(dmg_text)
-            .to({alpha: 1}, 300, createjs.Ease.getPowOut(2))
+            .to({alpha: 1}, 300, out)
             .wait(500)
             .to({alpha: 0}, 300);
         createjs.Tween.get(this.in_play_attacked)
-            .to({alpha: 1}, 500, createjs.Ease.getPowOut(2))
+            .to({alpha: 1}, 500, out)
             .wait(300)
             .to({alpha: 0, visible: false}, 300)
             .call(function(){
