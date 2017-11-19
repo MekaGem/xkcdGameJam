@@ -75,6 +75,9 @@ export class GameState {
     // HP brain stats
     player_brains: Array<createjs.Bitmap>;
 
+    // Player instructions bubble
+    player_instructions: createjs.Sprite;
+
     constructor(game_field: createjs.Container) {
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
         this.cards_inplay[FIRST_PLAYER] = new InPlay(generate_cards(3));
@@ -169,8 +172,12 @@ export class GameState {
 
         this.create_hp_containers();
 
+        this.create_instruction_bubble();
+
         this.half_round_index = 0;
         this.set_phase(GamePhase.Changing);
+
+        this.update_instruction_bubble();
     }
 
     create_hp_containers() {
@@ -264,6 +271,40 @@ export class GameState {
             this.player_brains[SECOND_PLAYER].y = 16 - height;
 
             this.player_hp_texts[SECOND_PLAYER].text = enemy_hp.toString();
+        }
+    }
+
+    create_instruction_bubble() {
+        let instructions_sprite_sheet = new createjs.SpriteSheet({
+            images: ["img/instructions_sprite.png"],
+            frames: {
+                width: 400,
+                height: 150,
+                count: 3,
+            }
+        });
+
+        this.player_instructions = new createjs.Sprite(instructions_sprite_sheet);
+        this.player_instructions.x = 32;
+        this.player_instructions.y = 585;
+        this.player_instructions.scaleX = 0.6;
+        this.player_instructions.scaleY = 0.6;
+
+        this.battlefield_container.addChild(this.player_instructions);
+    }
+
+    update_instruction_bubble() {
+        if (this.current_player === FIRST_PLAYER) {
+            if (this.phase === GamePhase.Changing) {
+                console.log("GamePhase.Changing");
+                this.player_instructions.gotoAndStop(1);
+            } else {
+                console.log("GamePhase.Matching");
+                this.player_instructions.gotoAndStop(0);
+            }
+        } else {
+            console.log("WAIT");
+            this.player_instructions.gotoAndStop(2);
         }
     }
 
@@ -578,6 +619,8 @@ export class GameState {
         if (this.current_player == SECOND_PLAYER) {
             play_as_computer(this);
         }
+
+        this.update_instruction_bubble();
     }
 
     change_phase() {
