@@ -1,0 +1,13 @@
+{
+    "images": [
+        "assets/health_sprite.png"
+    ],
+    "frames": [
+        [ 0, 0, 21, 16, 0, 0, 0 ],
+        [ 0, 16, 21, 16, 0, 0, 0 ]
+    ],
+    "animations": {
+        "heart": 0,
+        "empty_heart": 1
+    }
+}
