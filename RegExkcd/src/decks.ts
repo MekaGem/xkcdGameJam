@@ -77,8 +77,8 @@ const LETTER_KEY_TEMPLATES = [
 const DIGITS_KEY_TEMPLATES = [
     "[0-9]", // same as \d
     "\\d",
-    "0",
-    "1",
+    "000",
+    "111",
 ];
 
 const SYMBOLS_KEY_TEMPLATES = [
@@ -87,13 +87,14 @@ const SYMBOLS_KEY_TEMPLATES = [
     "\\'",
     "\\\"",
     ".",
+    "\\D",
 ];
 
 const MODIFIERS_KEY_TEMPLATES = [
-    "{1, 2}",
-    "{3}",
-    "{1,}",
+    "{1,2}",
+    "{2,3}",
     "*",
+    "+",
 ];
 
 function generate_key(card_class: CardClass) {
@@ -137,10 +138,10 @@ function generate_password(card_class: CardClass) {
     let length: number;
     if (card_class === CardClass.Letters) {
         template = LETTER_PASSWORD_TEMPLATES[randomIndex(LETTER_PASSWORD_TEMPLATES.length)];
-        length = randomInt(2, 4);
+        length = randomInt(3, 5);
     } else if (card_class === CardClass.Digits) {
         template = DIGITS_PASSWORD_TEMPLATES[randomIndex(DIGITS_PASSWORD_TEMPLATES.length)];
-        length = randomInt(2, 4);
+        length = 3; // randomInt(3, 5);
     } else if (card_class === CardClass.Symbols) {
         template = SYMBOLS_PASSWORD_TEMPLATES[randomIndex(SYMBOLS_PASSWORD_TEMPLATES.length)];
         length = 1;
@@ -173,19 +174,28 @@ class CardTemplate {
 }
 
 const CARD_TEMPLATES = [
-    new CardTemplate("000", CardClass.Letters, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("001", CardClass.Letters, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("002", CardClass.Digits, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("003", CardClass.Digits, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("004", CardClass.Digits, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("005", CardClass.Symbols, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("006", CardClass.Symbols, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("007", CardClass.Modifiers, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("008", CardClass.Modifiers, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("009", CardClass.Modifiers, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("L00", CardClass.Letters, [CardClass.Random]),
+    new CardTemplate("L01", CardClass.Letters, [CardClass.Random, CardClass.Letters]),
+    new CardTemplate("L02", CardClass.Letters, [CardClass.Symbols]),
+    new CardTemplate("L03", CardClass.Letters, [CardClass.Symbols, CardClass.Letters]),
+    new CardTemplate("L04", CardClass.Letters, [CardClass.Digits]),
+    new CardTemplate("L04", CardClass.Letters, [CardClass.Digits, CardClass.Letters]),
 
-    new CardTemplate("010", CardClass.Letters, [CardClass.Random, CardClass.Random]),
-    new CardTemplate("011", CardClass.Letters, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("D00", CardClass.Digits, [CardClass.Random]),
+    new CardTemplate("D01", CardClass.Digits, [CardClass.Random, CardClass.Letters]),
+    new CardTemplate("D02", CardClass.Digits, [CardClass.Symbols]),
+    new CardTemplate("D03", CardClass.Digits, [CardClass.Symbols, CardClass.Letters]),
+    new CardTemplate("D04", CardClass.Digits, [CardClass.Letters]),
+
+    new CardTemplate("S00", CardClass.Symbols, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("S01", CardClass.Symbols, [CardClass.Random, CardClass.Random]),
+
+    new CardTemplate("M00", CardClass.Modifiers, [CardClass.Letters, CardClass.Letters, CardClass.Letters]),
+    new CardTemplate("M01", CardClass.Modifiers, [CardClass.Digits, CardClass.Digits, CardClass.Digits]),
+    new CardTemplate("M02", CardClass.Modifiers, [CardClass.Letters, CardClass.Letters, CardClass.Digits]),
+    new CardTemplate("M03", CardClass.Modifiers, [CardClass.Digits, CardClass.Digits, CardClass.Letters]),
+    new CardTemplate("M04", CardClass.Modifiers, [CardClass.Symbols, CardClass.Letters]),
+    new CardTemplate("M05", CardClass.Modifiers, [CardClass.Symbols, CardClass.Digits]),
 ];
 
 function generate_regex_class_cards(): Array<CardSpec> {
