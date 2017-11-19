@@ -1,4 +1,4 @@
-import {BORDER_SIZE, CARD_REGEX_TEXT_FONT, CARD_PASSWORD_TEXT_FONT, CARD_SELECTION_TEXT_FONT} from "./constants"
+import {BORDER_SIZE, CARD_REGEX_TEXT_FONT, CARD_PASSWORD_TEXT_FONT, CARD_SELECTION_TEXT_FONT, CARD_DAMAGE_TEXT_FONT} from "./constants"
 import {randomInt} from "utils";
 import {CardSpec, draw_random_card_spec, XKCD_MEME_CARDS} from "decks";
 
@@ -35,6 +35,7 @@ export class Card {
     card_selection_number: createjs.Text;
     in_play_card_envelope: createjs.Container;
     in_play_card_bg: createjs.Sprite;
+    in_play_attacked: createjs.Sprite;
     in_hand_card_envelope: createjs.Sprite;
     container: createjs.Container;
 
@@ -100,6 +101,12 @@ export class Card {
             let face = new createjs.Sprite(Card.card_sheet);
             face.gotoAndStop(5 + image_index);
             this.in_play_card_envelope.addChild(face);
+
+            this.in_play_attacked = new createjs.Sprite(Card.card_sheet);
+            this.in_play_attacked.gotoAndStop(4);
+            this.in_play_attacked.visible = false;
+
+            this.in_play_card_envelope.addChild(this.in_play_attacked);
         }
 
         this.in_hand_card_envelope = new createjs.Sprite(Card.card_sheet);
@@ -210,5 +217,38 @@ export class Card {
         if (this.hover > 14) this.hover = 14;
         if (this.hover < 0) this.hover = 0;
         this.container.scaleX = this.container.scaleY = CARD_SCALE + this.hover * 0.01;
+    }
+
+    show_attacked(dmg: number) {
+        this.animating = true;
+
+        this.in_play_attacked.visible = true;
+        this.in_play_attacked.alpha = 0;
+
+        let dmg_text = new createjs.Text("-" + dmg.toString(), CARD_DAMAGE_TEXT_FONT, "white");
+        dmg_text.x = 145;
+        dmg_text.y = 170;
+        dmg_text.alpha = 0;
+        this.container.addChild(dmg_text);
+
+        createjs.Tween.get(this.container)
+            .to({rotation: 5},  30)
+            .to({rotation: -5}, 60)
+            .to({rotation: 5},  60)
+            .to({rotation: -5}, 60)
+            .to({rotation: 5},  60)
+            .to({rotation: -5}, 60)
+            .to({rotation: 0},  30);
+        createjs.Tween.get(dmg_text)
+            .to({alpha: 1}, 300, createjs.Ease.getPowOut(2))
+            .wait(400)
+            .to({alpha: 0}, 300, createjs.Ease.getPowIn(2));
+        createjs.Tween.get(this.in_play_attacked)
+            .to({alpha: 1}, 500, createjs.Ease.getPowOut(2))
+            .to({alpha: 0, visible: false}, 500, createjs.Ease.getPowIn(2))
+            .call(function(){
+                this.container.removeChild(dmg_text);
+                this.animating = false;
+            }, null, this);
     }
 };

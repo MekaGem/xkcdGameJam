@@ -402,7 +402,8 @@ export class GameState {
         }
         console.log(`Max match: "${max_match}"`);
 
-        this.player_states[oppositePlayer(this.current_player)].deal_damage(max_match.length);
+        let damage = max_match.length;
+        this.player_states[oppositePlayer(this.current_player)].deal_damage(damage);
         // card.remove_password(regex_string);
 
         for (let i = 0; i < this.selected_cards.length; ++i) {
@@ -410,6 +411,8 @@ export class GameState {
         }
         this.selected_cards = [];
         this.regex_string_text.text = "";
+
+        card.show_attacked(damage);
     }
 };
 
