@@ -2,7 +2,7 @@ import { Card, CardState, generate_cards, CARD_SCALE, SWAP_HOVER } from "card";
 import { PlayerState, generate_players, Hand, InPlay } from "player";
 import { randomInt, clone_object, is_regex_valid, get_max_match } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
-import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase } from "constants";
+import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase, SKIP_TURN_FONT } from "constants";
 import { play_as_computer } from "./computer";
 
 let mouse = {
@@ -97,7 +97,11 @@ export class GameState {
     // Number of current half round (total number of actions all players made).
     half_round_index: number;
 
+    // Current phase of the game.
     phase: GamePhase;
+
+    // Skip turn button.
+    skip_turn_button: createjs.Container;
 
     constructor(game_field: createjs.Container) {
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
@@ -117,6 +121,17 @@ export class GameState {
         this.computer_thinking = false;
 
         this.game_phase_indicator = new GamePhaseIndicator();
+
+        this.skip_turn_button = new createjs.Container();
+        let skip_turn_button_text = new createjs.Text("Skip turn", SKIP_TURN_FONT, "black");
+        let skip_button_rect = new createjs.Shape();
+        skip_button_rect.graphics.beginFill("white").drawRect(0, 0, skip_turn_button_text.getMeasuredWidth(), skip_turn_button_text.getMeasuredHeight());
+        this.skip_turn_button.addChild(skip_button_rect);
+        this.skip_turn_button.addChild(skip_turn_button_text);
+
+        this.skip_turn_button.on("click", (event) => {
+            this.change_player();
+        });
 
         this.set_player(FIRST_PLAYER);
 
@@ -169,6 +184,7 @@ export class GameState {
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
         verticalLayout.addItem(this.game_phase_indicator.container);
+        verticalLayout.addItem(this.skip_turn_button, -30);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
         verticalLayout.addItem(this.player_states[FIRST_PLAYER].container, -20);
@@ -191,6 +207,7 @@ export class GameState {
     set_player(player: number) {
         this.current_player = player;
         this.game_phase_indicator.set_player(player);
+        this.skip_turn_button.visible = (player == FIRST_PLAYER);
     }
 
     add_card(card: Card) {

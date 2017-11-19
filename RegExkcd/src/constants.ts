@@ -5,6 +5,7 @@ export const CARD_PASSWORD_TEXT_FONT = "15px Arial";
 export const CARD_SELECTION_TEXT_FONT = "20px Arial";
 export const CARD_DAMAGE_TEXT_FONT = "25px Arial";
 export const REGEX_STRING_TEXT_FONT = "20px Arial";
+export const SKIP_TURN_FONT = "20px Arial";
 export const BORDER_SIZE = 8;
 
 // Game constants
