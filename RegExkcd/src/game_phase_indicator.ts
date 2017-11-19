@@ -85,7 +85,6 @@ export class GamePhaseIndicator {
         input_disable.i++;
 
         createjs.Tween.get(this.container)
-            .wait(300)
             .to({scaleY: 0}, 300, createjs.Ease.getPowIn(4))
             .call(function(){
                 this.update_phase_status();
@@ -105,7 +104,7 @@ export class GamePhaseIndicator {
             if (this.current_player == FIRST_PLAYER) {
                 this.set_text("YOUR TURN");
             } else {
-                this.set_text("OPPONENT TURN");
+                this.set_text("ENEMY TURN");
             }
         } else if (this.current_phase == GamePhase.Matching) {
             this.player_attack_container[this.current_player].visible = true;
@@ -113,7 +112,7 @@ export class GamePhaseIndicator {
             if (this.current_player == FIRST_PLAYER) {
                 this.set_text("YOUR TURN");
             } else {
-                this.set_text("OPPONENT TURN");
+                this.set_text("ENEMY TURN");
             }
         }
     }

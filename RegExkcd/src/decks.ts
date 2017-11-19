@@ -190,7 +190,7 @@ function generate_regex_class_cards(): Array<CardSpec> {
             password += tmp;
         }
 
-        console.log("new card spec: ", id, key, password);
+        //console.log("new card spec: ", id, key, password);
         cards.push(new CardSpec(password, key, i % CARD_COUNT, template.key_class));
     }
 

@@ -46,7 +46,7 @@ function play_change(game_state: GameState) {
         }
     }
 
-    createjs.Tween.get({}).wait(1000).call(() => {
+    createjs.Tween.get({}).wait(2000).call(() => {
         game_state.select_card(SECOND_PLAYER, my_cards_inhand[in_hand_card].id, true);
         game_state.select_card(SECOND_PLAYER, my_cards_inplay[in_play_card].id, true);
         finish_play(game_state);
@@ -125,7 +125,7 @@ function play_match(game_state: GameState) {
     let action = actions[max_max_match_i];
     console.log("Making action: ", action);
     for (const attack_card_index of action.attack_cards) {
-        tween.wait(1000).call(() => game_state.select_card(SECOND_PLAYER, my_cards[attack_card_index].id, true));
+        tween.wait(2500).call(() => game_state.select_card(SECOND_PLAYER, my_cards[attack_card_index].id, true));
     }
     tween.wait(1000).call(() => {
         game_state.select_card(FIRST_PLAYER, opponent_cards[action.target_card].id, true);
