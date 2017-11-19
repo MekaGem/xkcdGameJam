@@ -1,4 +1,4 @@
-import {BORDER_SIZE, CARD_ATTACK_TEXT_FONT, CARD_DNA_TEXT_FONT, CARD_SELECTION_TEXT_FONT} from "./constants"
+import {BORDER_SIZE, CARD_REGEX_TEXT_FONT, CARD_PASSWORD_TEXT_FONT, CARD_SELECTION_TEXT_FONT} from "./constants"
 import {randomInt} from "utils";
 import {CardSpec, draw_random_card_spec, XKCD_MEME_CARDS} from "decks";
 
@@ -23,14 +23,14 @@ export enum CardState {
 const CARD_SCALE = 0.7;
 
 export class Card {
-    attack: string;
-    dna: string;
+    regex: string;
+    password: string;
 
     state: CardState;
     selected: boolean;
 
-    attack_text: createjs.Text;
-    dna_text: createjs.Text;
+    regex_text: createjs.Text;
+    password_text: createjs.Text;
     card_selection_number: createjs.Text;
     in_play_card_envelope: createjs.Container;
     in_play_card_bg: createjs.Sprite;
@@ -53,7 +53,7 @@ export class Card {
     static card_sheets_initted = false;
     static card_sheet: createjs.SpriteSheet;
 
-    constructor(attack: string, dna: string, image_index: number) {
+    constructor(regex: string, password: string, image_index: number) {
         if (!Card.card_sheets_initted) {
             Card.card_sheets_initted = true;
             Card.card_sheet = new createjs.SpriteSheet({
@@ -70,21 +70,21 @@ export class Card {
             });
         }
 
-        this.attack = attack;
-        this.dna = dna;
+        this.regex = regex;
+        this.password = password;
         this.id = ++Card.card_count;
         this.selected = false;
 
         this.container_shown = new createjs.Container();
         this.container_hidden = new createjs.Container();
 
-        this.dna_text = new createjs.Text(this.dna, CARD_DNA_TEXT_FONT);
-        this.dna_text.x = 50;
-        this.dna_text.y = 225;
+        this.password_text = new createjs.Text(this.password, CARD_PASSWORD_TEXT_FONT);
+        this.password_text.x = 50;
+        this.password_text.y = 225;
 
-        this.attack_text = new createjs.Text(this.attack, CARD_ATTACK_TEXT_FONT);
-        this.attack_text.x = 50;
-        this.attack_text.y = 260;
+        this.regex_text = new createjs.Text(this.regex, CARD_REGEX_TEXT_FONT);
+        this.regex_text.x = 50;
+        this.regex_text.y = 260;
 
         let card_width = 200;
         let card_height = 300;
@@ -109,8 +109,8 @@ export class Card {
 
         this.container_shown.addChild(this.in_play_card_envelope);
         this.container_shown.addChild(this.card_selection_number);
-        this.container_shown.addChild(this.attack_text);
-        this.container_shown.addChild(this.dna_text);
+        this.container_shown.addChild(this.regex_text);
+        this.container_shown.addChild(this.password_text);
 
         this.container_hidden.addChild(this.in_hand_card_envelope);
 
@@ -142,11 +142,11 @@ export class Card {
         this.container.alpha = 0.5;
     }
 
-    remove_dna(attack: string) {
-        this.dna = this.dna.replace(attack, '');
-        console.log(`New dna: ${this.dna}`);
-        this.dna_text.text = this.dna;
-        if (this.dna == "") {
+    remove_password(regex: string) {
+        this.password = this.password.replace(regex, '');
+        console.log(`New password: ${this.password}`);
+        this.password_text.text = this.password;
+        if (this.password == "") {
             this.destroy();
         }
     }

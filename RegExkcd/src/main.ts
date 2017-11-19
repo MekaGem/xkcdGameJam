@@ -2,7 +2,7 @@ import { Card, CardState, generate_cards } from "card";
 import { PlayerState, generate_players } from "player";
 import { randomInt, clone_object } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
-import { ATTACK_STRING_TEXT_FONT } from "./constants";
+import { REGEX_STRING_TEXT_FONT } from "./constants";
 
 let mouse = {
     x: 0,
@@ -104,8 +104,8 @@ class GameState {
     // Is computer making a move now.
     computer_thinking: boolean;
 
-    // Current attack string.
-    attack_string_text: createjs.Text;
+    // Current regex string.
+    regex_string_text: createjs.Text;
 
     phase: GamePhase;
 
@@ -128,7 +128,7 @@ class GameState {
 
         this.computer_thinking = false;
 
-        this.attack_string_text = new createjs.Text("--------------", ATTACK_STRING_TEXT_FONT, "red");
+        this.regex_string_text = new createjs.Text("--------------", REGEX_STRING_TEXT_FONT, "red");
 
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             // cards in play
@@ -177,7 +177,7 @@ class GameState {
         verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
-        verticalLayout.addItem(this.attack_string_text);
+        verticalLayout.addItem(this.regex_string_text);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
         verticalLayout.addItem(this.player_states[FIRST_PLAYER].container, -20);
@@ -213,11 +213,11 @@ class GameState {
 
         class Action {
             attack_cards: Array<number>;
-            attack_string: string;
+            regex_string: string;
             target_card: number;
 
             constructor(target_card: number) {
-                this.attack_string = "";
+                this.regex_string = "";
                 this.attack_cards = new Array<number>();
                 this.target_card = target_card;
             }
@@ -249,10 +249,10 @@ class GameState {
                     if (action.attack_cards.indexOf(j) !== -1) {
                         continue;
                     }
-                    let attack_string = action.attack_string + card.attack;
+                    let regex_string = action.regex_string + card.regex;
 
 
-                    let matches = first_player_cards[action.target_card].dna.match(new RegExp(attack_string, "g"));
+                    let matches = first_player_cards[action.target_card].password.match(new RegExp(regex_string, "g"));
                     let max_match = "";
                     if (matches) {
                         for (const match of matches) {
@@ -263,7 +263,7 @@ class GameState {
 
                         let new_action = clone_object(action);
                         new_action.attack_cards.push(j);
-                        new_action.attack_string = attack_string;
+                        new_action.regex_string = regex_string;
                         actions.push(new_action);
 
                         if (max_match.length > max_max_match.length) {
@@ -415,7 +415,7 @@ class GameState {
                         card.deselect();
                     }
                 }
-                this.attack_string_text.text = this.get_attack_string();
+                this.regex_string_text.text = this.get_regex_string();
             }
         } else {
             if (card.state === CardState.InPlay) {
@@ -448,19 +448,19 @@ class GameState {
         }
     }
 
-    get_attack_string(): string {
-        let attack_string = "";
+    get_regex_string(): string {
+        let regex_string = "";
         for (let i = 0; i < this.selected_cards.length; ++i) {
-            attack_string += this.selected_cards[i].attack;
+            regex_string += this.selected_cards[i].regex;
         }
-        return attack_string;
+        return regex_string;
     }
 
     attack(card: Card): void {
-        let attack_string = this.get_attack_string();
-        console.log(`Attacking "${card.dna}" with "${attack_string}"`);
+        let regex_string = this.get_regex_string();
+        console.log(`Attacking "${card.password}" with "${regex_string}"`);
 
-        let matches = card.dna.match(new RegExp(attack_string, "g"));
+        let matches = card.password.match(new RegExp(regex_string, "g"));
         let max_match = "";
         if (matches) {
             for (const match of matches) {
@@ -472,13 +472,13 @@ class GameState {
         console.log(`Max match: "${max_match}"`);
 
         this.player_states[1 - this.current_player].deal_damage(max_match.length);
-        // card.remove_dna(attack_string);
+        // card.remove_password(regex_string);
 
         for (let i = 0; i < this.selected_cards.length; ++i) {
             this.selected_cards[i].deselect();
         }
         this.selected_cards = [];
-        this.attack_string_text.text = "";
+        this.regex_string_text.text = "";
     }
 };
 
