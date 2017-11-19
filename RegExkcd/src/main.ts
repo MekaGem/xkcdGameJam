@@ -174,7 +174,7 @@ export class GameState {
         this.player_hp_texts[SECOND_PLAYER] = new createjs.Text(this.player_states[SECOND_PLAYER].hp.toString(), HP_TEXT_FONT);
 
         this.heart_sprite_sheet = new createjs.SpriteSheet({
-            images: ["img/health_sprite_copy.png"],
+            images: ["img/health_sprite2.png"],
             frames: {
                 width: 21,
                 height: 16,
@@ -184,7 +184,7 @@ export class GameState {
 
         let player_heart_full = new createjs.Sprite(this.heart_sprite_sheet);
         player_heart_full.x = 105;
-        player_heart_full.y = y + 195;
+        player_heart_full.y = y + 145;
         player_heart_full.gotoAndStop(0);
         this.player_hp_texts[FIRST_PLAYER].x = player_heart_full.x + 21/*player_heart_full.getBounds().width*/ + 5;
         this.player_hp_texts[FIRST_PLAYER].y = player_heart_full.y - 2;
@@ -193,7 +193,7 @@ export class GameState {
 
         const enemy_hp_text = this.player_hp_texts[SECOND_PLAYER];
         enemy_hp_text.x = stage_width - 130; //enemy_heart_full.x + enemy_heart_full.getBounds().width + 5;
-        enemy_hp_text.y = y - 150;
+        enemy_hp_text.y = y - 200;
         let enemy_heart_full = new createjs.Sprite(this.heart_sprite_sheet);
         enemy_heart_full.x = enemy_hp_text.x + 5/*width of heart*/ + enemy_hp_text.getBounds().width;
         enemy_heart_full.y = enemy_hp_text.y + 2;
