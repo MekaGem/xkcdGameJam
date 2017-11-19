@@ -137,7 +137,7 @@ export class GameState {
         // verticalLayout.addItem(this.player_states[SECOND_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
         verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
-        verticalLayout.addItem(this.game_phase_indicator.container, 10);
+        verticalLayout.addItem(this.game_phase_indicator.container);
         verticalLayout.addItem(this.skip_turn_button, -20);
         verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
@@ -556,7 +556,7 @@ export function play() {
     let game_field = new createjs.Container();
 
     let game = new GameState(game_field);
-    game_field.setTransform(0, -50);
+    game_field.setTransform(0, -80);
     // game_field.y = -100;
     stage.addChild(game_field);
 
