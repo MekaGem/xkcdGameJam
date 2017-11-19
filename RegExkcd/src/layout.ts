@@ -18,7 +18,20 @@ export class TiledLayout extends createjs.Container {
     }
 
     apply_centering() {
-        // TODO: Implement me!
+        console.log(super.getBounds());
+        let width = super.getBounds().width;
+        let height = super.getBounds().height;
+        for (let i = 0; i < this.numChildren; ++i) {
+            let child = super.getChildAt(i);
+            console.log("Child x: ", child.x);
+            console.log("Child y: ", child.y);
+            console.log("Child bounds: ", child.getBounds());
+            if (this.direction === LayoutDirection.Horizontal) {
+                // TODO: Implement me!
+            } else {
+                // TODO: Implement me!
+            }
+        }
     }
 
     addItem(item: createjs.DisplayObject, spacing: number = 0) {
@@ -30,5 +43,9 @@ export class TiledLayout extends createjs.Container {
             }
         }
         super.addChild(item);
+        // TODO: Finish implementing this.
+        // if (this.center_elements) {
+        //     this.apply_centering();
+        // }
     }
 };
