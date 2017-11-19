@@ -1,4 +1,5 @@
 import { HP_TEXT_FONT } from "./constants";
+import {Card, generate_cards} from "./card"
 
 const START_HP = 10;
 
@@ -14,12 +15,14 @@ export class PlayerState {
     hp: number;
     hp_text: createjs.Text;
     container: createjs.Container;
+    deck: Array<Card>;
 
     constructor() {
         this.hp_text = new createjs.Text("", HP_TEXT_FONT, "red");
         this.set_hp(START_HP);
         this.container = new createjs.Container();
         this.container.addChild(this.hp_text);
+        this.deck = generate_cards(10);
     }
 
     set_hp(hp: number) {
@@ -32,5 +35,18 @@ export class PlayerState {
         this.set_hp(this.hp - damage);
         console.log(`Dealed ${damage} damage, current hp: ${this.hp}`);
 
+    }
+
+    pick_card_from_deck() {
+        // A bit of a hack
+        if (this.deck.length == 0) {
+            this.deck = generate_cards(10);
+        }
+
+        if (this.deck.length == 0) {
+            return null;
+        } else {
+            return this.deck.shift();
+        }
     }
 };
