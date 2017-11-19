@@ -249,7 +249,7 @@ export class GameState {
         {
             let player_hp = this.player_states[FIRST_PLAYER].hp;
             let v = (player_hp * 1.0) / START_HP;
-            let height = 16 * v;
+            let height = Math.max(0, 16 * v);
             this.player_brains[FIRST_PLAYER].sourceRect = new createjs.Rectangle(0, 16 - height, 21, height);
             this.player_brains[FIRST_PLAYER].y = 16 - height;
 
@@ -259,7 +259,7 @@ export class GameState {
         {
             let enemy_hp = this.player_states[SECOND_PLAYER].hp;
             let v = (enemy_hp * 1.0) / START_HP;
-            let height = 16 * v;
+            let height = Math.max(0, 16 * v);
             this.player_brains[SECOND_PLAYER].sourceRect = new createjs.Rectangle(0, 16 - height, 21, height);
             this.player_brains[SECOND_PLAYER].y = 16 - height;
 
