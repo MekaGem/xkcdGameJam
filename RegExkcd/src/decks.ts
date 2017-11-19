@@ -1,4 +1,5 @@
 import { randomInt, randomIndex } from "./utils";
+import { Card } from "./card";
 
 export class CardSpec {
     password: string;
@@ -19,7 +20,7 @@ export function draw_random_card_spec(cards: Array<CardSpec>): CardSpec {
     return cards[card_i];
 }
 
-export const XKCD_MEME_CARDS = [
+export let XKCD_MEME_CARDS = [
     new CardSpec('Tr0ub4dor&3', '[a-z]'),
     new CardSpec('Serious PuTTY', '[a-z]'),
     new CardSpec('tumblv3rs3', '[a-z]'),
@@ -53,8 +54,20 @@ export const XKCD_MEME_CARDS = [
 ];
 
 enum CardClass {
-    Letters, Digits, Symbols, Modifiers
+    Letters, Digits, Symbols, Modifiers, Random
 };
+
+function resolve_random_class(card_class: CardClass, is_password: boolean) {
+    if (card_class === CardClass.Random) {
+        card_class = randomIndex(CardClass.Random);
+        if (is_password) {
+            while (card_class === CardClass.Modifiers) {
+                card_class = randomIndex(CardClass.Random);
+            }
+        }
+    }
+    return card_class;
+}
 
 const LETTER_KEY_TEMPLATES = [
     "[A-Z]",
@@ -85,6 +98,8 @@ const MODIFIERS_KEY_TEMPLATES = [
 ];
 
 function generate_key(card_class: CardClass) {
+    card_class = resolve_random_class(card_class, false);
+
     if (card_class === CardClass.Letters) {
         return LETTER_KEY_TEMPLATES[randomIndex(LETTER_KEY_TEMPLATES.length)];
     } else if (card_class === CardClass.Digits) {
@@ -117,6 +132,8 @@ const SYMBOLS_PASSWORD_TEMPLATES = [
 ];
 
 function generate_password(card_class: CardClass) {
+    card_class = resolve_random_class(card_class, true);
+
     let template: string;
     let length: number;
     if (card_class === CardClass.Letters) {
@@ -132,7 +149,7 @@ function generate_password(card_class: CardClass) {
         console.error("generate_password: can not use CardClass.Modifiers");
         return null;
     } else {
-        console.error("generate_password: unknown card_class");
+        console.error("generate_password: unknown card_class " + card_class);
         return null;
     }
 
@@ -157,7 +174,16 @@ class CardTemplate {
 }
 
 const CARD_TEMPLATES = [
-    new CardTemplate("000", CardClass.Digits, [CardClass.Letters, CardClass.Letters])
+    new CardTemplate("000", CardClass.Letters, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("001", CardClass.Letters, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("002", CardClass.Digits, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("003", CardClass.Digits, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("004", CardClass.Digits, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("005", CardClass.Symbols, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("006", CardClass.Symbols, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("007", CardClass.Modifiers, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("008", CardClass.Modifiers, [CardClass.Random, CardClass.Random]),
+    new CardTemplate("009", CardClass.Modifiers, [CardClass.Random, CardClass.Random]),
 ];
 
 function generate_regex_class_cards(): Array<CardSpec> {
@@ -174,7 +200,10 @@ function generate_regex_class_cards(): Array<CardSpec> {
         }
 
         console.log("new card spec: ", id, key, password);
+        cards.push(new CardSpec(password, key, i % 25));
     }
+
+    XKCD_MEME_CARDS = cards;
     return cards;
 }
 
