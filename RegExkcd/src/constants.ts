@@ -5,3 +5,12 @@ export const CARD_PASSWORD_TEXT_FONT = "15px Arial";
 export const CARD_SELECTION_TEXT_FONT = "20px Arial";
 export const REGEX_STRING_TEXT_FONT = "20px Arial";
 export const BORDER_SIZE = 8;
+
+// Game constants
+export const PLAYER_COUNT = 2;
+export const FIRST_PLAYER = 0;
+export const SECOND_PLAYER = 1;
+
+export enum GamePhase {
+    Changing, Matching
+};
