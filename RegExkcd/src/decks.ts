@@ -85,7 +85,7 @@ const SYMBOLS_KEY_TEMPLATES = [
     "_",
     "\\\\",
     "\\'",
-    "\\*",
+    "\\\"",
     ".",
 ];
 
@@ -94,7 +94,6 @@ const MODIFIERS_KEY_TEMPLATES = [
     "{3}",
     "{1,}",
     "*",
-    "?",
 ];
 
 function generate_key(card_class: CardClass) {
