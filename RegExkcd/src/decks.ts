@@ -71,7 +71,7 @@ function resolve_random_class(card_class: CardClass, is_password: boolean) {
 
 const LETTER_KEY_TEMPLATES = [
     "[A-Z]",
-    "[a-a]",
+    "[a-z]",
 ];
 
 const DIGITS_KEY_TEMPLATES = [
