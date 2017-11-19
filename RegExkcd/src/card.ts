@@ -1,5 +1,5 @@
 import {BORDER_SIZE, CARD_REGEX_TEXT_FONT, CARD_PASSWORD_TEXT_FONT, CARD_SELECTION_TEXT_FONT, CARD_DAMAGE_TEXT_FONT} from "./constants"
-import {randomInt, is_regex_valid} from "utils";
+import {randomInt, is_regex_valid, get_max_match} from "utils";
 import {CardSpec, draw_random_card_spec, XKCD_MEME_CARDS} from "decks";
 
 const IMAGE_COUNT = 30;
@@ -35,9 +35,7 @@ export class Card {
     regex_text: createjs.Text;
     password_text: createjs.Text;
     password_highlight: createjs.Shape;
-
-    highlighting = false;
-    highlight = 0;
+    password_attack_highlight: createjs.Shape;
 
     card_selection_number: createjs.Text;
     in_play_card_envelope: createjs.Container;
@@ -97,6 +95,11 @@ export class Card {
         this.password_highlight.visible = false;
         this.password_highlight.x = this.password_text.x;
         this.password_highlight.y = this.password_text.y;
+        
+        this.password_attack_highlight = new createjs.Shape();
+        this.password_attack_highlight.visible = false;
+        this.password_attack_highlight.x = this.password_text.x;
+        this.password_attack_highlight.y = this.password_text.y;
 
         this.regex_text = new createjs.Text(this.regex, CARD_REGEX_TEXT_FONT);
         this.regex_text.x = 50;
@@ -138,6 +141,7 @@ export class Card {
         this.container_shown.addChild(this.in_play_card_envelope);
         this.container_shown.addChild(this.card_selection_number);
         this.container_shown.addChild(this.regex_text);
+        this.container_shown.addChild(this.password_attack_highlight);
         this.container_shown.addChild(this.password_highlight);
         this.container_shown.addChild(this.password_text);
 
@@ -174,29 +178,73 @@ export class Card {
     }
 
     highlighting_this_frame = false;
+    highlighting_attack_this_frame = false;
 
-    show_highlight(regex: string) {
-        if (!this.highlighting && is_regex_valid(regex)) {
-            let match_x = 0;
-            let match_width = this.password_text.getMeasuredWidth();
-            let line_height = this.password_text.getMeasuredHeight();
+    pre_update_highlight() {
+        this.highlighting_this_frame = false;
+        this.highlighting_attack_this_frame = false;
+    }
 
-            let matches = this.password.match(new RegExp(regex, "g"));
-            let max_match = "";
-            if (matches) {
-                for (const match of matches) {
-                    if (match.length > max_match.length) {
-                        max_match = match;
+    get_regex_match_box(regex: string) {
+        let result:any = {};
+        result.show = false;
+        if (is_regex_valid(regex)) {
+            let max_match = get_max_match(regex, this.password);
+            if (max_match.length > 0) {
+                for (let i = 0; i <= this.password.length - max_match.length; i++) {
+                    if (this.password.substr(i, max_match.length) == max_match) {
+                        let pt:any = this.password_text;
+                        result.x = pt._getMeasuredWidth(this.password.substr(0, i)) - 1;
+                        result.width = pt._getMeasuredWidth(max_match) + 2;
+                        break;
                     }
                 }
-            }
+                result.height = this.password_text.getMeasuredHeight() + 5;
 
+                result.show = true;
+            }
+        }
+
+        return result;
+    }
+
+    highlighting = false;
+    highlight = 0;
+    highlighted_regex = "";
+
+    show_highlight(regex: string) {
+        if (this.highlighting && this.highlighted_regex == regex) { this.highlighting_this_frame = true; return; }
+        let result = this.get_regex_match_box(regex);
+
+        if (result.show) {
             this.password_highlight.graphics.clear();
-            this.password_highlight.graphics.beginFill("yellow").drawRoundRect(match_x, 0, match_width, line_height, 2);
+            this.password_highlight.graphics.beginFill("red").drawRoundRect(result.x, 0, result.width, result.height, 2);
+            //this.password_highlight.graphics.endFill().beginStroke("red").moveTo(result.x, result.height).lineTo(result.x + result.width, result.height);
             this.password_highlight.alpha = 0;
             this.highlight = 0;
+
+            this.highlighted_regex = regex;
+            this.highlighting_this_frame = true;
         }
-        this.highlighting_this_frame = true;
+    }
+
+    highlighting_attack = false;
+    highlight_attack = 0;
+    highlighted_attack_regex = "";
+    
+    show_attack_highlight(regex: string) {
+        if (this.highlighting_attack && this.highlighted_attack_regex == regex) { this.highlighting_attack_this_frame = true; return; }
+        let result = this.get_regex_match_box(regex);
+
+        if (result.show) {
+            this.password_attack_highlight.graphics.clear();
+            this.password_attack_highlight.graphics.beginStroke("red").setStrokeStyle(2).drawRoundRect(result.x, 0, result.width, result.height, 2);
+            this.password_attack_highlight.alpha = 0;
+            this.highlight_attack = 0;
+
+            this.highlighted_attack_regex = regex;
+            this.highlighting_attack_this_frame = true;
+        }
     }
 
     update_highlight() {
@@ -210,7 +258,19 @@ export class Card {
         if (this.highlight > HIGHLIGHT_MAX) this.highlight = HIGHLIGHT_MAX;
         if (this.highlight < 0) this.highlight = 0;
         this.password_highlight.visible = this.highlight > 0;
-        this.password_highlight.alpha = this.highlight / HIGHLIGHT_MAX;
+        this.password_highlight.alpha = 0.15 * this.highlight / HIGHLIGHT_MAX;
+
+        this.highlighting_attack = this.highlighting_attack_this_frame;
+        
+        if (this.highlighting_attack) {
+            this.highlight_attack++;
+        } else {
+            this.highlight_attack--;
+        }
+        if (this.highlight_attack > HIGHLIGHT_MAX) this.highlight_attack = HIGHLIGHT_MAX;
+        if (this.highlight_attack < 0) this.highlight_attack = 0;
+        this.password_attack_highlight.visible = this.highlight_attack > 0;
+        this.password_attack_highlight.alpha = 0.6 * this.highlight_attack / HIGHLIGHT_MAX;
     }
 
     remove_password(regex: string) {

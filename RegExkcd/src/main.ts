@@ -163,20 +163,27 @@ export class GameState {
     }
 
     highlight_for_card(owner: number, card: Card) {
+        let regex_prefix = "";
+        if (this.phase === GamePhase.Matching) {
+            if (this.current_player !== FIRST_PLAYER || owner !== FIRST_PLAYER) return;
+            if (this.selected_cards.indexOf(card) >= 0) return;
+            regex_prefix = this.get_regex_string();
+        }
+
         let local = card.container.globalToLocal(mouse.x, mouse.y);
         let bounds = card.container.getBounds();
         if (local.x >= bounds.x && local.y >= bounds.y &&
             local.x <= bounds.x + bounds.width && local.y <= bounds.y + bounds.height) {
             for (let enemy_card of this.cards_inplay[1 - owner].cards) {
-                enemy_card.show_highlight(card.regex);
+                enemy_card.show_highlight(regex_prefix + card.regex);
             }
         }
     }
 
     update_regex_highlight() {
         for (let i = 0; i < PLAYER_COUNT; ++i) {
-            for (let card of this.cards_inplay[i].cards) card.highlighting_this_frame = false;
-            for (let card of this.cards_inhand[i].cards) card.highlighting_this_frame = false;
+            for (let card of this.cards_inplay[i].cards) card.pre_update_highlight();
+            for (let card of this.cards_inhand[i].cards) card.pre_update_highlight();
         }
 
         for (let i = 0; i < PLAYER_COUNT; ++i) {
@@ -185,6 +192,13 @@ export class GameState {
             }
             if (i == FIRST_PLAYER) for (let card of this.cards_inhand[i].cards) {
                 this.highlight_for_card(i, card);
+            }
+        }
+
+        if (this.phase === GamePhase.Matching) {
+            let attack_regex = this.get_regex_string();
+            for (let card of this.cards_inplay[1 - this.current_player].cards) {
+                card.show_attack_highlight(attack_regex);
             }
         }
 
