@@ -1,8 +1,6 @@
-import { HP_TEXT_FONT } from "./constants";
+import { HP_TEXT_FONT, START_HP } from "./constants";
 import {Card, generate_cards, CardState} from "./card"
 import { TiledLayout, LayoutDirection } from "./layout";
-
-const START_HP = 10;
 
 export function generate_players(): Array<PlayerState> {
     let player_states = new Array<PlayerState>(2);

@@ -12,6 +12,7 @@ export const BORDER_SIZE = 8;
 export const PLAYER_COUNT = 2;
 export const FIRST_PLAYER = 0;
 export const SECOND_PLAYER = 1;
+export const START_HP = 10;
 
 export enum GamePhase {
     Changing, Matching

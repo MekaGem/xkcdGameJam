@@ -2,7 +2,7 @@ import { Card, CardState, generate_cards, CARD_SCALE, SWAP_HOVER } from "card";
 import { PlayerState, generate_players, Hand, InPlay } from "player";
 import { randomInt, clone_object, is_regex_valid, get_max_match, oppositePlayer } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
-import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase, SKIP_TURN_FONT, HP_TEXT_FONT } from "constants";
+import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase, SKIP_TURN_FONT, HP_TEXT_FONT, START_HP } from "constants";
 import { play_as_computer } from "./computer";
 import { get_results_screen, get_game_result, GameResult } from "./results";
 import { GamePhaseIndicator } from "./game_phase_indicator";
@@ -70,6 +70,9 @@ export class GameState {
 
     // HP text stats
     player_hp_texts: Array<createjs.Text>;
+
+    // HP brain stats
+    player_brains: Array<createjs.Bitmap>;
 
     constructor(game_field: createjs.Container) {
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
@@ -178,6 +181,8 @@ export class GameState {
         this.player_hp_texts[FIRST_PLAYER] = new createjs.Text(this.player_states[FIRST_PLAYER].hp.toString(), HP_TEXT_FONT);
         this.player_hp_texts[SECOND_PLAYER] = new createjs.Text(this.player_states[SECOND_PLAYER].hp.toString(), HP_TEXT_FONT);
 
+        this.player_brains = new Array<createjs.Bitmap>();
+
         this.heart_sprite_sheet = new createjs.SpriteSheet({
             images: ["img/health_sprite2.png"],
             frames: {
@@ -187,25 +192,78 @@ export class GameState {
             }
         });
 
-        let player_heart_full = new createjs.Sprite(this.heart_sprite_sheet);
-        player_heart_full.x = 105;
-        player_heart_full.y = y + 145;
-        player_heart_full.gotoAndStop(0);
-        this.player_hp_texts[FIRST_PLAYER].x = player_heart_full.x + 21/*player_heart_full.getBounds().width*/ + 5;
-        this.player_hp_texts[FIRST_PLAYER].y = player_heart_full.y - 2;
+        {
+            this.player_brains[FIRST_PLAYER] = new createjs.Bitmap("img/health_sprite2.png");
 
-        this.battlefield_container.addChild(player_heart_full, this.player_hp_texts[FIRST_PLAYER]);
+            let player_brain_full = this.player_brains[FIRST_PLAYER];
+            player_brain_full.sourceRect = new createjs.Rectangle(0, 0, 21, 16);
 
-        const enemy_hp_text = this.player_hp_texts[SECOND_PLAYER];
-        enemy_hp_text.x = stage_width - 130; //enemy_heart_full.x + enemy_heart_full.getBounds().width + 5;
-        enemy_hp_text.y = y - 200;
-        let enemy_heart_full = new createjs.Sprite(this.heart_sprite_sheet);
-        enemy_heart_full.x = enemy_hp_text.x + 5/*width of heart*/ + enemy_hp_text.getBounds().width;
-        enemy_heart_full.y = enemy_hp_text.y + 2;
-        enemy_heart_full.gotoAndStop(1);
+            let player_brain_empty = new createjs.Sprite(this.heart_sprite_sheet);
+            player_brain_empty.gotoAndStop(1);
 
+            this.player_hp_texts[FIRST_PLAYER].x = 21/*player_heart_full.getBounds().width*/ + 5;
+            this.player_hp_texts[FIRST_PLAYER].y = -3;
 
-        this.battlefield_container.addChild(enemy_heart_full, this.player_hp_texts[SECOND_PLAYER]);
+            this.player_hp_containers[FIRST_PLAYER].x = 105;
+            this.player_hp_containers[FIRST_PLAYER].y = y + 145;
+
+            this.player_hp_containers[FIRST_PLAYER].addChild(
+                player_brain_empty,
+                player_brain_full,
+                this.player_hp_texts[FIRST_PLAYER]
+            );
+            this.battlefield_container.addChild(this.player_hp_containers[FIRST_PLAYER]);
+        }
+
+        {
+            this.player_brains[SECOND_PLAYER] = new createjs.Bitmap("img/health_sprite2.png");
+
+            const enemy_hp_text = this.player_hp_texts[SECOND_PLAYER];
+            enemy_hp_text.x = 0;
+            enemy_hp_text.y = -3;
+
+            let enemy_brain_full = this.player_brains[SECOND_PLAYER];
+            enemy_brain_full.x = 5 + enemy_hp_text.getBounds().width;
+            enemy_brain_full.y = 0;
+            enemy_brain_full.sourceRect = new createjs.Rectangle(0, 0, 21, 16);
+
+            let enemy_brain_empty = new createjs.Sprite(this.heart_sprite_sheet);
+            enemy_brain_empty.x = enemy_brain_full.x;
+            enemy_brain_empty.y = enemy_brain_full.y;
+            enemy_brain_empty.gotoAndStop(1);
+
+            this.player_hp_containers[SECOND_PLAYER].x = stage_width - 130;
+            this.player_hp_containers[SECOND_PLAYER].y = y - 200;
+
+            this.player_hp_containers[SECOND_PLAYER].addChild(
+                enemy_brain_empty,
+                enemy_brain_full,
+                this.player_hp_texts[SECOND_PLAYER]
+            );
+            this.battlefield_container.addChild(this.player_hp_containers[SECOND_PLAYER]);
+        }
+    }
+
+    update_brains() {
+        {
+            let player_hp = this.player_states[FIRST_PLAYER].hp;
+            let v = (player_hp * 1.0) / START_HP;
+            let height = 16 * v;
+            this.player_brains[FIRST_PLAYER].sourceRect = new createjs.Rectangle(0, 16 - height, 21, height);
+            this.player_brains[FIRST_PLAYER].y = 16 - height;
+
+            this.player_hp_texts[FIRST_PLAYER].text = player_hp.toString();
+        }
+
+        {
+            let enemy_hp = this.player_states[SECOND_PLAYER].hp;
+            let v = (enemy_hp * 1.0) / START_HP;
+            let height = 16 * v;
+            this.player_brains[SECOND_PLAYER].sourceRect = new createjs.Rectangle(0, 16 - height, 21, height);
+            this.player_brains[SECOND_PLAYER].y = 16 - height;
+
+            this.player_hp_texts[SECOND_PLAYER].text = enemy_hp.toString();
+        }
     }
 
     highlight_for_card(owner: number, card: Card) {
@@ -549,6 +607,9 @@ export class GameState {
         let damage = max_match.length;
         this.player_states[oppositePlayer(this.current_player)].deal_damage(damage);
         // card.remove_password(regex_string);
+
+        // updating brain bar
+        this.update_brains();
 
         for (let i = 0; i < this.selected_cards.length; ++i) {
             this.selected_cards[i].deselect();
