@@ -1,11 +1,11 @@
 import {BORDER_SIZE, CARD_REGEX_TEXT_FONT, CARD_PASSWORD_TEXT_FONT, CARD_SELECTION_TEXT_FONT, CARD_DAMAGE_TEXT_FONT} from "./constants"
 import {randomInt, is_regex_valid, get_max_match} from "utils";
-import {CardSpec, draw_random_card_spec, XKCD_MEME_CARDS} from "decks";
+import {CardSpec, draw_random_card_spec, XKCD_MEME_CARDS, CardClass} from "decks";
 
 const IMAGE_COUNT = 30;
 
 export function card_from_spec(card_spec: CardSpec): Card {
-    return new Card(card_spec.regex, card_spec.password, card_spec.image_index);
+    return new Card(card_spec.regex, card_spec.password, card_spec.image_index, card_spec.original_key_class);
 }
 
 export function generate_cards(card_count: number): Array<Card> {
@@ -33,6 +33,7 @@ export class Card {
     selected: boolean;
 
     regex_text: createjs.Text;
+    regex_key_sprite: createjs.Sprite;
     password_text: createjs.Text;
     password_highlight: createjs.Shape;
     password_attack_highlight: createjs.Shape;
@@ -57,12 +58,15 @@ export class Card {
     // Unique card index.
     id: number;
 
+    card_class: CardClass;
+
     static card_count = 0;
 
     static card_sheets_initted = false;
     static card_sheet: createjs.SpriteSheet;
+    static keys_sheet: createjs.SpriteSheet;
 
-    constructor(regex: string, password: string, image_index: number) {
+    constructor(regex: string, password: string, image_index: number, card_class: CardClass) {
         if (!Card.card_sheets_initted) {
             Card.card_sheets_initted = true;
             Card.card_sheet = new createjs.SpriteSheet({
@@ -77,7 +81,18 @@ export class Card {
                     margin: 0
                 }
             });
+
+            Card.keys_sheet = new createjs.SpriteSheet({
+                images: ["img/keys_sprite.png"],
+                frames: {
+                    width: 25,
+                    height: 25,
+                    count: 4,
+                }
+            });
         }
+
+        this.card_class = card_class;
 
         this.regex = regex;
         this.password = password;
@@ -95,7 +110,7 @@ export class Card {
         this.password_highlight.visible = false;
         this.password_highlight.x = this.password_text.x;
         this.password_highlight.y = this.password_text.y;
-        
+
         this.password_attack_highlight = new createjs.Shape();
         this.password_attack_highlight.visible = false;
         this.password_attack_highlight.x = this.password_text.x;
@@ -104,6 +119,11 @@ export class Card {
         this.regex_text = new createjs.Text(this.regex, CARD_REGEX_TEXT_FONT);
         this.regex_text.x = 50;
         this.regex_text.y = 260;
+
+        this.regex_key_sprite = new createjs.Sprite(Card.keys_sheet);
+        this.regex_key_sprite.gotoAndStop(card_class);
+        this.regex_key_sprite.x = this.regex_text.x - 30;
+        this.regex_key_sprite.y = this.regex_text.y - 5;
 
         let card_width = 200;
         let card_height = 300;
@@ -140,6 +160,7 @@ export class Card {
 
         this.container_shown.addChild(this.in_play_card_envelope);
         this.container_shown.addChild(this.card_selection_number);
+        this.container_shown.addChild(this.regex_key_sprite);
         this.container_shown.addChild(this.regex_text);
         this.container_shown.addChild(this.password_attack_highlight);
         this.container_shown.addChild(this.password_highlight);
@@ -231,7 +252,7 @@ export class Card {
     highlighting_attack = false;
     highlight_attack = 0;
     highlighted_attack_regex = "";
-    
+
     show_attack_highlight(regex: string) {
         if (this.highlighting_attack && this.highlighted_attack_regex == regex) { this.highlighting_attack_this_frame = true; return; }
         let result = this.get_regex_match_box(regex);
@@ -261,7 +282,7 @@ export class Card {
         this.password_highlight.alpha = 0.15 * this.highlight / HIGHLIGHT_MAX;
 
         this.highlighting_attack = this.highlighting_attack_this_frame;
-        
+
         if (this.highlighting_attack) {
             this.highlight_attack++;
         } else {
@@ -327,7 +348,7 @@ export class Card {
 
     update_hover(mouse) {
         if (this.animating) return;
-        
+
         let local = this.container.globalToLocal(mouse.x, mouse.y);
         let bounds = this.container.getBounds();
         if (local.x >= bounds.x && local.y >= bounds.y &&
