@@ -23,3 +23,16 @@ export function is_regex_valid(regex: string): boolean {
         return false;
     }
 }
+
+export function get_max_match(regex: string, password: string): string {
+    let matches = password.match(new RegExp(regex, "g"));
+    let max_match = "";
+    if (matches) {
+        for (const match of matches) {
+            if (match.length > max_match.length) {
+                max_match = match;
+            }
+        }
+    }
+    return max_match;
+}

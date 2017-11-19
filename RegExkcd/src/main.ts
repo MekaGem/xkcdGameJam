@@ -1,6 +1,6 @@
 import { Card, CardState, generate_cards, CARD_SCALE, SWAP_HOVER } from "card";
 import { PlayerState, generate_players, Hand, InPlay } from "player";
-import { randomInt, clone_object, is_regex_valid } from "utils";
+import { randomInt, clone_object, is_regex_valid, get_max_match } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
 import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase } from "constants";
 import { play_as_computer } from "./computer";
@@ -448,15 +448,7 @@ export class GameState {
         let regex_string = this.get_regex_string();
         console.log(`Attacking "${card.password}" with "${regex_string}"`);
 
-        let matches = card.password.match(new RegExp(regex_string, "g"));
-        let max_match = "";
-        if (matches) {
-            for (const match of matches) {
-                if (match.length > max_match.length) {
-                    max_match = match;
-                }
-            }
-        }
+        let max_match = get_max_match(regex_string, card.password);
         console.log(`Max match: "${max_match}"`);
 
         let damage = max_match.length;

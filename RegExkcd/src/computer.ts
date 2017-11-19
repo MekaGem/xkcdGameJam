@@ -1,7 +1,7 @@
 import { GameState } from "main";
 import { GamePhase, FIRST_PLAYER, SECOND_PLAYER } from "./constants";
 import { CardState } from "./card";
-import { clone_object, randomInt, is_regex_valid } from "./utils";
+import { clone_object, randomInt, is_regex_valid, get_max_match } from "./utils";
 
 export function play_as_computer(game_state: GameState) {
     // Give control to computer.
@@ -29,6 +29,22 @@ function play_change(game_state: GameState) {
 
     let in_hand_card = randomInt(0, my_cards_inhand.length - 1);
     let in_play_card = randomInt(0, my_cards_inplay.length - 1);
+
+    let max_total_match_length = 0;
+    for (let i = 0; i < my_cards_inhand.length; ++i) {
+        let my_card = my_cards_inhand[i];
+        if (!is_regex_valid(my_card.regex)) {
+            continue;
+        }
+        let total_match_length = 0;
+        for (let j = 0; j < opponent_cards_inplay.length; ++j) {
+            total_match_length += get_max_match(my_card.regex, opponent_cards_inplay[j].password).length;
+        }
+        if (total_match_length >= max_total_match_length) {
+            in_hand_card = i;
+            max_total_match_length = total_match_length;
+        }
+    }
 
     createjs.Tween.get({}).wait(1000).call(() => {
         game_state.select_card(SECOND_PLAYER, my_cards_inhand[in_hand_card].id, true);
@@ -84,15 +100,8 @@ function play_match(game_state: GameState) {
                     continue;
                 }
 
-                let matches = opponent_cards[action.target_card].password.match(new RegExp(regex_string, "g"));
-                let max_match = "";
-                if (matches) {
-                    for (const match of matches) {
-                        if (match.length > max_match.length) {
-                            max_match = match;
-                        }
-                    }
-
+                let max_match = get_max_match(regex_string, opponent_cards[action.target_card].password);
+                if (max_match.length > 0) {
                     let new_action = clone_object(action);
                     new_action.attack_cards.push(j);
                     new_action.regex_string = regex_string;
