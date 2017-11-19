@@ -157,7 +157,7 @@ export class Card {
         this.state = state;
     }
 
-    set_visible(visible: boolean, animate = false) {
+    set_visible(visible: boolean, animate = false, put_down = true) {
         if (this.visible !== visible) {
             this.visible = visible;
             if (!animate) {
@@ -169,15 +169,16 @@ export class Card {
                 }
             } else {
                 this.animating = true;
-                createjs.Tween.get(this.container)
-                    .to({scaleX: 0}, 300)
+                let inOut = createjs.Ease.getPowInOut(2);
+                let tween = createjs.Tween.get(this.container)
+                    .to({scaleX: 0}, 300, createjs.Ease.getPowIn(2))
                     .call(function(){
                         this.container.removeAllChildren();
                         this.container.addChild(visible ? this.container_shown : this.container_hidden);
                     }, null, this)
-                    .to({scaleX: CARD_SCALE + SWAP_HOVER}, 300)
-                    .to({scaleX: CARD_SCALE, scaleY: CARD_SCALE}, 500)
-                    .call(function(){
+                    .to({scaleX: CARD_SCALE + SWAP_HOVER}, 300, createjs.Ease.getPowOut(2));
+                if (put_down) tween.to({scaleX: CARD_SCALE, scaleY: CARD_SCALE}, 500, inOut);
+                tween.call(function(){
                         this.animating = false;
                     }, null, this);
             }

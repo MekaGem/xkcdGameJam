@@ -2,7 +2,8 @@ import { Card, CardState, generate_cards, CARD_SCALE, SWAP_HOVER } from "card";
 import { PlayerState, generate_players, Hand, InPlay } from "player";
 import { randomInt, clone_object } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
-import { REGEX_STRING_TEXT_FONT } from "constants";
+import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase } from "constants";
+import { play_as_computer } from "./computer";
 
 let mouse = {
     x: 0,
@@ -12,17 +13,13 @@ let mouse = {
 let stage_width = 0;
 let stage_height = 0;
 
-let input_enabled = true;
+let input_disable = 0;
 
-enum GamePhase {
-    Changing, Matching
-};
+function oppositePlayer(player: number): number {
+    return 1 - player;
+}
 
-const PLAYER_COUNT = 2;
-const FIRST_PLAYER = 0;
-const SECOND_PLAYER = 1;
-
-class GameState {
+export class GameState {
     // Index of the current player.
     current_player: number;
 
@@ -105,7 +102,7 @@ class GameState {
         }
 
         createjs.Ticker.on("tick", function(event) {
-            if (!input_enabled) return;
+            if (input_disable) return;
             for (let i = 0; i < PLAYER_COUNT; ++i) {
                 for (let card of this.cards_inplay[i].cards) {
                     card.update_hover(mouse);
@@ -146,106 +143,16 @@ class GameState {
         return this.id_to_card[card_id];
     }
 
-    play_as_computer() {
-        if (this.phase === GamePhase.Changing) {
-            this.change_player();
-            return;
-        }
-
-        let first_player_cards = this.cards_inplay[FIRST_PLAYER].cards;
-        let second_player_cards = this.cards_inplay[SECOND_PLAYER].cards;
-
-        class Action {
-            attack_cards: Array<number>;
-            regex_string: string;
-            target_card: number;
-
-            constructor(target_card: number) {
-                this.regex_string = "";
-                this.attack_cards = new Array<number>();
-                this.target_card = target_card;
-            }
-        }
-
-        let actions = new Array<Action>();
-        for (let i = 0; i < first_player_cards.length; ++i) {
-            let card = first_player_cards[i];
-            if (card.state != CardState.InPlay) {
-                continue;
-            }
-            actions.push(new Action(i));
-        }
-
-        let MAX_DEPTH = 2;
-        let wave_start = 0;
-        let wave_finish = actions.length;
-
-        let max_max_match = "";
-        let max_max_match_i = 0;
-        for (let depth = 0; depth < MAX_DEPTH; ++depth) {
-            for (let i = wave_start; i < wave_finish; ++i) {
-                let action = actions[i];
-                for (let j = 0; j < second_player_cards.length; ++j) {
-                    let card = second_player_cards[j];
-                    if (card.state !== CardState.InPlay) {
-                        continue;
-                    }
-                    if (action.attack_cards.indexOf(j) !== -1) {
-                        continue;
-                    }
-                    let regex_string = action.regex_string + card.regex;
-
-
-                    let matches = first_player_cards[action.target_card].password.match(new RegExp(regex_string, "g"));
-                    let max_match = "";
-                    if (matches) {
-                        for (const match of matches) {
-                            if (match.length > max_match.length) {
-                                max_match = match;
-                            }
-                        }
-
-                        let new_action = clone_object(action);
-                        new_action.attack_cards.push(j);
-                        new_action.regex_string = regex_string;
-                        actions.push(new_action);
-
-                        if (max_match.length > max_max_match.length) {
-                            max_max_match = max_match;
-                            max_max_match_i = actions.length - 1;
-                        }
-                    }
-                }
-            }
-            wave_start = wave_finish;
-            wave_finish = actions.length;
-        }
-
-        let tween = createjs.Tween.get({});
-        console.log(`Found ${actions.length} actions`);
-        console.log(actions);
-
-        let action = actions[max_max_match_i];
-        console.log("Making action: ", action);
-        for (const attack_card_index of action.attack_cards) {
-            tween.wait(1000).call(() => this.select_card(SECOND_PLAYER, second_player_cards[attack_card_index].id, true));
-        }
-        tween.wait(1000).call(() => {
-            this.select_card(FIRST_PLAYER, first_player_cards[action.target_card].id, true);
-            console.log("Releasing lock");
-            this.computer_thinking = false;
-        });
-    }
 
     select_card(owner: number, card_id: number, is_computer: boolean): void {
         console.log(`Selecting card (${owner}, ${card_id})`);
-        if ((this.computer_thinking || !input_enabled) && !is_computer) {
+        if ((this.computer_thinking || input_disable) && !is_computer) {
             return;
         }
 
         if (this.phase === GamePhase.Changing) {
             this.select_card_while_changing(owner, card_id, is_computer);
-        } else {
+        } else if (this.phase == GamePhase.Matching) {
             this.select_card_while_matching(owner, card_id, is_computer);
         }
     }
@@ -273,8 +180,6 @@ class GameState {
                 console.log("Swapping cards");
                 // swapping cards
                 this.swap_cards(owner, card_selected_for_swap_in_hand, card);
-                this.discard_and_pick_new(owner, card);
-                this.change_player();
             }
         } else if (card.state === CardState.InHand) {
             console.log("Select for swap");
@@ -290,7 +195,7 @@ class GameState {
     }
 
     swap_cards(owner: number, card_in_hand: Card, card_in_play: Card) {
-        input_enabled = false;
+        input_disable++;
 
         card_in_hand.select_for_swap(false);
         card_in_play.select_for_swap(false);
@@ -300,42 +205,40 @@ class GameState {
         let posA = card_in_hand.container.localToGlobal(card_in_hand.container.getBounds().width / 2, card_in_hand.container.getBounds().height / 2);
         let posB = card_in_play.container.localToGlobal(card_in_play.container.getBounds().width / 2, card_in_play.container.getBounds().height / 2);
 
+        let ai_move = (owner == SECOND_PLAYER);
+
+        let inOut = createjs.Ease.getPowInOut(2);
+
         createjs.Tween.get(card_in_play.container)
             .to({
                 scaleX: CARD_SCALE + SWAP_HOVER,
                 scaleY: CARD_SCALE + SWAP_HOVER,
                 rotation: 90,
                 x: card_in_play.container.x - 800
-            }, 500)
-            .wait(500)
-            .call(function(){
-                this.set_visible(false);
-            }, null, card_in_play)
-            .to({
-                x: origB.x + posA.x - posB.x,
-                y: origB.y + posA.y - posB.y,
-                rotation: 0
-            }, 500);
+            }, 500, inOut);
         createjs.Tween.get(card_in_hand.container)
             .to({
                 scaleX: CARD_SCALE + SWAP_HOVER,
                 scaleY: CARD_SCALE + SWAP_HOVER
-            }, 300)
+            }, 500, inOut)
+            .call(function(){
+                if (ai_move) this.set_visible(true, true, false);
+            }, null, card_in_hand)
             .to({
                 x: card_in_hand.container.x + posB.x - posA.x,
                 y: card_in_hand.container.y + posB.y - posA.y
-            }, 500)
+            }, 600, inOut)
             .to({
                 scaleX: CARD_SCALE,
                 scaleY: CARD_SCALE
-            }, 300)
-            .wait(500).call(function() {
+            }, 300, inOut)
+            .call(function() {
                 let players_hand = this.cards_inhand[owner];
                 let players_play = this.cards_inplay[owner];
         
-                console.log("Before");
-                console.log("Card in hand: " + card_in_hand.id);
-                console.log("Card in play: " + card_in_play.id);
+                //console.log("Before");
+                //console.log("Card in hand: " + card_in_hand.id);
+                //console.log("Card in play: " + card_in_play.id);
         
                 let hand_card_index = players_hand.cards.indexOf(card_in_hand);
                 let play_card_index = players_play.cards.indexOf(card_in_play);
@@ -361,18 +264,16 @@ class GameState {
                 ]
         
                 card_in_hand.change_state(CardState.InPlay);
-                card_in_play.change_state(CardState.InHand);
-
                 card_in_hand.hover = 0;
-                card_in_play.hover = 0;
                 
-                card_in_play.set_visible(true, true);
-        
-                console.log("Before");
-                console.log("Card in hand: " + card_in_hand.id);
-                console.log("Card in play: " + card_in_play.id);
+                //console.log("Before");
+                //console.log("Card in hand: " + card_in_hand.id);
+                //console.log("Card in play: " + card_in_play.id);
 
-                input_enabled = true;
+                this.discard_and_pick_new(owner, card_in_play);
+                this.change_player();
+
+                input_disable--;
             }, null, this);
     }
 
@@ -387,6 +288,9 @@ class GameState {
                 this.select_card(owner, id, false);
             });
             this.add_card(new_card);
+            if (owner == SECOND_PLAYER) {
+                new_card.set_visible(false);
+            }
         }
     }
 
@@ -415,13 +319,14 @@ class GameState {
     }
 
     change_player() {
-        this.current_player = 1 - this.current_player;
+        this.current_player = oppositePlayer(this.current_player);
         if (this.current_player == SECOND_PLAYER) {
             // now computer changes cards
             console.log("Taking lock");
             this.computer_thinking = true;
-            this.play_as_computer();
+            play_as_computer(this);
         } else {
+            console.log("Releasing lock");
             this.computer_thinking = false;
             this.change_phase();
         }
@@ -460,7 +365,7 @@ class GameState {
         }
         console.log(`Max match: "${max_match}"`);
 
-        this.player_states[1 - this.current_player].deal_damage(max_match.length);
+        this.player_states[oppositePlayer(this.current_player)].deal_damage(max_match.length);
         // card.remove_password(regex_string);
 
         for (let i = 0; i < this.selected_cards.length; ++i) {
