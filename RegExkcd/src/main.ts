@@ -2,7 +2,7 @@ import { Card, CardState, generate_cards, CARD_SCALE, SWAP_HOVER } from "card";
 import { PlayerState, generate_players, Hand, InPlay } from "player";
 import { randomInt, clone_object, is_regex_valid, get_max_match, oppositePlayer } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
-import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase, SKIP_TURN_FONT } from "constants";
+import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase, SKIP_TURN_FONT, HP_TEXT_FONT } from "constants";
 import { play_as_computer } from "./computer";
 import { get_results_screen, get_game_result, GameResult } from "./results";
 import { GamePhaseIndicator } from "./game_phase_indicator";
@@ -59,6 +59,15 @@ export class GameState {
 
     // Skip turn button.
     skip_turn_button: createjs.Container;
+
+    // Image with full and empty heart.
+    heart_sprite_sheet: createjs.SpriteSheet;
+
+    // Containers for hp stats of players
+    player_hp_containers: Array<createjs.Container>;
+
+    // HP text stats
+    player_hp_texts: Array<createjs.Text>;
 
     constructor(game_field: createjs.Container) {
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
@@ -149,8 +158,49 @@ export class GameState {
 
         game_field.addChild(this.battlefield_container);
 
+        this.create_hp_containers(verticalLayout.y + this.skip_turn_button.y);
+
         this.half_round_index = 0;
         this.set_phase(GamePhase.Changing);
+    }
+
+    create_hp_containers(y: number) {
+        this.player_hp_containers = new Array<createjs.Container>(2);
+        this.player_hp_containers[FIRST_PLAYER] = new createjs.Container();
+        this.player_hp_containers[SECOND_PLAYER] = new createjs.Container();
+
+        this.player_hp_texts = new Array<createjs.Text>();
+        this.player_hp_texts[FIRST_PLAYER] = new createjs.Text(this.player_states[FIRST_PLAYER].hp.toString(), HP_TEXT_FONT);
+        this.player_hp_texts[SECOND_PLAYER] = new createjs.Text(this.player_states[SECOND_PLAYER].hp.toString(), HP_TEXT_FONT);
+
+        this.heart_sprite_sheet = new createjs.SpriteSheet({
+            images: ["img/health_sprite_copy.png"],
+            frames: {
+                width: 21,
+                height: 16,
+                count: 2,
+            }
+        });
+
+        let player_heart_full = new createjs.Sprite(this.heart_sprite_sheet);
+        player_heart_full.x = 105;
+        player_heart_full.y = y + 195;
+        player_heart_full.gotoAndStop(0);
+        this.player_hp_texts[FIRST_PLAYER].x = player_heart_full.x + 21/*player_heart_full.getBounds().width*/ + 5;
+        this.player_hp_texts[FIRST_PLAYER].y = player_heart_full.y - 2;
+
+        this.battlefield_container.addChild(player_heart_full, this.player_hp_texts[FIRST_PLAYER]);
+
+        const enemy_hp_text = this.player_hp_texts[SECOND_PLAYER];
+        enemy_hp_text.x = stage_width - 130; //enemy_heart_full.x + enemy_heart_full.getBounds().width + 5;
+        enemy_hp_text.y = y - 150;
+        let enemy_heart_full = new createjs.Sprite(this.heart_sprite_sheet);
+        enemy_heart_full.x = enemy_hp_text.x + 5/*width of heart*/ + enemy_hp_text.getBounds().width;
+        enemy_heart_full.y = enemy_hp_text.y + 2;
+        enemy_heart_full.gotoAndStop(1);
+
+
+        this.battlefield_container.addChild(enemy_heart_full, this.player_hp_texts[SECOND_PLAYER]);
     }
 
     highlight_for_card(owner: number, card: Card) {
