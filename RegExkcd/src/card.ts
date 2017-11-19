@@ -1,50 +1,17 @@
 import {BORDER_SIZE, CARD_ATTACK_TEXT_FONT, CARD_DNA_TEXT_FONT, CARD_SELECTION_TEXT_FONT} from "./constants"
 import {randomInt} from "utils";
+import {CardSpec, draw_random_card_spec, XKCD_MEME_CARDS} from "decks";
 
-// const WORDS = ["foo", "bar", "baz", "qux"];
-const WORDS = ["foo", "bar", "qux"];
+const IMAGE_COUNT = 30;
 
-const CARDS = [
-    {pass: 'Tr0ub4dor&3',                  regex: '[a-z]'},
-    {pass: 'Serious PuTTY',                regex: '[a-z]'},
-    {pass: 'tumblv3rs3',                   regex: '[a-z]'},
-    {pass: 'i12kissU',                     regex: '[a-z]'},
-    {pass: 'itsasecret',                   regex: '[a-z]'},
-    {pass: 'password',                     regex: '[A-Z]'},
-    {pass: '******',                       regex: '[A-Z]'},
-    {pass: 'b33sw1tht1r3s',                regex: '[A-Z]'},
-    {pass: 'Huge ass-box',                 regex: '[A-Z]'},
-    {pass: 'WE RISE',                      regex: '\\s?[a-uC-E]'},
-    {pass: 'DenverCoder9',                 regex: '\\w'},
-    {pass: '123456789',                    regex: '\\w'},
-    {pass: 'qwerty',                       regex: '\\d{1,2}'},
-    {pass: 'f00tb411',                     regex: '\\d{1,2}'},
-    {pass: 'segF4ULT',                     regex: '\\d{1,2}'},
-    {pass: 'go ham or go home',            regex: '.\\d'},
-    {pass: 'TH3C4K31S4L13',                regex: '.\\d'},
-    {pass: 'sTrOnGpAsSwOrD',               regex: '\\D{2}'},
-    {pass: 'xXxH4XX0RxXx',                 regex: '\\D{2}'},
-    {pass: 'DeepFriedSkittles',            regex: '.er'},
-    {pass: '\\\\"\\\'no\\\'\\escape\\"\\', regex: '[oui].'},
-    {pass: 'choKoBAnaNA',                  regex: '(.)\\1+'},
-    {pass: 'ilovepuppies',                 regex: '[aeiou]+'},
-    {pass: '24-06-1985',                   regex: '[a-n]{1,3}'},
-    {pass: '1337_4_L1F3',                  regex: '[A-Z]{3,}'},
-    {pass: 'hamster ball',                 regex: '([a-z][A-Z]){1,3}'},
-    {pass: '100 Problems',                 regex: '.[xkcd].'},
-    {pass: 'f**k grapefruit',              regex: '[123]{1,3}'},
-    {pass: 'fLyingfErret',                 regex: '\\W{1,4}'},
-    {pass: 'MansNotHot',                   regex: '\\d\\D*\\d'}
-]
-
+export function card_from_spec(card_spec: CardSpec): Card {
+    return new Card(card_spec.regex, card_spec.password, card_spec.image_index);
+}
 
 export function generate_cards(card_count: number): Array<Card> {
     let cards = new Array<Card>(card_count);
     for (let i = 0; i < card_count; ++i) {
-        let card_i = randomInt(0, CARDS.length - 1);
-        let attack = CARDS[card_i].regex;
-        let dna = CARDS[card_i].pass;
-        cards[i] = new Card(attack, dna, card_i);
+        cards[i] = card_from_spec(draw_random_card_spec(XKCD_MEME_CARDS));
     }
     return cards;
 }
@@ -86,7 +53,7 @@ export class Card {
     static card_sheets_initted = false;
     static card_sheet: createjs.SpriteSheet;
 
-    constructor(attack: string, dna: string, card_id: number) {
+    constructor(attack: string, dna: string, image_index: number) {
         if (!Card.card_sheets_initted) {
             Card.card_sheets_initted = true;
             Card.card_sheet = new createjs.SpriteSheet({
@@ -94,7 +61,7 @@ export class Card {
                 frames: {
                     width: 200,
                     height: 300,
-                    count: 35,
+                    count: IMAGE_COUNT + 5,
                     regX: 0,
                     regY: 0,
                     spacing: 0,
@@ -129,7 +96,7 @@ export class Card {
             this.in_play_card_envelope.addChild(this.in_play_card_bg);
 
             let face = new createjs.Sprite(Card.card_sheet);
-            face.gotoAndStop(5 + card_id);
+            face.gotoAndStop(5 + image_index);
             this.in_play_card_envelope.addChild(face);
         }
 

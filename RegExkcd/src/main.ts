@@ -36,6 +36,17 @@ class Hand {
         }
         return null;
     }
+
+    change_card(old_card: Card, new_card: Card) {
+        let index = this.cards.indexOf(old_card);
+        this.cards[index] = new_card;
+        index = this.container.getChildIndex(old_card.container);
+        this.container.removeChildAt(index);
+        this.container.addChildAt(new_card.container, index);
+        new_card.container.x = old_card.container.x;
+        new_card.container.y = old_card.container.y;
+        new_card.change_state(CardState.InHand);
+    }
 };
 
 class InPlay {
@@ -319,6 +330,7 @@ class GameState {
                 console.log("Swapping cards");
                 // swapping cards
                 this.swap_cards(owner, card_selected_for_swap_in_hand, card);
+                this.discard_and_pick_new(owner, card);
                 this.change_player();
             }
         } else if (card.state === CardState.InHand) {
@@ -374,6 +386,20 @@ class GameState {
         console.log("Before");
         console.log("Card in hand: " + card_in_hand.id);
         console.log("Card in play: " + card_in_play.id);
+    }
+
+    discard_and_pick_new(owner: number, card_in_hand: Card) {
+        let new_card = this.player_states[owner].pick_card_from_deck();
+        if (new_card === null) {
+            console.error("No card in deck!. Pls implement something here!");
+        } else {
+            this.cards_inhand[owner].change_card(card_in_hand, new_card);
+            let id = new_card.id;
+            new_card.container.on("click", (event) => {
+                this.select_card(owner, id, false);
+            });
+            this.add_card(new_card);
+        }
     }
 
     select_card_while_matching(owner: number, card_id: number, is_computer: boolean) {

@@ -47,5 +47,9 @@ export class TiledLayout extends createjs.Container {
             }
         }
         super.addChild(item);
+        // TODO: Finish implementing this.
+        // if (this.center_elements) {
+        //     this.apply_centering();
+        // }
     }
 };
