@@ -15,7 +15,7 @@ export class Computer {
     difficulties_buttons_off: Array<createjs.Sprite>;
 
     constructor() {
-        console.error("Creating computer");
+        // console.error("Creating computer");
         this.difficulty = 0;
         this.difficulty_container = new createjs.Container();
 
@@ -28,7 +28,7 @@ export class Computer {
             this.difficulties_buttons_on[i] = new createjs.Sprite(assets.skip_button_spritesheet);
             this.difficulties_buttons_off[i] = new createjs.Sprite(assets.skip_button_spritesheet);
             this.difficulties_buttons_on[i].gotoAndStop(0);
-            this.difficulties_buttons_off[i].visible = false;
+            // this.difficulties_buttons_off[i].visible = false;
             this.difficulties_buttons_off[i].gotoAndStop(1);
             vertical_on.addItem(this.difficulties_buttons_on[i]);
             vertical_off.addItem(this.difficulties_buttons_off[i]);
