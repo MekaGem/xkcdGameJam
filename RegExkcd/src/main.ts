@@ -371,6 +371,9 @@ export class GameState {
                     this.selected_cards.indexOf(card) < 0 && !is_regex_valid(this.get_regex_string() + card.regex)) {
                     could_be_increased = false;
                 }
+                if (this.phase === GamePhase.Matching && i === SECOND_PLAYER && this.get_regex_string().length === 0) {
+                    could_be_increased = false;
+                }
                 card.update_hover(mouse, could_be_increased);
             }
         }
@@ -600,8 +603,10 @@ export class GameState {
             }
         } else {
             if (card.state === CardState.InPlay) {
-                this.attack(card);
-                this.change_player();
+                if (this.get_regex_string().length > 0) {
+                    this.attack(card);
+                    this.change_player();
+                }
             }
         }
     }
