@@ -23,6 +23,8 @@ export function loadResources(callback, stage, assets) {
         assets.menu_button_spritesheet = queue.getResult("menu_button");
         assets.menu_bg_spritesheet = queue.getResult("menu_bg");
         assets.difficulty_button_spritesheet = queue.getResult("difficulty_button");
+        assets.result_spritesheet = queue.getResult("result");
+        assets.results_bg_spritesheet = queue.getResult("results_bg");
 
         callback();
     };
@@ -45,4 +47,6 @@ export function loadResources(callback, stage, assets) {
     queue.loadFile({src: "img/menu_button_sprite.json", id: "menu_button", type: createjs.AbstractLoader.SPRITESHEET});
     queue.loadFile({src: "img/menu_bg.json", id: "menu_bg", type: createjs.AbstractLoader.SPRITESHEET});
     queue.loadFile({src: "img/difficulty_button_sprite.json", id: "difficulty_button", type: createjs.AbstractLoader.SPRITESHEET});
+    queue.loadFile({src: "img/result_sprite.json", id: "result", type: createjs.AbstractLoader.SPRITESHEET});
+    queue.loadFile({src: "img/results_bg.json", id: "results_bg", type: createjs.AbstractLoader.SPRITESHEET});
 }

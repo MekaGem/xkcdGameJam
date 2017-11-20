@@ -1,0 +1,8 @@
+{
+    "images": ["img/results_bg.png"],
+    "frames": {
+        "width": 1430,
+        "height": 1260,
+        "count": 1
+    }
+}

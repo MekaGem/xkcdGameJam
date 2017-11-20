@@ -1,0 +1,8 @@
+{
+    "images": ["img/result_sprite.png"],
+    "frames": {
+        "width": 600,
+        "height": 150,
+        "count": 3
+    }
+}
