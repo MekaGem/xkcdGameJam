@@ -3,7 +3,7 @@ import { PlayerState, generate_players, Hand, InPlay } from "player";
 import { randomInt, clone_object, is_regex_valid, get_max_match, oppositePlayer } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
 import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase, SKIP_TURN_FONT, HP_TEXT_FONT, START_HP, GAME_FIELD_Y } from "constants";
-import { play_as_computer } from "./computer";
+import { Computer } from "./computer";
 import { get_results_screen, get_game_result, GameResult } from "./results";
 import { GamePhaseIndicator } from "./game_phase_indicator";
 import { loadResources } from "./resource_loader";
@@ -83,6 +83,9 @@ export class GameState {
     // Skip turn button
     skip_turn_button: createjs.Sprite;
 
+    // Computer.
+    computer: Computer;
+
     constructor(game_field: createjs.Container) {
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
         this.cards_inplay[FIRST_PLAYER] = new InPlay(generate_cards(3));
@@ -115,6 +118,8 @@ export class GameState {
         });
 
         this.set_player(FIRST_PLAYER);
+
+        this.computer = new Computer();
 
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             // cards in play
@@ -609,7 +614,7 @@ export class GameState {
         }
 
         if (this.current_player == SECOND_PLAYER) {
-            play_as_computer(this);
+            this.computer.play_as_computer(this);
         }
 
         this.update_instruction_bubble();
