@@ -1,1 +1,1 @@
-# LudumDare39
+# xkcdGameJam
