@@ -670,6 +670,8 @@ function create_background() {
 
 export function init() {
     let stage = new createjs.Stage('RegExkcdStage');
+    // resize(stage);
+
     stage.mouseEnabled = true;
 
     let canvas: any = stage.canvas;
@@ -701,8 +703,6 @@ function resize(stage): void {
 }
 
 export function play(stage) {
-    resize(stage);
-
     console.log(assets);
 
     change_screen = (screen: createjs.Container) => {
