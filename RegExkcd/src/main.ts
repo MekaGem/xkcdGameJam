@@ -695,6 +695,8 @@ function resize(stage): void {
     stage.scaleY = scale;
     stage.canvas.width *= scale;
     stage.canvas.height *= scale;
+    stage_width = stage.canvas.width;
+    stage_height = stage.canvas.height;
     console.log("Resize to: " + stage.canvas.width + ":" + stage.canvas.height);
 }
 
