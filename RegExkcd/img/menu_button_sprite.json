@@ -1,8 +1,8 @@
 {
-    "images": ["img/skip_button_sprite.png"],
+    "images": ["img/menu_button_sprite.png"],
     "frames": {
-        "width": 151,
-        "height": 60,
+        "width": 200,
+        "height": 70,
         "count": 2
     }
 }
