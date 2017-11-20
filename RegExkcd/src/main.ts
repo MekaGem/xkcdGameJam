@@ -20,6 +20,8 @@ export let input_disable = {
     i: 0
 };
 
+let assets;
+
 // Function for changing the current screen.
 let change_screen;
 
@@ -59,9 +61,6 @@ export class GameState {
 
     // Current phase of the game.
     phase: GamePhase;
-
-    // Image with full and empty heart.
-    heart_sprite_sheet: createjs.SpriteSheet;
 
     // Containers for hp stats of players
     player_hp_containers: Array<createjs.Container>;
@@ -185,22 +184,13 @@ export class GameState {
 
         this.player_brains = new Array<createjs.Bitmap>();
 
-        this.heart_sprite_sheet = new createjs.SpriteSheet({
-            images: ["img/health_sprite2.png"],
-            frames: {
-                width: 21,
-                height: 16,
-                count: 2,
-            }
-        });
-
         {
             this.player_brains[FIRST_PLAYER] = new createjs.Bitmap("img/health_sprite2.png");
 
             let player_brain_full = this.player_brains[FIRST_PLAYER];
             player_brain_full.sourceRect = new createjs.Rectangle(0, 0, 21, 16);
 
-            let player_brain_empty = new createjs.Sprite(this.heart_sprite_sheet);
+            let player_brain_empty = new createjs.Sprite(assets.health_spritesheet);
             player_brain_empty.gotoAndStop(1);
 
             this.player_hp_texts[FIRST_PLAYER].x = 21/*player_heart_full.getBounds().width*/ + 5;
@@ -229,7 +219,7 @@ export class GameState {
             enemy_brain_full.y = 0;
             enemy_brain_full.sourceRect = new createjs.Rectangle(0, 0, 21, 16);
 
-            let enemy_brain_empty = new createjs.Sprite(this.heart_sprite_sheet);
+            let enemy_brain_empty = new createjs.Sprite(assets.health_spritesheet);
             enemy_brain_empty.x = enemy_brain_full.x;
             enemy_brain_empty.y = enemy_brain_full.y;
             enemy_brain_empty.gotoAndStop(1);
@@ -714,8 +704,6 @@ function create_background() {
     return [game_field_bg, border];
 }
 
-let assets;
-
 export function init() {
     let stage = new createjs.Stage('RegExkcdStage');
     stage.mouseEnabled = true;
@@ -724,10 +712,13 @@ export function init() {
     stage_width = canvas.width;
     stage_height = canvas.height;
 
+    assets = {};
+
     loadResources(() => { play(stage) }, stage, assets);
 }
 
 export function play(stage) {
+    console.log(assets);
     // TODO: Refactor this.
     let v = create_background();
 

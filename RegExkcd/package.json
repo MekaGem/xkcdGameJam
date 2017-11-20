@@ -5,6 +5,7 @@
     "dependencies": {
         "@types/createjs": "0.0.29",
         "@types/easeljs": "^1.0.0",
+        "@types/preloadjs": "^0.6.32",
         "tsc": "^1.20150623.0",
         "typescript": "^2.6.1",
         "typings": "^2.1.1"

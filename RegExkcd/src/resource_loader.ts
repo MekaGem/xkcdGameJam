@@ -10,15 +10,17 @@ export function loadResources(callback, stage, assets) {
     var queue = new createjs.LoadQueue(true);
     var handleComplete = function() {
         stage.removeChild(loadingText);
-        assets = {
-            resourcesSpriteSheet: queue.getResult("resources"),
+
+        assets.health_spritesheet = queue.getResult("health");
+
             // humanSpriteSheet: queue.getResult("human"),
             // golemSpriteSheet: queue.getResult("golem"),
             // statusBarsSpriteSheet: queue.getResult("status_bars"),
             // healthSpriteSheet: queue.getResult("health"),
             // buttonSpriteSheet: queue.getResult("button"),
             // raftSpriteSheet: queue.getResult("raft")
-        }
+        // }
+        console.log(assets);
         // assets.heartFill = createjs.SpriteSheetUtils.extractFrame(assets.healthSpriteSheet, 1);
         // assets.progressBarFill = createjs.SpriteSheetUtils.extractFrame(assets.statusBarsSpriteSheet, 1);
         callback();
@@ -31,7 +33,7 @@ export function loadResources(callback, stage, assets) {
 
     queue.on("complete", handleComplete, this);
     queue.on("progress", updateLoading);
-    queue.loadFile({src: "img/health_sprite.json", id: "resources", type: createjs.AbstractLoader.SPRITESHEET});
+    queue.loadFile({src: "img/health_sprite.json", id: "health", type: createjs.AbstractLoader.SPRITESHEET});
     // queue.loadFile({src: "assets/human.json", id: "human", type: createjs.AbstractLoader.SPRITESHEET});
     // queue.loadFile({src: "assets/golem.json", id: "golem", type: createjs.AbstractLoader.SPRITESHEET});
     // queue.loadFile({src: "assets/status_bars.json", id: "status_bars", type: createjs.AbstractLoader.SPRITESHEET});

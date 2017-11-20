@@ -1,13 +1,14 @@
 {
     "images": [
-        "img/health_sprite.png"
+        "img/health_sprite2.png"
     ],
-    "frames": [
-        [ 0, 0, 21, 16, 0, 0, 0 ],
-        [ 0, 16, 21, 16, 0, 0, 0 ]
-    ],
+    "frames": {
+        "width": 21,
+        "height": 16,
+        "count": 2
+    },
     "animations": {
-        "heart": 0,
-        "empty_heart": 1
+        "health": 0,
+        "empty_health": 1
     }
 }
