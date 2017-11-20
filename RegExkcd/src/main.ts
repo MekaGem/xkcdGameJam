@@ -9,6 +9,11 @@ import { GamePhaseIndicator } from "./game_phase_indicator";
 import { loadResources } from "./resource_loader";
 import { get_menu_screen } from "./menu";
 
+const MAX_HEIGHT = 890;
+const MAX_WIDTH = 1000;
+
+const desired_aspect = MAX_WIDTH / MAX_HEIGHT;
+
 let mouse = {
     x: 0,
     y: 0
@@ -678,7 +683,24 @@ export function init() {
 
 export let game_screen: createjs.Container;
 
+function resize(stage): void {
+    stage_width = Math.min(window.innerWidth, MAX_WIDTH);
+    stage_height = Math.min(window.innerHeight, MAX_HEIGHT);
+    console.log("Stage: " + stage.canvas.width + ":" + stage.canvas.height);
+    console.log("Resize to: " + stage_width + ":" + stage_height);
+    let scale_w = stage_width / stage.canvas.width;
+    let scale_h = stage_height / stage.canvas.height;
+    let scale = Math.min(scale_w, scale_h);
+    stage.scaleX = scale;
+    stage.scaleY = scale;
+    stage.canvas.width *= scale;
+    stage.canvas.height *= scale;
+    console.log("Resize to: " + stage.canvas.width + ":" + stage.canvas.height);
+}
+
 export function play(stage) {
+    resize(stage);
+
     console.log(assets);
 
     change_screen = (screen: createjs.Container) => {
