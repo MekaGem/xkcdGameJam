@@ -66,7 +66,11 @@ export class GamePhaseIndicator {
     }
 
     set_regex_text(regex_text: string) {
-        this.game_status_text.text = regex_text;
+        if (regex_text.length == 0) {
+            this.update_phase_status();
+        } else {
+            this.set_text(regex_text);
+        }
     }
 
     redraw_phase_status() {
