@@ -185,7 +185,7 @@ export class GameState {
         this.player_brains = new Array<createjs.Bitmap>();
 
         {
-            this.player_brains[FIRST_PLAYER] = new createjs.Bitmap("img/health_sprite2.png");
+            this.player_brains[FIRST_PLAYER] = new createjs.Bitmap(assets.health_fill_bitmap);
 
             let player_brain_full = this.player_brains[FIRST_PLAYER];
             player_brain_full.sourceRect = new createjs.Rectangle(0, 0, 21, 16);
@@ -208,7 +208,7 @@ export class GameState {
         }
 
         {
-            this.player_brains[SECOND_PLAYER] = new createjs.Bitmap("img/health_sprite2.png");
+            this.player_brains[SECOND_PLAYER] = new createjs.Bitmap(assets.health_fill_bitmap);
 
             const enemy_hp_text = this.player_hp_texts[SECOND_PLAYER];
             enemy_hp_text.x = 0;

@@ -17,17 +17,8 @@ export function loadResources(callback, stage, assets) {
         assets.phase_indicator_spritesheet = queue.getResult("phase_indicator");
         assets.skip_button_spritesheet = queue.getResult("skip_button");
         assets.instructions_spritesheet = queue.getResult("instructions");
+        assets.health_fill_bitmap = createjs.SpriteSheetUtils.extractFrame(assets.health_spritesheet, 0);
 
-            // humanSpriteSheet: queue.getResult("human"),
-            // golemSpriteSheet: queue.getResult("golem"),
-            // statusBarsSpriteSheet: queue.getResult("status_bars"),
-            // healthSpriteSheet: queue.getResult("health"),
-            // buttonSpriteSheet: queue.getResult("button"),
-            // raftSpriteSheet: queue.getResult("raft")
-        // }
-        console.log(assets);
-        // assets.heartFill = createjs.SpriteSheetUtils.extractFrame(assets.healthSpriteSheet, 1);
-        // assets.progressBarFill = createjs.SpriteSheetUtils.extractFrame(assets.statusBarsSpriteSheet, 1);
         callback();
     };
 
