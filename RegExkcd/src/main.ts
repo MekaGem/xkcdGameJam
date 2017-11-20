@@ -7,6 +7,7 @@ import { play_as_computer } from "./computer";
 import { get_results_screen, get_game_result, GameResult } from "./results";
 import { GamePhaseIndicator } from "./game_phase_indicator";
 import { loadResources } from "./resource_loader";
+import { get_menu_screen } from "./menu";
 
 let mouse = {
     x: 0,
@@ -23,7 +24,7 @@ export let input_disable = {
 export let assets;
 
 // Function for changing the current screen.
-let change_screen;
+export let change_screen;
 
 export class GameState {
     // Index of the current player.
@@ -675,28 +676,33 @@ export function init() {
     loadResources(() => { play(stage) }, stage, assets);
 }
 
+export let game_screen: createjs.Container;
+
 export function play(stage) {
     console.log(assets);
-    // TODO: Refactor this.
-    let v = create_background();
-
-    let canvas: any = stage.canvas;
-    stage.addChild(v[0]);
-
-    let game_field = new createjs.Container();
-
-    let game = new GameState(game_field);
-    game_field.setTransform(0, GAME_FIELD_Y);
-    // game_field.y = -100;
-    stage.addChild(game_field);
 
     change_screen = (screen: createjs.Container) => {
         stage.removeAllChildren();
         stage.addChild(screen);
     };
 
-    stage.addChild(v[1]);
-    stage.update();
+    game_screen = new createjs.Container();
+
+    // Init game screen
+    {
+        // TODO: Refactor this.
+        let v = create_background();
+
+        let game_field = new createjs.Container();
+        let game = new GameState(game_field);
+        game_field.setTransform(0, GAME_FIELD_Y);
+
+        game_screen.addChild(v[0]);
+        game_screen.addChild(game_field);
+        game_screen.addChild(v[1]);
+    }
+
+    stage.addChild(get_menu_screen());
 
     stage.on("stagemousemove", function(event: any) {
         mouse.x = event.stageX;
