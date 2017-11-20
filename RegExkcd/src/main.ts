@@ -9,10 +9,10 @@ import { GamePhaseIndicator } from "./game_phase_indicator";
 import { loadResources } from "./resource_loader";
 import { get_menu_screen } from "./menu";
 
-const MAX_HEIGHT = 890;
-const MAX_WIDTH = 1000;
+let MAX_HEIGHT;
+let MAX_WIDTH;
 
-const desired_aspect = MAX_WIDTH / MAX_HEIGHT;
+let desired_aspect;
 
 let mouse = {
     x: 0,
@@ -670,11 +670,16 @@ function create_background() {
 
 export function init() {
     let stage = new createjs.Stage('RegExkcdStage');
+
+    let canvas = stage.canvas as HTMLCanvasElement;
+    MAX_HEIGHT = canvas.width;
+    MAX_WIDTH = canvas.height;
+    desired_aspect = MAX_WIDTH / MAX_HEIGHT;
+
     // resize(stage);
 
     stage.mouseEnabled = true;
 
-    let canvas: any = stage.canvas;
     stage_width = canvas.width;
     stage_height = canvas.height;
 
