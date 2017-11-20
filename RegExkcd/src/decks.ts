@@ -54,19 +54,21 @@ const LETTER_KEY_TEMPLATES = [
 ];
 
 const DIGITS_KEY_TEMPLATES = [
-    "[0-9]", // same as \d
+    "[0-9]",
+    "[0-9]",
+    "\\d",
     "\\d",
     "000",
     "111",
 ];
 
 const SYMBOLS_KEY_TEMPLATES = [
-    "[_^@]",
-    "[^%!]",
+    "[_#@]",
+    "[#%!]",
     "[_@!]",
     "[@%!]",
-    "[_^@%!]",
-    "[_^@!]",
+    "[_#@%!]",
+    "[_#@!]",
     "[_@%!]",
     ".",
     "\\D",
@@ -75,8 +77,11 @@ const SYMBOLS_KEY_TEMPLATES = [
 const MODIFIERS_KEY_TEMPLATES = [
     "{1,2}",
     "{2,3}",
-    "*",
-    "+",
+    "{4,6}",
+    "{1,4}",
+    "{5,6}",
+    "{2,5}",
+    "{6,}"
 ];
 
 function generate_key(card_class: CardClass) {
@@ -102,12 +107,14 @@ const LETTER_PASSWORD_TEMPLATES = [
 
 const DIGITS_PASSWORD_TEMPLATES = [
     "0123456789",
+    "0123456789",
+    "0123456789",
     "0",
     "1",
 ];
 
 const SYMBOLS_PASSWORD_TEMPLATES = [
-    "_^@%!",
+    "_#@%!",
 ];
 
 function generate_password(card_class: CardClass) {

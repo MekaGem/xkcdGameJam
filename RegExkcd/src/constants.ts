@@ -12,7 +12,7 @@ export const BORDER_SIZE = 8;
 export const PLAYER_COUNT = 2;
 export const FIRST_PLAYER = 0;
 export const SECOND_PLAYER = 1;
-export const START_HP = 30;
+export const START_HP = 20;
 export const GAME_FIELD_Y = -130;
 
 export enum GamePhase {
