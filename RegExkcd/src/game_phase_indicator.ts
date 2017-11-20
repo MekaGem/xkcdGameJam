@@ -90,17 +90,17 @@ export class GamePhaseIndicator {
             this.tactics_container.visible = true;
 
             if (this.current_player == FIRST_PLAYER) {
-                this.set_text("YOUR TURN");
+                this.set_text("YOU SWAP");
             } else {
-                this.set_text("ENEMY TURN");
+                this.set_text("ENEMY SWAPS");
             }
         } else if (this.current_phase == GamePhase.Matching) {
             this.player_attack_container[this.current_player].visible = true;
 
             if (this.current_player == FIRST_PLAYER) {
-                this.set_text("YOUR TURN");
+                this.set_text("YOU ATTACK");
             } else {
-                this.set_text("ENEMY TURN");
+                this.set_text("ENEMY ATTACKS");
             }
         }
     }
