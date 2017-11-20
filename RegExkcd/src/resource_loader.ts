@@ -22,6 +22,7 @@ export function loadResources(callback, stage, assets) {
         assets.health_fill_bitmap = createjs.SpriteSheetUtils.extractFrame(assets.health_spritesheet, 0);
         assets.menu_button_spritesheet = queue.getResult("menu_button");
         assets.menu_bg_spritesheet = queue.getResult("menu_bg");
+        assets.difficulty_button_spritesheet = queue.getResult("difficulty_button");
 
         callback();
     };
@@ -43,4 +44,5 @@ export function loadResources(callback, stage, assets) {
     queue.loadFile({src: "img/border.json", id: "border", type: createjs.AbstractLoader.SPRITESHEET});
     queue.loadFile({src: "img/menu_button_sprite.json", id: "menu_button", type: createjs.AbstractLoader.SPRITESHEET});
     queue.loadFile({src: "img/menu_bg.json", id: "menu_bg", type: createjs.AbstractLoader.SPRITESHEET});
+    queue.loadFile({src: "img/difficulty_button_sprite.json", id: "difficulty_button", type: createjs.AbstractLoader.SPRITESHEET});
 }

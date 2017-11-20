@@ -1,0 +1,12 @@
+{
+    "images": ["img/difficulty_button_sprite.png"],
+    "frames": {
+        "width": 80,
+        "height": 80,
+        "count": 6,
+        "regX": 0,
+        "regY": 0,
+        "spacing": 0,
+        "margin": 0
+    }
+}

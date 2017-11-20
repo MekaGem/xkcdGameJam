@@ -21,22 +21,24 @@ export class Computer {
         this.difficulties_buttons_on = new Array<createjs.Sprite>(DIFFICULTY_COUNT);
         this.difficulties_buttons_off = new Array<createjs.Sprite>(DIFFICULTY_COUNT);
 
-        let vertical_on = new TiledLayout(LayoutDirection.Vertical, 10);
-        let vertical_off = new TiledLayout(LayoutDirection.Vertical, 10);
+        let vertical_on = new TiledLayout(LayoutDirection.Horizontal, 10);
+        let vertical_off = new TiledLayout(LayoutDirection.Horizontal, 10);
         for (let i = 0; i < DIFFICULTY_COUNT; ++i) {
-            this.difficulties_buttons_on[i] = new createjs.Sprite(assets.skip_button_spritesheet);
-            this.difficulties_buttons_off[i] = new createjs.Sprite(assets.skip_button_spritesheet);
-            this.difficulties_buttons_on[i].gotoAndStop(0);
+            this.difficulties_buttons_on[i] = new createjs.Sprite(assets.difficulty_button_spritesheet);
+            this.difficulties_buttons_off[i] = new createjs.Sprite(assets.difficulty_button_spritesheet);
+            this.difficulties_buttons_on[i].setTransform(0, 0, 0.7, 0.7);
+            this.difficulties_buttons_on[i].gotoAndStop(i);
             this.difficulties_buttons_on[i].on("click", (event) => {
                 this.set_difficulty(i);
             })
-            this.difficulties_buttons_off[i].gotoAndStop(1);
+            this.difficulties_buttons_off[i].gotoAndStop(3 + i);
+            this.difficulties_buttons_off[i].setTransform(0, 0, 0.7, 0.7);
             vertical_on.addItem(this.difficulties_buttons_on[i]);
             vertical_off.addItem(this.difficulties_buttons_off[i]);
         }
         this.difficulty_container.addChild(vertical_on);
         this.difficulty_container.addChild(vertical_off);
-        this.set_difficulty(0);
+        this.set_difficulty(1);
     }
 
     set_difficulty(difficulty: number) {
@@ -75,19 +77,21 @@ export class Computer {
         let in_hand_card = randomInt(0, my_cards_inhand.length - 1);
         let in_play_card = randomInt(0, my_cards_inplay.length - 1);
 
-        let max_total_match_length = 0;
-        for (let i = 0; i < my_cards_inhand.length; ++i) {
-            let my_card = my_cards_inhand[i];
-            if (!is_regex_valid(my_card.regex)) {
-                continue;
-            }
-            let total_match_length = 0;
-            for (let j = 0; j < opponent_cards_inplay.length; ++j) {
-                total_match_length += get_max_match(my_card.regex, opponent_cards_inplay[j].password).length;
-            }
-            if (total_match_length >= max_total_match_length) {
-                in_hand_card = i;
-                max_total_match_length = total_match_length;
+        if (this.difficulty >= 1) {
+            let max_total_match_length = 0;
+            for (let i = 0; i < my_cards_inhand.length; ++i) {
+                let my_card = my_cards_inhand[i];
+                if (!is_regex_valid(my_card.regex)) {
+                    continue;
+                }
+                let total_match_length = 0;
+                for (let j = 0; j < opponent_cards_inplay.length; ++j) {
+                    total_match_length += get_max_match(my_card.regex, opponent_cards_inplay[j].password).length;
+                }
+                if (total_match_length >= max_total_match_length) {
+                    in_hand_card = i;
+                    max_total_match_length = total_match_length;
+                }
             }
         }
 
@@ -96,6 +100,13 @@ export class Computer {
             game_state.select_card(SECOND_PLAYER, my_cards_inplay[in_play_card].id, true);
             this.finish_play(game_state);
         });
+    }
+
+    get_depth_from_difficulty(difficulty: number): number {
+        if (difficulty == 2) {
+            return 3;
+        }
+        return 2;
     }
 
     play_match(game_state: GameState) {
@@ -123,7 +134,7 @@ export class Computer {
             actions.push(new Action(i));
         }
 
-        let MAX_DEPTH = 2;
+        let MAX_DEPTH = this.get_depth_from_difficulty(this.difficulty);
         let wave_start = 0;
         let wave_finish = actions.length;
 
