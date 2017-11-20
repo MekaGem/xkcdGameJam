@@ -710,28 +710,31 @@ function resize(stage): void {
 export function play(stage) {
     console.log(assets);
 
+    let god_screen = new createjs.Container();
     change_screen = (screen: createjs.Container) => {
-        stage.removeAllChildren();
-        stage.addChild(screen);
+        god_screen.removeAllChildren();
+        god_screen.addChild(screen);
     };
+    stage.addChild(god_screen);
+
+    // TODO: Refactor this.
+    let v = create_background();
+
+    stage.addChild(v[1]);
 
     game_screen = new createjs.Container();
 
     // Init game screen
     {
-        // TODO: Refactor this.
-        let v = create_background();
-
         let game_field = new createjs.Container();
         let game = new GameState(game_field);
         game_field.setTransform(0, GAME_FIELD_Y);
 
         game_screen.addChild(v[0]);
         game_screen.addChild(game_field);
-        game_screen.addChild(v[1]);
     }
 
-    stage.addChild(get_menu_screen());
+    change_screen(get_menu_screen());
 
     stage.on("stagemousemove", function(event: any) {
         mouse.x = event.stageX;

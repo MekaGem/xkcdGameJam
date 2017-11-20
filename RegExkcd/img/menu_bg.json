@@ -1,0 +1,10 @@
+{
+    "images": [
+        "img/menu_bg.png"
+    ],
+    "frames": {
+        "width": 1431,
+        "height": 1261,
+        "count": 1
+    }
+}
