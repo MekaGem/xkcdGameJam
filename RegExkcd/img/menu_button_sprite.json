@@ -1,0 +1,8 @@
+{
+    "images": ["img/skip_button_sprite.png"],
+    "frames": {
+        "width": 151,
+        "height": 60,
+        "count": 2
+    }
+}
