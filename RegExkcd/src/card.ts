@@ -326,14 +326,16 @@ export class Card {
         }
     }
 
-    update_hover(mouse) {
+    update_hover(mouse, could_be_increased: boolean) {
         if (this.animating) return;
 
         let local = this.container.globalToLocal(mouse.x, mouse.y);
         let bounds = this.container.getBounds();
         if (local.x >= bounds.x && local.y >= bounds.y &&
             local.x <= bounds.x + bounds.width && local.y <= bounds.y + bounds.height) {
-            this.hover += 1;
+            if (could_be_increased && this.state !== CardState.Destoyed) {
+                this.hover += 1;
+            }
         } else {
             this.hover -= 1;
         }
@@ -344,7 +346,7 @@ export class Card {
 
     show_attacked(dmg: number) {
         this.animating = true;
-        
+
         this.hover = 0;
 
         this.in_play_attacked.visible = true;

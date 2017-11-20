@@ -360,15 +360,18 @@ export class GameState {
         if (input_disable.i) return;
         for (let i = 0; i < PLAYER_COUNT; ++i) {
             for (let card of this.cards_inplay[i].cards) {
+                let could_be_increased = this.phase === GamePhase.Matching
+                                         || (this.phase === GamePhase.Changing && i == FIRST_PLAYER
+                                            && this.cards_inhand[FIRST_PLAYER].get_selected_for_swap() !== null);
                 if (this.phase === GamePhase.Matching && i === FIRST_PLAYER &&
                     this.selected_cards.indexOf(card) < 0 && !is_regex_valid(this.get_regex_string() + card.regex)) {
-                    continue;
+                    could_be_increased = false;
                 }
-                card.update_hover(mouse);
+                card.update_hover(mouse, could_be_increased);
             }
         }
         for (let card of this.cards_inhand[FIRST_PLAYER].cards) {
-            card.update_hover(mouse);
+            card.update_hover(mouse, this.current_player === FIRST_PLAYER && this.phase === GamePhase.Changing);
         }
     }
 

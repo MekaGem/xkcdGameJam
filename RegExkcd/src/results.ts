@@ -1,5 +1,5 @@
 import { GameState, stage_width, stage_height } from "./main"
-import { Card } from "./card"
+import { Card, CardState } from "./card"
 import { TiledLayout, LayoutDirection } from "./layout";
 import { FIRST_PLAYER, SECOND_PLAYER, HP_TEXT_FONT } from "./constants";
 
@@ -65,6 +65,7 @@ export function get_results_screen(game_state: GameState) {
         current_container.addItem(card.container);
         card.set_visible(true);
         card.container.removeAllEventListeners();
+        card.change_state(CardState.Destoyed);
     }
     enemy_container.scaleX = outer_scale;
     enemy_container.scaleY = outer_scale;
@@ -94,6 +95,7 @@ export function get_results_screen(game_state: GameState) {
         current_container.addItem(card.container);
         card.set_visible(true);
         card.container.removeAllEventListeners();
+        card.change_state(CardState.Destoyed);
     }
     player_container.scaleX = outer_scale;
     player_container.scaleY = outer_scale;
