@@ -21,18 +21,19 @@ export class Computer {
         this.difficulties_buttons_on = new Array<createjs.Sprite>(DIFFICULTY_COUNT);
         this.difficulties_buttons_off = new Array<createjs.Sprite>(DIFFICULTY_COUNT);
 
-        let vertical_on = new TiledLayout(LayoutDirection.Horizontal, 10);
-        let vertical_off = new TiledLayout(LayoutDirection.Horizontal, 10);
+        let vertical_on = new TiledLayout(LayoutDirection.Horizontal, 5);
+        let vertical_off = new TiledLayout(LayoutDirection.Horizontal, 5);
         for (let i = 0; i < DIFFICULTY_COUNT; ++i) {
             this.difficulties_buttons_on[i] = new createjs.Sprite(assets.difficulty_button_spritesheet);
             this.difficulties_buttons_off[i] = new createjs.Sprite(assets.difficulty_button_spritesheet);
-            this.difficulties_buttons_on[i].setTransform(0, 0, 0.7, 0.7);
+            let SCALE = 0.6;
+            this.difficulties_buttons_on[i].setTransform(0, 0, SCALE, SCALE);
             this.difficulties_buttons_on[i].gotoAndStop(i);
             this.difficulties_buttons_on[i].on("click", (event) => {
                 this.set_difficulty(i);
             })
             this.difficulties_buttons_off[i].gotoAndStop(3 + i);
-            this.difficulties_buttons_off[i].setTransform(0, 0, 0.7, 0.7);
+            this.difficulties_buttons_off[i].setTransform(0, 0, SCALE, SCALE);
             vertical_on.addItem(this.difficulties_buttons_on[i]);
             vertical_off.addItem(this.difficulties_buttons_off[i]);
         }

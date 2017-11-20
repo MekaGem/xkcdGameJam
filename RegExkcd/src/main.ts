@@ -178,7 +178,7 @@ export class GameState {
 
         this.create_instruction_bubble();
 
-        this.computer.difficulty_container.x = stage_width - 215;
+        this.computer.difficulty_container.x = stage_width - 195;
         this.computer.difficulty_container.y = 220;
 
         this.battlefield_container.addChild(this.computer.difficulty_container);
