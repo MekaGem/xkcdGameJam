@@ -64,14 +64,10 @@ export class Card {
     static card_count = 0;
 
     static card_sheets_initted = false;
-    static card_sheet: createjs.SpriteSheet;
-    static keys_sheet: createjs.SpriteSheet;
 
     constructor(regex: string, password: string, image_index: number, card_class: CardClass) {
         if (!Card.card_sheets_initted) {
             Card.card_sheets_initted = true;
-            Card.card_sheet = assets.cards_spritesheet;
-            Card.keys_sheet = assets.keys_spritesheet;
         }
 
         this.card_class = card_class;
@@ -102,7 +98,7 @@ export class Card {
         this.regex_text.x = 50;
         this.regex_text.y = 260;
 
-        this.regex_key_sprite = new createjs.Sprite(Card.keys_sheet);
+        this.regex_key_sprite = new createjs.Sprite(assets.keys_spritesheet);
         this.regex_key_sprite.gotoAndStop(card_class);
         this.regex_key_sprite.x = this.regex_text.x - 30;
         this.regex_key_sprite.y = this.regex_text.y - 5;
@@ -112,28 +108,28 @@ export class Card {
 
         this.in_play_card_envelope = new createjs.Container();
         {
-            this.in_play_card_bg = new createjs.Sprite(Card.card_sheet);
+            this.in_play_card_bg = new createjs.Sprite(assets.cards_spritesheet);
             this.in_play_card_bg.gotoAndStop(1);
             this.in_play_card_envelope.addChild(this.in_play_card_bg);
 
-            let face = new createjs.Sprite(Card.card_sheet);
+            let face = new createjs.Sprite(assets.cards_spritesheet);
             face.gotoAndStop(5 + image_index);
             this.in_play_card_envelope.addChild(face);
 
-            this.in_play_attacked = new createjs.Sprite(Card.card_sheet);
+            this.in_play_attacked = new createjs.Sprite(assets.cards_spritesheet);
             this.in_play_attacked.gotoAndStop(4);
             this.in_play_attacked.visible = false;
 
             this.in_play_card_envelope.addChild(this.in_play_attacked);
 
-            this.in_play_selected = new createjs.Sprite(Card.card_sheet);
+            this.in_play_selected = new createjs.Sprite(assets.cards_spritesheet);
             this.in_play_selected.gotoAndStop(3);
             this.in_play_selected.visible = false;
 
             this.in_play_card_envelope.addChild(this.in_play_selected);
         }
 
-        this.in_hand_card_envelope = new createjs.Sprite(Card.card_sheet);
+        this.in_hand_card_envelope = new createjs.Sprite(assets.cards_spritesheet);
         this.in_hand_card_envelope.gotoAndStop(0);
 
         this.card_selection_number = new createjs.Text("", CARD_SELECTION_TEXT_FONT, "white");

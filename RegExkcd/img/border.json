@@ -1,0 +1,12 @@
+{
+    "images": ["img/border.png"],
+    "frames": {
+        "width": 1430,
+        "height": 1260,
+        "count": 1,
+        "regX": 0,
+        "regY": 0,
+        "spacing": 0,
+        "margin": 0
+    }
+}

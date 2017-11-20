@@ -652,35 +652,11 @@ export class GameState {
 
 function create_background() {
     // TODO: Move this out.
-    var bg_sprite_sheet = new createjs.SpriteSheet({
-        images: ["img/game_bg.png"],
-        frames: {
-            width: 1430,
-            height: 1260,
-            count: 1,
-            regX: 0,
-            regY: 0,
-            spacing: 0,
-            margin: 0
-        }
-    });
-    var border_sprite_sheet = new createjs.SpriteSheet({
-        images: ["img/border.png"],
-        frames: {
-            width: 1430,
-            height: 1260,
-            count: 1,
-            regX: 0,
-            regY: 0,
-            spacing: 0,
-            margin: 0
-        }
-    });
-    let game_field_bg = new createjs.Sprite(bg_sprite_sheet);
+    let game_field_bg = new createjs.Sprite(assets.game_bg_spritesheet);
     game_field_bg.setTransform(0, 0, 0.7, 0.7);
     game_field_bg.gotoAndStop(0);
 
-    let border = new createjs.Sprite(border_sprite_sheet);
+    let border = new createjs.Sprite(assets.border_spritesheet);
     border.setTransform(0, 0, 0.7, 0.7);
     border.gotoAndStop(0);
     return [game_field_bg, border];
