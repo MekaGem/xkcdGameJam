@@ -1,13 +1,45 @@
-import { GameState } from "main";
+import { GameState, assets } from "main";
 import { GamePhase, FIRST_PLAYER, SECOND_PLAYER } from "./constants";
 import { CardState } from "./card";
 import { clone_object, randomInt, is_regex_valid, get_max_match } from "./utils";
+import { TiledLayout, LayoutDirection } from "./layout";
+
+const DIFFICULTY_COUNT = 3;
 
 export class Computer {
     difficulty: number;
 
+    difficulty_container: createjs.Container;
+
+    difficulties_buttons_on: Array<createjs.Sprite>;
+    difficulties_buttons_off: Array<createjs.Sprite>;
+
     constructor() {
+        console.error("Creating computer");
         this.difficulty = 0;
+        this.difficulty_container = new createjs.Container();
+
+        this.difficulties_buttons_on = new Array<createjs.Sprite>(DIFFICULTY_COUNT);
+        this.difficulties_buttons_off = new Array<createjs.Sprite>(DIFFICULTY_COUNT);
+
+        let vertical_on = new TiledLayout(LayoutDirection.Vertical, 10);
+        let vertical_off = new TiledLayout(LayoutDirection.Vertical, 10);
+        for (let i = 0; i < DIFFICULTY_COUNT; ++i) {
+            this.difficulties_buttons_on[i] = new createjs.Sprite(assets.skip_button_spritesheet);
+            this.difficulties_buttons_off[i] = new createjs.Sprite(assets.skip_button_spritesheet);
+            this.difficulties_buttons_on[i].gotoAndStop(0);
+            this.difficulties_buttons_off[i].visible = false;
+            this.difficulties_buttons_off[i].gotoAndStop(1);
+            vertical_on.addItem(this.difficulties_buttons_on[i]);
+            vertical_off.addItem(this.difficulties_buttons_off[i]);
+        }
+        this.difficulty_container.addChild(vertical_on);
+        this.difficulty_container.addChild(vertical_off);
+        console.log(this.difficulty_container);
+    }
+
+    set_difficulty(difficulty: number) {
+        this.difficulty = difficulty;
     }
 
     play_as_computer(game_state: GameState) {
@@ -138,10 +170,6 @@ export class Computer {
             game_state.select_card(FIRST_PLAYER, opponent_cards[action.target_card].id, true);
             this.finish_play(game_state);
         });
-    }
-
-    set_difficulty(new_difficulty: number) {
-
     }
 }
 

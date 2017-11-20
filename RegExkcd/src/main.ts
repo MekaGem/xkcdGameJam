@@ -178,6 +178,11 @@ export class GameState {
 
         this.create_instruction_bubble();
 
+        this.computer.difficulty_container.x = 300;
+        this.computer.difficulty_container.y = 300;
+
+        this.battlefield_container.addChild(this.computer.difficulty_container);
+
         this.half_round_index = 0;
         this.set_phase(GamePhase.Changing);
 
