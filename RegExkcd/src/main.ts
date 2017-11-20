@@ -2,7 +2,7 @@ import { Card, CardState, generate_cards, CARD_SCALE, SWAP_HOVER } from "card";
 import { PlayerState, generate_players, Hand, InPlay } from "player";
 import { randomInt, clone_object, is_regex_valid, get_max_match, oppositePlayer } from "utils";
 import { TiledLayout, LayoutDirection } from "layout";
-import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase, SKIP_TURN_FONT, HP_TEXT_FONT, START_HP } from "constants";
+import { REGEX_STRING_TEXT_FONT, PLAYER_COUNT, FIRST_PLAYER, SECOND_PLAYER, GamePhase, SKIP_TURN_FONT, HP_TEXT_FONT, START_HP, GAME_FIELD_Y } from "constants";
 import { play_as_computer } from "./computer";
 import { get_results_screen, get_game_result, GameResult } from "./results";
 import { GamePhaseIndicator } from "./game_phase_indicator";
@@ -149,11 +149,11 @@ export class GameState {
 
 
         let verticalLayout = new TiledLayout(LayoutDirection.Vertical, 35, true, stage_width);
-        verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container, -20);
-        verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container);
+        verticalLayout.addItem(this.cards_inhand[SECOND_PLAYER].container);
+        verticalLayout.addItem(this.cards_inplay[SECOND_PLAYER].container, -30);
         verticalLayout.addItem(this.game_phase_indicator.container);
-        verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container);
-        verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
+        verticalLayout.addItem(this.cards_inplay[FIRST_PLAYER].container, -20);
+        verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container, -15);
 
         verticalLayout.apply_centering();
 
@@ -196,8 +196,8 @@ export class GameState {
             this.player_hp_texts[FIRST_PLAYER].x = 21/*player_heart_full.getBounds().width*/ + 5;
             this.player_hp_texts[FIRST_PLAYER].y = -3;
 
-            this.player_hp_containers[FIRST_PLAYER].x = 108;
-            this.player_hp_containers[FIRST_PLAYER].y = 755;
+            this.player_hp_containers[FIRST_PLAYER].x = 97;
+            this.player_hp_containers[FIRST_PLAYER].y = 682;
 
             this.player_hp_containers[FIRST_PLAYER].addChild(
                 player_brain_empty,
@@ -224,8 +224,8 @@ export class GameState {
             enemy_brain_empty.y = enemy_brain_full.y;
             enemy_brain_empty.gotoAndStop(1);
 
-            this.player_hp_containers[SECOND_PLAYER].x = stage_width - 127;
-            this.player_hp_containers[SECOND_PLAYER].y = 410;
+            this.player_hp_containers[SECOND_PLAYER].x = stage_width - 154;
+            this.player_hp_containers[SECOND_PLAYER].y = 363;
 
             this.player_hp_containers[SECOND_PLAYER].addChild(
                 enemy_brain_empty,
@@ -261,7 +261,7 @@ export class GameState {
     create_instruction_bubble() {
         this.player_instructions = new createjs.Sprite(assets.instructions_spritesheet);
         this.player_instructions.x = 32;
-        this.player_instructions.y = 585;
+        this.player_instructions.y = 527;
         this.player_instructions.scaleX = 0.6;
         this.player_instructions.scaleY = 0.6;
 
@@ -282,8 +282,8 @@ export class GameState {
 
     create_skip_turn_button() {
         this.skip_turn_button = new createjs.Sprite(assets.skip_button_spritesheet);
-        this.skip_turn_button.x = stage_width - 190;
-        this.skip_turn_button.y = stage_height / 2 + 10;
+        this.skip_turn_button.x = 75;
+        this.skip_turn_button.y = 448;
     }
 
     update_skip_turn_button() {
@@ -656,7 +656,7 @@ function create_background() {
         images: ["img/game_bg.png"],
         frames: {
             width: 1430,
-            height: 1500,
+            height: 1260,
             count: 1,
             regX: 0,
             regY: 0,
@@ -668,7 +668,7 @@ function create_background() {
         images: ["img/border.png"],
         frames: {
             width: 1430,
-            height: 1500,
+            height: 1260,
             count: 1,
             regX: 0,
             regY: 0,
@@ -710,7 +710,7 @@ export function play(stage) {
     let game_field = new createjs.Container();
 
     let game = new GameState(game_field);
-    game_field.setTransform(0, -80);
+    game_field.setTransform(0, GAME_FIELD_Y);
     // game_field.y = -100;
     stage.addChild(game_field);
 

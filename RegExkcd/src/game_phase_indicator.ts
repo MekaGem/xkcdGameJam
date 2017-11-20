@@ -32,7 +32,7 @@ export class GamePhaseIndicator {
     constructor() {
         this.container = new createjs.Container();
         this.container.regY = 100 * ELEMENT_SCALE;
-        this.container.y = 35;
+        this.container.y = 17;
 
         var spritesheet = assets.phase_indicator_spritesheet;
         this.player_attack_container = new Array<createjs.Container>(2);
@@ -60,7 +60,7 @@ export class GamePhaseIndicator {
 
         this.update_phase_status();
     }
-    
+
     set_text(text: string) {
         this.game_status_text.text = text;
     }
