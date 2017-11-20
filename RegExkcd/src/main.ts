@@ -202,12 +202,16 @@ export class GameState {
 
         {
             this.player_brains[FIRST_PLAYER] = new createjs.Bitmap(assets.health_fill_bitmap);
+            this.player_brains[FIRST_PLAYER].scaleX = -1;
+            this.player_brains[FIRST_PLAYER].regX = +21;
 
             let player_brain_full = this.player_brains[FIRST_PLAYER];
             player_brain_full.sourceRect = new createjs.Rectangle(0, 0, 21, 16);
 
             let player_brain_empty = new createjs.Sprite(assets.health_spritesheet);
             player_brain_empty.gotoAndStop(1);
+            player_brain_empty.scaleX = -1;
+            player_brain_empty.regX = +21;
 
             this.player_hp_texts[FIRST_PLAYER].x = 21/*player_heart_full.getBounds().width*/ + 5;
             this.player_hp_texts[FIRST_PLAYER].y = -3;
