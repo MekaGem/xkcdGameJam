@@ -1,6 +1,7 @@
 import {BORDER_SIZE, CARD_REGEX_TEXT_FONT, CARD_PASSWORD_TEXT_FONT, CARD_SELECTION_TEXT_FONT, CARD_DAMAGE_TEXT_FONT} from "./constants"
 import {randomInt, is_regex_valid, get_max_match} from "utils";
 import {CardSpec, draw_random_card_spec, XKCD_MEME_CARDS, CardClass} from "decks";
+import { assets } from "./main";
 
 const IMAGE_COUNT = 30;
 
@@ -69,27 +70,8 @@ export class Card {
     constructor(regex: string, password: string, image_index: number, card_class: CardClass) {
         if (!Card.card_sheets_initted) {
             Card.card_sheets_initted = true;
-            Card.card_sheet = new createjs.SpriteSheet({
-                images: ["img/cards_sprite.png"],
-                frames: {
-                    width: 200,
-                    height: 300,
-                    count: IMAGE_COUNT + 5,
-                    regX: 0,
-                    regY: 0,
-                    spacing: 0,
-                    margin: 0
-                }
-            });
-
-            Card.keys_sheet = new createjs.SpriteSheet({
-                images: ["img/keys_sprite.png"],
-                frames: {
-                    width: 25,
-                    height: 25,
-                    count: 4,
-                }
-            });
+            Card.card_sheet = assets.cards_spritesheet;
+            Card.keys_sheet = assets.keys_spritesheet;
         }
 
         this.card_class = card_class;

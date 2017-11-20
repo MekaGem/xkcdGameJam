@@ -20,7 +20,7 @@ export let input_disable = {
     i: 0
 };
 
-let assets;
+export let assets;
 
 // Function for changing the current screen.
 let change_screen;
@@ -259,16 +259,7 @@ export class GameState {
     }
 
     create_instruction_bubble() {
-        let instructions_sprite_sheet = new createjs.SpriteSheet({
-            images: ["img/instructions_sprite.png"],
-            frames: {
-                width: 400,
-                height: 150,
-                count: 3,
-            }
-        });
-
-        this.player_instructions = new createjs.Sprite(instructions_sprite_sheet);
+        this.player_instructions = new createjs.Sprite(assets.instructions_spritesheet);
         this.player_instructions.x = 32;
         this.player_instructions.y = 585;
         this.player_instructions.scaleX = 0.6;
@@ -290,16 +281,7 @@ export class GameState {
     }
 
     create_skip_turn_button() {
-        let skip_button_sprite_sheet = new createjs.SpriteSheet({
-            images: ["img/skip_button_sprite.png"],
-            frames: {
-                width: 151,
-                height: 60,
-                count: 2,
-            }
-        });
-
-        this.skip_turn_button = new createjs.Sprite(skip_button_sprite_sheet);
+        this.skip_turn_button = new createjs.Sprite(assets.skip_button_spritesheet);
         this.skip_turn_button.x = stage_width - 190;
         this.skip_turn_button.y = stage_height / 2 + 10;
     }

@@ -1,0 +1,10 @@
+{
+    "images": [
+        "img/keys_sprite.png"
+    ],
+    "frames": {
+        "width": 25,
+        "height": 25,
+        "count": 4
+    }
+}

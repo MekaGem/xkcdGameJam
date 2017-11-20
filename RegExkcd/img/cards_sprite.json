@@ -1,0 +1,12 @@
+{
+    "images": ["img/cards_sprite.png"],
+    "frames": {
+        "width": 200,
+        "height": 300,
+        "count": 35,
+        "regX": 0,
+        "regY": 0,
+        "spacing": 0,
+        "margin": 0
+    }
+}

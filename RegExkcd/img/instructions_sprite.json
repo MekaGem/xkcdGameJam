@@ -1,0 +1,8 @@
+{
+    "images": ["img/instructions_sprite.png"],
+    "frames": {
+        "width": 400,
+        "height": 150,
+        "count": 3
+    }
+}

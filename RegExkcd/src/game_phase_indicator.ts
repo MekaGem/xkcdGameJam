@@ -1,6 +1,6 @@
 import { TiledLayout, LayoutDirection } from "./layout";
 import { REGEX_STRING_TEXT_FONT, FIRST_PLAYER, GamePhase, SECOND_PLAYER } from "./constants";
-import { input_disable } from "./main";
+import { input_disable, assets } from "./main";
 
 const ELEMENT_SCALE = 0.7;
 const GAME_STATUS_TEXT_X_SHIFT = 140;
@@ -34,18 +34,7 @@ export class GamePhaseIndicator {
         this.container.regY = 100 * ELEMENT_SCALE;
         this.container.y = 35;
 
-        var spritesheet = new createjs.SpriteSheet({
-            images: ["img/phase_indicator_sprite.png"],
-            frames: {
-                width: 400,
-                height: 200,
-                count: 3,
-                regX: 0,
-                regY: 0,
-                spacing: 0,
-                margin: 0
-            }
-        });
+        var spritesheet = assets.phase_indicator_spritesheet;
         this.player_attack_container = new Array<createjs.Container>(2);
         this.player_attack_container[FIRST_PLAYER] = new createjs.Container();
         this.player_attack_container[SECOND_PLAYER] = new createjs.Container();

@@ -1,0 +1,12 @@
+{
+    "images": ["img/phase_indicator_sprite.png"],
+    "frames": {
+        "width": 400,
+        "height": 200,
+        "count": 3,
+        "regX": 0,
+        "regY": 0,
+        "spacing": 0,
+        "margin": 0
+    }
+}
