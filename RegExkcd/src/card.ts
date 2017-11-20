@@ -101,7 +101,7 @@ export class Card {
         this.regex_key_sprite = new createjs.Sprite(assets.keys_spritesheet);
         this.regex_key_sprite.gotoAndStop(card_class);
         this.regex_key_sprite.x = this.regex_text.x - 30;
-        this.regex_key_sprite.y = this.regex_text.y - 5;
+        this.regex_key_sprite.y = this.regex_text.y - 3;
 
         let card_width = 200;
         let card_height = 300;
@@ -239,7 +239,7 @@ export class Card {
 
         if (result.show) {
             this.password_attack_highlight.graphics.clear();
-            this.password_attack_highlight.graphics.beginStroke("red").setStrokeStyle(2).drawRoundRect(result.x, 0, result.width, result.height, 2);
+            this.password_attack_highlight.graphics.beginStroke("red").setStrokeStyle(3).drawRoundRect(result.x, 0, result.width, result.height, 2);
             this.password_attack_highlight.alpha = 0;
             this.highlight_attack = 0;
 
@@ -259,7 +259,7 @@ export class Card {
         if (this.highlight > HIGHLIGHT_MAX) this.highlight = HIGHLIGHT_MAX;
         if (this.highlight < 0) this.highlight = 0;
         this.password_highlight.visible = this.highlight > 0;
-        this.password_highlight.alpha = 0.15 * this.highlight / HIGHLIGHT_MAX;
+        this.password_highlight.alpha = 2 * 0.15 * this.highlight / HIGHLIGHT_MAX;
 
         this.highlighting_attack = this.highlighting_attack_this_frame;
 

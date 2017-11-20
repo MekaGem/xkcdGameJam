@@ -28,6 +28,7 @@ export function draw_random_card_spec(cards: Array<CardSpec>): CardSpec {
     card_indexes.splice(index_i, 1);
     // HACK.
     cards[card_i].image_index = card_i % CARD_COUNT;
+    // cards[card_i].password = "AAAAAAAAAAAA";
     //console.log(`Drawing random card, card_i = ${card_i}, image = ${cards[card_i].image_index}`);
     return cards[card_i];
 }
