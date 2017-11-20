@@ -60,9 +60,6 @@ export class GameState {
     // Current phase of the game.
     phase: GamePhase;
 
-    // Skip turn button.
-    skip_turn_button: createjs.Container;
-
     // Image with full and empty heart.
     heart_sprite_sheet: createjs.SpriteSheet;
 
@@ -77,6 +74,9 @@ export class GameState {
 
     // Player instructions bubble
     player_instructions: createjs.Sprite;
+
+    // Skip turn button
+    skip_turn_button: createjs.Sprite;
 
     constructor(game_field: createjs.Container) {
         this.cards_inplay = new Array<InPlay>(PLAYER_COUNT);
@@ -101,14 +101,11 @@ export class GameState {
 
         this.game_phase_indicator = new GamePhaseIndicator();
 
-        this.skip_turn_button = new createjs.Container();
-        let skip_turn_button_text = new createjs.Text("Skip turn", SKIP_TURN_FONT, "black");
-        let skip_button_rect = new createjs.Shape();
-        skip_button_rect.graphics.beginFill("white").drawRect(0, 0, skip_turn_button_text.getMeasuredWidth(), skip_turn_button_text.getMeasuredHeight());
-        this.skip_turn_button.addChild(skip_button_rect);
-        this.skip_turn_button.addChild(skip_turn_button_text);
-
+        this.create_skip_turn_button();
         this.skip_turn_button.on("click", (event) => {
+            if (this.current_player === SECOND_PLAYER) {
+                return;
+            }
             this.change_player();
         });
 
@@ -160,9 +157,6 @@ export class GameState {
         verticalLayout.addItem(this.cards_inhand[FIRST_PLAYER].container);
 
         verticalLayout.apply_centering();
-
-        this.skip_turn_button.x = stage_width - 150;
-        this.skip_turn_button.y = stage_height / 2 + 30;
 
         this.battlefield_container = new createjs.Container();
         this.battlefield_container.addChild(verticalLayout);
@@ -296,15 +290,35 @@ export class GameState {
     update_instruction_bubble() {
         if (this.current_player === FIRST_PLAYER) {
             if (this.phase === GamePhase.Changing) {
-                console.log("GamePhase.Changing");
                 this.player_instructions.gotoAndStop(1);
             } else {
-                console.log("GamePhase.Matching");
                 this.player_instructions.gotoAndStop(0);
             }
         } else {
-            console.log("WAIT");
             this.player_instructions.gotoAndStop(2);
+        }
+    }
+
+    create_skip_turn_button() {
+        let skip_button_sprite_sheet = new createjs.SpriteSheet({
+            images: ["img/skip_button_sprite.png"],
+            frames: {
+                width: 151,
+                height: 60,
+                count: 2,
+            }
+        });
+
+        this.skip_turn_button = new createjs.Sprite(skip_button_sprite_sheet);
+        this.skip_turn_button.x = stage_width - 190;
+        this.skip_turn_button.y = stage_height / 2 + 10;
+    }
+
+    update_skip_turn_button() {
+        if (this.current_player === FIRST_PLAYER) {
+            this.skip_turn_button.gotoAndStop(0);
+        } else {
+            this.skip_turn_button.gotoAndStop(1);
         }
     }
 
@@ -378,7 +392,7 @@ export class GameState {
     set_player(player: number) {
         this.current_player = player;
         this.game_phase_indicator.set_player(player);
-        this.skip_turn_button.visible = (player == FIRST_PLAYER);
+        this.update_skip_turn_button();
     }
 
     add_card(card: Card) {
