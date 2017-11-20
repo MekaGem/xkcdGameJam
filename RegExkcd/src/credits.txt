@@ -1,7 +1,7 @@
 This game was created by:
-- Alex Platonov (design & art)
-- akashin (code)
-- mekagem (design & code)
-- ValNykol (design & code)
+- Alex Platonov (alexplatonov)
+- Andrei Kashin (akashin)
+- Andrei Osipov (mekagem)
+- Valentyn Nikolyuk (ValNykol)
 
 For the xkcd Game Jam.
