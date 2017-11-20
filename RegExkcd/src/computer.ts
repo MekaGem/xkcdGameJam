@@ -16,7 +16,6 @@ export class Computer {
 
     constructor() {
         // console.error("Creating computer");
-        this.difficulty = 0;
         this.difficulty_container = new createjs.Container();
 
         this.difficulties_buttons_on = new Array<createjs.Sprite>(DIFFICULTY_COUNT);
@@ -28,18 +27,25 @@ export class Computer {
             this.difficulties_buttons_on[i] = new createjs.Sprite(assets.skip_button_spritesheet);
             this.difficulties_buttons_off[i] = new createjs.Sprite(assets.skip_button_spritesheet);
             this.difficulties_buttons_on[i].gotoAndStop(0);
-            // this.difficulties_buttons_off[i].visible = false;
+            this.difficulties_buttons_on[i].on("click", (event) => {
+                this.set_difficulty(i);
+            })
             this.difficulties_buttons_off[i].gotoAndStop(1);
             vertical_on.addItem(this.difficulties_buttons_on[i]);
             vertical_off.addItem(this.difficulties_buttons_off[i]);
         }
         this.difficulty_container.addChild(vertical_on);
         this.difficulty_container.addChild(vertical_off);
-        console.log(this.difficulty_container);
+        this.set_difficulty(0);
     }
 
     set_difficulty(difficulty: number) {
+        console.log("Setting difficulty to", difficulty);
         this.difficulty = difficulty;
+        for (let i = 0; i < DIFFICULTY_COUNT; ++i) {
+            this.difficulties_buttons_on[i].visible = (i !== difficulty);
+            this.difficulties_buttons_off[i].visible = (i === difficulty);
+        }
     }
 
     play_as_computer(game_state: GameState) {
