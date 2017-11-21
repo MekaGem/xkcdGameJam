@@ -603,7 +603,7 @@ export class GameState {
             }
         } else {
             if (card.state === CardState.InPlay) {
-                if (this.get_regex_string().length > 0) {
+                if (this.get_regex_string().length > 0 || this.current_player == SECOND_PLAYER) {
                     this.attack(card);
                     this.change_player();
                 }
