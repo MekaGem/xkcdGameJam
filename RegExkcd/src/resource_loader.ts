@@ -8,6 +8,8 @@ export function loadResources(callback, stage, assets) {
     stage.update();
 
     var queue = new createjs.LoadQueue(true);
+    queue.installPlugin(createjs.Sound);
+
     var handleComplete = function() {
         stage.removeChild(loadingText);
 
@@ -25,6 +27,7 @@ export function loadResources(callback, stage, assets) {
         assets.difficulty_button_spritesheet = queue.getResult("difficulty_button");
         assets.result_spritesheet = queue.getResult("result");
         assets.results_bg_spritesheet = queue.getResult("results_bg");
+        createjs.Sound.play("background_music")
 
         callback();
     };
@@ -49,4 +52,5 @@ export function loadResources(callback, stage, assets) {
     queue.loadFile({src: "img/difficulty_button_sprite.json", id: "difficulty_button", type: createjs.AbstractLoader.SPRITESHEET});
     queue.loadFile({src: "img/result_sprite.json", id: "result", type: createjs.AbstractLoader.SPRITESHEET});
     queue.loadFile({src: "img/results_bg.json", id: "results_bg", type: createjs.AbstractLoader.SPRITESHEET});
+    queue.loadFile({src: "sound/Hidden_Agenda.mp3", id: "background_music", type:createjs.AbstractLoader.SOUND});
 }
