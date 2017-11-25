@@ -110,6 +110,14 @@ export function get_results_screen(game_state: GameState) {
     const ai_hp = game_state.player_states[SECOND_PLAYER].hp;
 
     let result = new createjs.Sprite(assets.result_spritesheet);
+    if (game_result === GameResult.PlayerWins) {
+        result.gotoAndStop(0);
+    } else if (game_result === GameResult.AIWins) {
+        result.gotoAndStop(1);
+    } else {
+        result.gotoAndStop(2);
+    }
+
     result.x = -result.getBounds().width / 2;
     let h = result.getBounds().height -0;
 
